@@ -2,9 +2,15 @@ import { Link } from "react-router-dom";
 import Logo from "../components/Logo";
 import "../styles/auth.css";
 
+const backgrounds = ["A","B","C","D","E","F","G","H","I","J","K","L"];
+const bg = backgrounds[Math.floor(Math.random() * backgrounds.length)];
+
 export default function ForgotPassword() {
   return (
-    <div className="auth-container">
+    <div
+      className="auth-container"
+      style={{ backgroundImage: `url(/backgrounds/${bg}.jpg)` }}
+    >
       <div className="auth-overlay" />
 
       <div className="auth-content">
@@ -13,19 +19,25 @@ export default function ForgotPassword() {
 
           <div className="auth-card">
             <p className="auth-instructions">
-              Ingrese su correo y le enviaremos una nueva contraseña.
+              Ingrese su correo electrónico y le enviaremos instrucciones
+              para restablecer su contraseña.
             </p>
 
-            <input type="email" placeholder="Correo electrónico" />
+            <input
+              type="email"
+              placeholder="Correo electrónico"
+            />
 
-            <button className="primary">Enviar</button>
+            <button className="primary">
+              Enviar instrucciones
+            </button>
 
-            <Link to="/login" className="secondary-link">
-              Volver a iniciar sesión
+            <Link to="/" className="secondary-link">
+              Volver al inicio de sesión
             </Link>
 
             <p className="auth-help">
-              ¿Necesita ayuda? Escríbanos a{" "}
+              Si necesita ayuda, escriba a{" "}
               <a href="mailto:integracion@germanretana.com">
                 integracion@germanretana.com
               </a>
