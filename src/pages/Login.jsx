@@ -2,9 +2,15 @@ import { Link } from "react-router-dom";
 import Logo from "../components/Logo";
 import "../styles/auth.css";
 
+const backgrounds = ["A","B","C","D","E","F","G","H","I","J","K","L"];
+const bg = backgrounds[Math.floor(Math.random() * backgrounds.length)];
+
 export default function Login() {
   return (
-    <div className="auth-container">
+    <div
+      className="auth-container"
+      style={{ backgroundImage: `url(/backgrounds/${bg}.jpg)` }}
+    >
       <div className="auth-overlay" />
 
       <div className="auth-content">
