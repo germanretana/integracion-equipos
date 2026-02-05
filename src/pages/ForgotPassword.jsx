@@ -7,6 +7,10 @@ import { auth } from "../services/auth";
 const backgrounds = ["A","B","C","D","E","F","G","H","I","J","K","L"];
 const bg = backgrounds[Math.floor(Math.random() * backgrounds.length)];
 
+function isValidEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -17,8 +21,13 @@ export default function ForgotPassword() {
     e.preventDefault();
     setError("");
     setOk(false);
-    setLoading(true);
 
+    if (!isValidEmail(email)) {
+      setError("Por favor ingrese un correo electrónico válido.");
+      return;
+    }
+
+    setLoading(true);
     try {
       await auth.requestPasswordReset(email);
       setOk(true);
@@ -47,11 +56,10 @@ export default function ForgotPassword() {
 
             <form onSubmit={onSubmit}>
               <input
-                type="email"
+                type="text"
                 placeholder="Correo electrónico"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                autoComplete="email"
               />
 
               <button className="primary" type="submit" disabled={loading}>
@@ -59,17 +67,19 @@ export default function ForgotPassword() {
               </button>
             </form>
 
-            {ok ? (
+            {ok && (
               <p style={{ margin: "10px 0 0 0" }}>
                 Listo. Si el correo existe, recibirá instrucciones en breve.
               </p>
-            ) : null}
+            )}
 
-            {error ? (
-              <p style={{ margin: "10px 0 0 0", color: "#ff668f" }}>{error}</p>
-            ) : null}
+            {error && (
+              <p style={{ margin: "10px 0 0 0", color: "#ff668f" }}>
+                {error}
+              </p>
+            )}
 
-            <Link to="/" className="secondary-link">
+            <Link to="/login" className="secondary-link">
               Volver al inicio de sesión
             </Link>
 
