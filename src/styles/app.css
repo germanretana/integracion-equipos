@@ -1,0 +1,138 @@
+.app-container{
+  min-height:100vh;
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  position:relative;
+}
+
+.app-overlay{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.55);
+}
+
+.app-content{
+  position:relative;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+.app-header{
+  width:min(1100px, 92vw);
+  margin:24px auto 0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+}
+
+.app-brand{
+  display:flex;
+  align-items:center;
+}
+
+.app-ghost{
+  border:1px solid rgba(255,255,255,.35);
+  background:rgba(255,255,255,.08);
+  color:#fff;
+  padding:10px 14px;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:600;
+}
+
+.app-ghost:hover{
+  background:rgba(255,255,255,.14);
+}
+
+.app-main{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px 0 44px 0;
+}
+
+.app-card{
+  width:min(1100px, 92vw);
+  background:rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:18px;
+  padding:22px;
+  backdrop-filter: blur(10px);
+}
+
+.app-title{
+  margin:0 0 6px 0;
+  color:#fff;
+  font-size:28px;
+  font-weight:700;
+}
+
+.app-subtitle{
+  margin:0 0 18px 0;
+  color:rgba(255,255,255,.85);
+  line-height:1.4;
+}
+
+.app-grid{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap:14px;
+}
+
+@media (max-width: 900px){
+  .app-grid{ grid-template-columns: 1fr; }
+}
+
+.app-tile{
+  background:rgba(0,0,0,.25);
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:14px;
+  padding:16px;
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  min-height:160px;
+}
+
+.app-tile h3{
+  margin:0;
+  font-size:16px;
+}
+
+.app-tile p{
+  margin:0;
+  color:rgba(255,255,255,.82);
+  line-height:1.35;
+  flex:1;
+}
+
+.app-primary{
+  border:none;
+  background:#FF9800;
+  color:#111;
+  padding:10px 12px;
+  border-radius:10px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.app-primary:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+}
+
+.app-footer{
+  margin-top:14px;
+  color:rgba(255,255,255,.85);
+  font-size:13px;
+}
+
+.app-footer a{
+  color:#fff;
+  text-decoration:underline;
+}
