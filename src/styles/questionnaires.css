@@ -1,0 +1,330 @@
+.page {
+  min-height: 100vh;
+  background: radial-gradient(1200px 600px at 20% 0%, rgba(255,255,255,0.06), transparent 60%),
+              linear-gradient(180deg, #070a0f 0%, #070a0f 60%, #05070b 100%);
+  color: rgba(255,255,255,0.92);
+}
+
+.page-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 22px 60px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px 0 22px;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand-logo {
+  height: 54px;
+  width: auto;
+  display: block;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav a {
+  color: rgba(255,255,255,0.78);
+  text-decoration: none;
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+
+.nav a.active {
+  color: rgba(255,255,255,0.95);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.h1 {
+  font-size: 44px;
+  line-height: 1.08;
+  margin: 22px 0 6px;
+}
+
+.sub {
+  color: rgba(255,255,255,0.70);
+  font-size: 16px;
+  margin: 0 0 18px;
+}
+
+.section {
+  margin-top: 18px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.section-title {
+  font-size: 22px;
+  margin: 0;
+  padding: 18px 18px 6px;
+}
+
+.section-body {
+  padding: 10px 14px 16px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 14px;
+  border-radius: 14px;
+  background: rgba(0,0,0,0.18);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.row + .row {
+  margin-top: 10px;
+}
+
+.row-left {
+  min-width: 0;
+}
+
+.row-title {
+  font-weight: 650;
+  margin: 0;
+}
+
+.row-desc {
+  margin: 4px 0 0;
+  color: rgba(255,255,255,0.70);
+  font-size: 14px;
+}
+
+.row-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.pill {
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.85);
+  white-space: nowrap;
+}
+
+.pill.ok {
+  background: rgba(0, 255, 170, 0.10);
+  border-color: rgba(0, 255, 170, 0.22);
+  color: rgba(210,255,240,0.95);
+}
+
+.pill.warn {
+  background: rgba(255, 176, 0, 0.12);
+  border-color: rgba(255, 176, 0, 0.26);
+  color: rgba(255,230,190,0.95);
+}
+
+.pill.muted {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.70);
+}
+
+.chev {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.70);
+  font-size: 18px;
+  line-height: 1;
+}
+
+.row-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.row:hover {
+  border-color: rgba(255,255,255,0.14);
+  background: rgba(0,0,0,0.22);
+}
+
+.footer-help {
+  margin-top: 18px;
+  color: rgba(255,255,255,0.62);
+  font-size: 13px;
+}
+
+.footer-help a {
+  color: rgba(255,255,255,0.82);
+}
+
+/* ===== Form styles (C1/C2) ===== */
+
+.form-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.form-card {
+  background: rgba(0,0,0,0.18);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.field-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.field-title {
+  margin: 0;
+  font-weight: 650;
+  font-size: 16px;
+}
+
+.field-meta {
+  margin: 2px 0 0;
+  color: rgba(255,255,255,0.62);
+  font-size: 13px;
+}
+
+.badge-req {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.78);
+  white-space: nowrap;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.92);
+  padding: 10px 12px;
+  outline: none;
+}
+
+.textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.input:focus,
+.textarea:focus {
+  border-color: rgba(255,255,255,0.22);
+  background: rgba(255,255,255,0.08);
+}
+
+.options {
+  display: grid;
+  gap: 10px;
+}
+
+.opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.04);
+  cursor: pointer;
+}
+
+.opt input {
+  margin: 0;
+}
+
+.rating {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.rate-btn {
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.86);
+  padding: 8px 10px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.rate-btn.active {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.22);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.btn {
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.90);
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.btn.primary {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.22);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.inline-note {
+  color: rgba(255,255,255,0.62);
+  font-size: 13px;
+  margin: 0;
+}
+
+.error {
+  margin-top: 10px;
+  color: rgba(255, 210, 210, 0.92);
+  background: rgba(255, 60, 60, 0.10);
+  border: 1px solid rgba(255, 60, 60, 0.20);
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+}
