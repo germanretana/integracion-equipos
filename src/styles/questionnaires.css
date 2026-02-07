@@ -1,8 +1,7 @@
 .page {
   min-height: 100vh;
-  background: radial-gradient(1200px 600px at 20% 0%, rgba(255,255,255,0.06), transparent 60%),
-              linear-gradient(180deg, #070a0f 0%, #070a0f 60%, #05070b 100%);
-  color: rgba(255,255,255,0.92);
+  background: transparent;
+  color: var(--text-main);
 }
 
 .page-inner {
@@ -273,17 +272,17 @@
 
 .rate-btn {
   border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.86);
+  border: 1px solid rgba(255, 176, 0, 0.26);
+  background: rgba(255, 176, 0, 0.10);
+  color: rgba(255, 242, 210, 0.95);
   padding: 8px 10px;
   cursor: pointer;
   font-size: 13px;
 }
 
 .rate-btn.active {
-  background: rgba(255,255,255,0.12);
-  border-color: rgba(255,255,255,0.22);
+  background: rgba(255, 176, 0, 0.22);
+  border-color: rgba(255, 176, 0, 0.42);
 }
 
 .actions {
@@ -327,4 +326,25 @@
   padding: 10px 12px;
   border-radius: 12px;
   font-size: 13px;
+}
+
+/* ===== Header tweaks ===== */
+.brand-logo--lg {
+  height: auto;
+  width: clamp(240px, 28vw, 420px);
+  max-width: 420px;
+}
+
+.nav-label {
+  color: rgba(255,255,255,0.78);
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.06);
+}
+
+.nav-label.active {
+  color: rgba(255,255,255,0.95);
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.16);
 }

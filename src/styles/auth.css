@@ -1,82 +1,110 @@
 .auth-container {
-  position: relative;
-  width: 100%;
   min-height: 100vh;
+  position: relative;
+  display: grid;
+  place-items: center;
+
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
+  background-color: #00165e;
 }
 
 .auth-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.60);
+  background:
+    radial-gradient(900px 520px at 20% 0%, rgba(255,255,255,0.08), transparent 60%),
+    linear-gradient(180deg, rgba(0,22,94,0.52) 0%, rgba(0,0,0,0.58) 100%);
 }
 
 .auth-content {
   position: relative;
-  z-index: 1;
   width: 100%;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
+  display: grid;
+  place-items: center;
+  z-index: 1;
 }
 
 .auth-inner {
   width: 100%;
-  max-width: 520px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  max-width: 440px;
+  padding: 24px;
+  text-align: center;
 }
 
 .auth-card {
-  width: 100%;
-  background: #fff;
-  border-radius: 10px;
-  padding: 32px;
-  text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  margin-top: 14px;
+  background: rgba(0, 0, 0, 0.38);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 18px;
+  padding: 22px;
+
+  color: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
 }
 
 .auth-instructions {
-  margin: 0 0 18px 0;
-  color: #333;
-  font-size: 0.95rem;
+  color: rgba(255,255,255,0.72);
+  font-size: 14px;
 }
 
+/* Inputs: match button width exactly */
 .auth-card input {
+  display: block;
   width: 100%;
-  padding: 12px;
-  margin-bottom: 12px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 0.95rem;
+  box-sizing: border-box;
+
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.92);
 }
 
-button.primary {
-  width: 100%;
-  padding: 12px;
-  background: #0b3c5d;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  font-weight: 700;
-  cursor: pointer;
-  font-size: 1rem;
+.auth-card input:focus {
+  outline: none;
+  border-color: rgba(255,255,255,0.24);
+  background: rgba(255,255,255,0.08);
 }
 
-.secondary-link {
-  display: inline-block;
-  margin-top: 14px;
-  color: #0b3c5d;
+/* Links tipo "Olvidé mi contraseña" / "Reestablecer" */
+.auth-card a {
+  font-size: 13px;
+  color: rgba(220, 225, 235, 0.92);
   text-decoration: none;
-  font-size: 0.9rem;
+}
+
+.auth-card a:hover {
+  text-decoration: underline;
+}
+
+/* Button: same box model as inputs */
+.auth-card button.primary {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+
+  margin-top: 22px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.22);
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.95);
+  cursor: pointer;
+}
+
+.auth-card button.primary:hover {
+  background: rgba(255,255,255,0.16);
 }
 
 .auth-help {
-  margin-top: 18px;
-  font-size: 0.8rem;
-  color: #666;
+  margin-top: 14px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.68);
+}
+
+.auth-help a {
+  color: rgba(220, 225, 235, 0.92);
 }

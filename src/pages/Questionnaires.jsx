@@ -1,4 +1,4 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 import "../styles/questionnaires.css";
 
 const C1_STORAGE_KEY = "itss_integracion_c1_v1";
@@ -79,26 +79,14 @@ export default function Questionnaires() {
         <div className="topbar">
           <div className="topbar-left">
             <img
-              className="brand-logo"
+              className="brand-logo brand-logo--lg"
               src="/brand/integracion-plateado.png"
               alt="Integración de Equipos Gerenciales"
             />
           </div>
 
           <div className="nav">
-            <NavLink
-              to="/app/questionnaires"
-              end
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              Inicio
-            </NavLink>
-            <NavLink
-              to="/app/questionnaires"
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              Cuestionarios
-            </NavLink>
+            <span className="nav-label active">Cuestionarios</span>
           </div>
         </div>
 
