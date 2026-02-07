@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "../components/Logo";
 import "../styles/auth.css";
 import { auth } from "../services/auth";
 
-const backgrounds = ["A","B","C","D","E","F","G","H","I","J","K","L"];
+const backgrounds = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"];
 const bg = backgrounds[Math.floor(Math.random() * backgrounds.length)];
 
 function isValidEmail(value) {
@@ -13,6 +13,7 @@ function isValidEmail(value) {
 
 export default function Login() {
   const navigate = useNavigate();
+  const passwordRef = useRef(null);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -47,10 +48,7 @@ export default function Login() {
   };
 
   return (
-    <div
-      className="auth-container"
-      style={{ backgroundImage: `url(/backgrounds/${bg}.jpg)` }}
-    >
+    <div className="auth-container" style={{ backgroundImage: `url(/backgrounds/${bg}.jpg)` }}>
       <div className="auth-overlay" />
 
       <div className="auth-content">
@@ -58,9 +56,7 @@ export default function Login() {
           <Logo />
 
           <div className="auth-card">
-            <p className="auth-instructions">
-              Ingrese su usuario y contraseña.
-            </p>
+            <p className="auth-instructions">Ingrese su usuario y contraseña.</p>
 
             <form onSubmit={onSubmit} noValidate>
               <input
@@ -68,9 +64,16 @@ export default function Login() {
                 placeholder="Correo electrónico"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    passwordRef.current?.focus();
+                  }
+                }}
               />
 
               <input
+                ref={passwordRef}
                 type="password"
                 placeholder="Contraseña"
                 value={password}
@@ -82,11 +85,7 @@ export default function Login() {
               </button>
             </form>
 
-            {error && (
-              <p style={{ margin: "10px 0 0 0", color: "#ff668f" }}>
-                {error}
-              </p>
-            )}
+            {error && <p style={{ margin: "10px 0 0 0", color: "#ff668f" }}>{error}</p>}
 
             <Link to="/forgot" className="secondary-link">
               Olvidé mi contraseña / Restablecer
@@ -94,9 +93,7 @@ export default function Login() {
 
             <p className="auth-help">
               Si necesita ayuda, escriba a{" "}
-              <a href="mailto:integracion@germanretana.com">
-                integracion@germanretana.com
-              </a>
+              <a href="mailto:integracion@germanretana.com">integracion@germanretana.com</a>
             </p>
           </div>
         </div>

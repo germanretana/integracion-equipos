@@ -4,6 +4,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import AppHome from "./pages/AppHome";
 import Questionnaires from "./pages/Questionnaires";
 import C1 from "./pages/C1";
+import C2 from "./pages/C2";
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/app/home" element={<AppHome />} />
         <Route path="/app/questionnaires" element={<Questionnaires />} />
         <Route path="/app/c1" element={<C1 />} />
+        <Route path="/app/c2/:peer" element={<C2 />} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />

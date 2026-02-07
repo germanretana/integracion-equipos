@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useParams } from "react-router-dom";
 import "../styles/questionnaires.css";
-
-const STORAGE_KEY = "itss_integracion_c1_v1";
 
 function clampInt(n, min, max) {
   const x = Number.isFinite(n) ? n : parseInt(String(n), 10);
@@ -10,9 +8,18 @@ function clampInt(n, min, max) {
   return Math.max(min, Math.min(max, x));
 }
 
-function loadState() {
+function titleFromSlug(slug) {
+  if (!slug) return "Compañero";
+  return slug
+    .split("-")
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
+function loadJson(key) {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(key);
     if (!raw) return null;
     return JSON.parse(raw);
   } catch {
@@ -20,50 +27,53 @@ function loadState() {
   }
 }
 
-function saveState(state) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+function saveJson(key, val) {
+  localStorage.setItem(key, JSON.stringify(val));
 }
 
-export default function C1() {
+export default function C2() {
+  const { peer } = useParams();
   const navigate = useNavigate();
   const fieldRefs = useRef({});
+
+  const peerName = useMemo(() => titleFromSlug(peer), [peer]);
+  const storageKey = useMemo(() => `itss_integracion_c2_${peer}_v1`, [peer]);
 
   const questions = useMemo(
     () => [
       {
-        id: "c1_q1_rating",
+        id: "c2_q1_rating",
         type: "rating",
-        title: "Claridad de objetivos del equipo gerencial",
+        title: "Colaboración con el equipo",
         meta: "0 = Malo, 4 = Excelente",
         required: true,
       },
       {
-        id: "c1_q2_single",
+        id: "c2_q2_rating",
+        type: "rating",
+        title: "Comunicación",
+        meta: "0 = Malo, 4 = Excelente",
+        required: true,
+      },
+      {
+        id: "c2_q3_single",
         type: "single",
-        title: "Efectividad de la comunicación interna del equipo",
+        title: "Nivel de confianza",
         meta: "Seleccione una opción",
         required: true,
-        options: ["Muy baja", "Baja", "Media", "Alta", "Muy alta"],
+        options: ["Muy bajo", "Bajo", "Medio", "Alto", "Muy alto"],
       },
       {
-        id: "c1_q3_multi",
-        type: "multi",
-        title: "Fortalezas principales del equipo gerencial",
-        meta: "Puede seleccionar varias",
-        required: true,
-        options: ["Estrategia", "Ejecución", "Comunicación", "Colaboración", "Toma de decisiones"],
-      },
-      {
-        id: "c1_q4_text",
+        id: "c2_q4_text",
         type: "text",
-        title: "¿Qué debería mantener el equipo gerencial?",
+        title: "Fortalezas principales",
         meta: "Texto libre",
         required: true,
       },
       {
-        id: "c1_q5_text",
+        id: "c2_q5_text",
         type: "text",
-        title: "¿Qué debería mejorar el equipo gerencial?",
+        title: "Oportunidades de mejora",
         meta: "Texto libre",
         required: true,
       },
@@ -72,7 +82,7 @@ export default function C1() {
   );
 
   const [draft, setDraft] = useState(() => {
-    const saved = loadState();
+    const saved = loadJson(storageKey);
     return {
       answers: saved?.answers || {},
       submittedAt: saved?.submittedAt || null,
@@ -82,9 +92,9 @@ export default function C1() {
   const submitted = Boolean(draft.submittedAt);
 
   useEffect(() => {
-    saveState({ ...draft, lastSavedAt: new Date().toISOString() });
+    saveJson(storageKey, { ...draft, lastSavedAt: new Date().toISOString() });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [draft.answers, draft.submittedAt]);
+  }, [draft.answers, draft.submittedAt, storageKey]);
 
   function setAnswer(id, value) {
     if (submitted) return;
@@ -94,18 +104,10 @@ export default function C1() {
     }));
   }
 
-  function toggleMulti(id, option) {
-    if (submitted) return;
-    const cur = Array.isArray(draft.answers[id]) ? draft.answers[id] : [];
-    const next = cur.includes(option) ? cur.filter((x) => x !== option) : [...cur, option];
-    setAnswer(id, next);
-  }
-
   function isAnswered(q) {
     const v = draft.answers[q.id];
     if (q.type === "rating") return v !== null && v !== undefined && v !== "";
     if (q.type === "single") return typeof v === "string" && v.trim().length > 0;
-    if (q.type === "multi") return Array.isArray(v) && v.length > 0;
     if (q.type === "text") return typeof v === "string" && v.trim().length > 0;
     return false;
   }
@@ -176,9 +178,9 @@ export default function C1() {
           </div>
         </div>
 
-        <h1 className="h1">Retroalimentación del equipo (C1)</h1>
+        <h1 className="h1">Retroalimentación a compañeros (C2)</h1>
         <p className="sub">
-          Cuestionario general sobre el equipo gerencial. Progreso: <b>{progressPct}%</b>
+          Para: <b>{peerName}</b> · Progreso: <b>{progressPct}%</b>
           {submitted ? (
             <>
               {" "}
@@ -243,26 +245,6 @@ export default function C1() {
                                 value={opt}
                                 checked={checked}
                                 onChange={() => setAnswer(q.id, opt)}
-                                disabled={submitted}
-                              />
-                              <span>{opt}</span>
-                            </label>
-                          );
-                        })}
-                      </div>
-                    ) : null}
-
-                    {q.type === "multi" ? (
-                      <div className="options">
-                        {q.options.map((opt) => {
-                          const cur = Array.isArray(draft.answers[q.id]) ? draft.answers[q.id] : [];
-                          const checked = cur.includes(opt);
-                          return (
-                            <label key={opt} className="opt">
-                              <input
-                                type="checkbox"
-                                checked={checked}
-                                onChange={() => toggleMulti(q.id, opt)}
                                 disabled={submitted}
                               />
                               <span>{opt}</span>

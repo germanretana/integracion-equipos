@@ -348,3 +348,19 @@
   background: rgba(255,255,255,0.08);
   border-color: rgba(255,255,255,0.16);
 }
+
+/* ===== Validation highlight ===== */
+.form-card.missing {
+  border-color: rgba(255, 80, 80, 0.55);
+  background: rgba(255, 60, 60, 0.10);
+}
+
+.form-card.missing .field-title {
+  color: rgba(255, 230, 230, 0.98);
+}
+
+.input.missing,
+.textarea.missing {
+  border-color: rgba(255, 80, 80, 0.65);
+  background: rgba(255, 60, 60, 0.10);
+}

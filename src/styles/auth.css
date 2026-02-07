@@ -108,3 +108,16 @@
 .auth-help a {
   color: rgba(220, 225, 235, 0.92);
 }
+
+/* Secondary action under auth form */
+.secondary-link {
+  display: inline-block;
+  margin-top: 14px;
+  font-size: 13px;
+  color: rgba(220, 225, 235, 0.92);
+  text-decoration: none;
+}
+
+.secondary-link:hover {
+  text-decoration: underline;
+}
