@@ -364,3 +364,82 @@
   border-color: rgba(255, 80, 80, 0.65);
   background: rgba(255, 60, 60, 0.10);
 }
+
+/* Simple ok message */
+.ok {
+  margin: 12px 0;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 255, 170, 0.28);
+  background: rgba(0, 255, 170, 0.12);
+  color: rgba(210, 255, 240, 0.95);
+}
+
+/* Markdown rendering */
+.md {
+  color: rgba(255,255,255,0.80);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.md h1, .md h2, .md h3 {
+  color: rgba(255,255,255,0.95);
+  margin: 10px 0 8px;
+}
+
+.md p {
+  margin: 8px 0;
+}
+
+.md ul {
+  margin: 8px 0 8px 18px;
+}
+
+.md li {
+  margin: 4px 0;
+}
+
+.md strong {
+  color: rgba(255,255,255,0.95);
+}
+
+/* =========================================
+   Global input & textarea style (forms)
+   ========================================= */
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 14px;
+  padding: 12px 14px;
+
+  background: #ffffff;
+  color: #0b1b3a;
+
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: #00165e;
+  box-shadow: 0 0 0 2px rgba(0, 22, 94, 0.15);
+}
+
+/* Disabled fields */
+input:disabled,
+textarea:disabled {
+  background: #f2f4f8;
+  color: rgba(0, 0, 0, 0.45);
+  cursor: not-allowed;
+}

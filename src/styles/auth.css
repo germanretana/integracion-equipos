@@ -1,123 +1,117 @@
 .auth-container {
   min-height: 100vh;
-  position: relative;
-  display: grid;
-  place-items: center;
-
   background-size: cover;
   background-position: center;
-  background-repeat: no-repeat;
-  background-color: #00165e;
+  position: relative;
 }
 
 .auth-overlay {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(900px 520px at 20% 0%, rgba(255,255,255,0.08), transparent 60%),
-    linear-gradient(180deg, rgba(0,22,94,0.52) 0%, rgba(0,0,0,0.58) 100%);
+  background: rgba(0, 0, 0, 0.55);
 }
 
 .auth-content {
   position: relative;
-  width: 100%;
-  display: grid;
-  place-items: center;
-  z-index: 1;
+  z-index: 2;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .auth-inner {
   width: 100%;
-  max-width: 440px;
-  padding: 24px;
-  text-align: center;
+  max-width: 420px;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .auth-card {
-  margin-top: 14px;
-  background: rgba(0, 0, 0, 0.38);
-  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(0, 22, 94, 0.85);
   border-radius: 18px;
-  padding: 22px;
-
-  color: rgba(255,255,255,0.95);
-  backdrop-filter: blur(10px);
+  padding: 22px 22px 18px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
 }
 
 .auth-instructions {
-  color: rgba(255,255,255,0.72);
-  font-size: 14px;
+  margin: 0 0 14px 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 15px;
 }
 
-/* Inputs: match button width exactly */
-.auth-card input {
-  display: block;
+/* ================================
+   AUTH INPUTS — FORCE LIGHT STYLE
+   ================================ */
+
+.auth-card input[type="text"],
+.auth-card input[type="email"],
+.auth-card input[type="password"] {
   width: 100%;
   box-sizing: border-box;
+  margin-bottom: 12px;
 
-  margin-top: 8px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.14);
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.92);
+  background: #ffffff;
+  color: #0b1b3a;
+
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 15px;
+}
+
+.auth-card input::placeholder {
+  color: rgba(0, 0, 0, 0.45);
 }
 
 .auth-card input:focus {
+  background: #ffffff;
+  color: #0b1b3a;
   outline: none;
-  border-color: rgba(255,255,255,0.24);
-  background: rgba(255,255,255,0.08);
+  border-color: #00165e;
+  box-shadow: 0 0 0 2px rgba(0, 22, 94, 0.15);
 }
 
-/* Links tipo "Olvidé mi contraseña" / "Reestablecer" */
-.auth-card a {
-  font-size: 13px;
-  color: rgba(220, 225, 235, 0.92);
-  text-decoration: none;
-}
+/* ================================
+   BUTTONS & LINKS
+   ================================ */
 
-.auth-card a:hover {
-  text-decoration: underline;
-}
-
-/* Button: same box model as inputs */
 .auth-card button.primary {
-  display: block;
   width: 100%;
-  box-sizing: border-box;
-
-  margin-top: 22px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.22);
-  background: rgba(255,255,255,0.12);
-  color: rgba(255,255,255,0.95);
+  border-radius: 14px;
+  padding: 12px;
+  background: #ffffff;
+  color: #00165e;
+  font-weight: 600;
+  border: none;
   cursor: pointer;
 }
 
-.auth-card button.primary:hover {
-  background: rgba(255,255,255,0.16);
+.auth-card button.primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-.auth-help {
-  margin-top: 14px;
-  font-size: 13px;
-  color: rgba(255,255,255,0.68);
-}
-
-.auth-help a {
-  color: rgba(220, 225, 235, 0.92);
-}
-
-/* Secondary action under auth form */
 .secondary-link {
-  display: inline-block;
-  margin-top: 14px;
-  font-size: 13px;
-  color: rgba(220, 225, 235, 0.92);
+  display: block;
+  margin-top: 12px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  text-align: center;
   text-decoration: none;
 }
 
 .secondary-link:hover {
   text-decoration: underline;
+}
+
+.auth-help {
+  margin-top: 14px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.75);
+  text-align: center;
+}
+
+.auth-help a {
+  color: rgba(255, 255, 255, 0.95);
 }
