@@ -37,7 +37,7 @@ export default function C1() {
       try {
         const [tpl, entry] = await Promise.all([
           auth.fetch(`/api/app/${processSlug}/templates/c1`),
-          auth.fetch(`/api/app/${processSlug}/c1`)
+          auth.fetch(`/api/app/${processSlug}/c1`),
         ]);
         if (!alive) return;
 
@@ -63,7 +63,7 @@ export default function C1() {
     try {
       const entry = await auth.fetch(`/api/app/${processSlug}/c1`, {
         method: "PUT",
-        body: JSON.stringify({ draft: { freeText } })
+        body: JSON.stringify({ draft: { freeText } }),
       });
       setSavedAt(entry?.savedAt || null);
     } catch (e) {
@@ -88,7 +88,7 @@ export default function C1() {
 
     try {
       const entry = await auth.fetch(`/api/app/${processSlug}/c1/submit`, {
-        method: "POST"
+        method: "POST",
       });
       setSubmittedAt(entry?.submittedAt || new Date().toISOString());
     } catch (e) {
@@ -99,7 +99,10 @@ export default function C1() {
   return (
     <div className="page">
       <div className="page-inner">
-        <button className="admin-btn" onClick={() => navigate(`/app/${processSlug}/questionnaires`)}>
+        <button
+          className="admin-btn"
+          onClick={() => navigate(`/app/${processSlug}/questionnaires`)}
+        >
           ← Volver
         </button>
 
@@ -119,7 +122,11 @@ export default function C1() {
           <div className="section-body">
             <textarea
               ref={textRef}
-              className={showError && String(freeText || "").trim() === "" ? "field-error" : ""}
+              className={
+                showError && String(freeText || "").trim() === ""
+                  ? "field-error"
+                  : ""
+              }
               placeholder="Escriba aquí sus comentarios…"
               value={freeText}
               disabled={!!submittedAt}
@@ -134,13 +141,18 @@ export default function C1() {
                 {submittedAt
                   ? "Este cuestionario ya fue enviado y no se puede editar."
                   : saving
-                  ? "Guardando…"
-                  : savedAt
-                  ? "Guardado."
-                  : "—"}
+                    ? "Guardando…"
+                    : savedAt
+                      ? "Guardado."
+                      : "—"}
               </span>
 
-              <button className="admin-btn" type="button" onClick={onSubmit} disabled={!!submittedAt}>
+              <button
+                className="admin-btn"
+                type="button"
+                onClick={onSubmit}
+                disabled={!!submittedAt}
+              >
                 Enviar
               </button>
             </div>

@@ -2,76 +2,33 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
+
 import Questionnaires from "./pages/Questionnaires";
 import C1 from "./pages/C1";
 import C2 from "./pages/C2";
 
-import AdminLogin from "./pages/AdminLogin";
+import AdminLogin from "./pages/admin/AdminLogin";
+import ProcessesList from "./pages/admin/ProcessesList";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
-import AdminProcesses from "./pages/AdminProcesses";
-import AdminProcessNew from "./pages/AdminProcessNew";
-import AdminProcessDetail from "./pages/AdminProcessDetail";
-import AdminProcessTemplates from "./pages/AdminProcessTemplates";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Participants */}
+        {/* Public */}
         <Route path="/" element={<Login />} />
         <Route path="/forgot" element={<ForgotPassword />} />
 
-        {/* Legacy redirect (for any old links) */}
-        <Route path="/app" element={<Navigate to="/" replace />} />
-        <Route path="/app/questionnaires" element={<Navigate to="/" replace />} />
-
-        {/* New participant routes scoped by processSlug */}
+        {/* Participant */}
         <Route path="/app/:processSlug/questionnaires" element={<Questionnaires />} />
         <Route path="/app/:processSlug/c1" element={<C1 />} />
         <Route path="/app/:processSlug/c2/:peerId" element={<C2 />} />
 
         {/* Admin */}
         <Route path="/admin/login" element={<AdminLogin />} />
-        <Route
-          path="/admin"
-          element={
-            <AdminProtectedRoute>
-              <Navigate to="/admin/processes" replace />
-            </AdminProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/processes"
-          element={
-            <AdminProtectedRoute>
-              <AdminProcesses />
-            </AdminProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/processes/new"
-          element={
-            <AdminProtectedRoute>
-              <AdminProcessNew />
-            </AdminProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/processes/:processSlug"
-          element={
-            <AdminProtectedRoute>
-              <AdminProcessDetail />
-            </AdminProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/processes/:processSlug/templates"
-          element={
-            <AdminProtectedRoute>
-              <AdminProcessTemplates />
-            </AdminProtectedRoute>
-          }
-        />
+        <Route element={<AdminProtectedRoute />}>
+          <Route path="/admin/processes" element={<ProcessesList />} />
+        </Route>
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />

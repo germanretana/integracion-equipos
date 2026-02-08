@@ -494,3 +494,47 @@ app.post("/api/app/:processSlug/c2/:peerId/submit", requireParticipant, (req, re
 app.listen(PORT, () => {
   console.log(`Backend listening on http://localhost:${PORT}`);
 });
+
+/* =========================
+   ADMIN – PROCESSES SUMMARY
+========================= */
+app.get("/api/admin/processes-summary", requireAdmin, (_req, res) => {
+  const db = readDb();
+
+  const summary = db.processes.map((p) => {
+    const participants = p.participants || [];
+    const responses = p.responses || { c1: {}, c2: {} };
+
+    const c1Total = participants.length;
+    const c1Completed = Object.values(responses.c1 || {}).filter(
+      (r) => r?.submittedAt
+    ).length;
+
+    let c2Total = 0;
+    let c2Completed = 0;
+
+    for (const me of participants) {
+      const peers = participants.filter((x) => x.id !== me.id);
+      c2Total += peers.length;
+
+      const map = responses.c2?.[me.id] || {};
+      c2Completed += Object.values(map).filter((r) => r?.submittedAt).length;
+    }
+
+    return {
+      processSlug: p.processSlug,
+      companyName: p.companyName,
+      processName: p.processName,
+      status: p.status,
+      logoUrl: p.logoUrl || null,
+      progress: {
+        c1Completed,
+        c1Total,
+        c2Completed,
+        c2Total
+      }
+    };
+  });
+
+  res.json(summary);
+});

@@ -1,9 +1,12 @@
-import { Navigate } from "react-router-dom";
-import { adminAuth } from "../services/admin";
+import { Navigate, Outlet } from "react-router-dom";
 
-export default function AdminProtectedRoute({ children }) {
-  if (!adminAuth.isLoggedIn()) {
+function hasAdminToken() {
+  return !!localStorage.getItem("integracion.admin.token");
+}
+
+export default function AdminProtectedRoute() {
+  if (!hasAdminToken()) {
     return <Navigate to="/admin/login" replace />;
   }
-  return children;
+  return <Outlet />;
 }
