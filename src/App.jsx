@@ -20,10 +20,15 @@ export default function App() {
         {/* Participants */}
         <Route path="/" element={<Login />} />
         <Route path="/forgot" element={<ForgotPassword />} />
-        <Route path="/app" element={<Navigate to="/app/questionnaires" replace />} />
-        <Route path="/app/questionnaires" element={<Questionnaires />} />
-        <Route path="/app/c1" element={<C1 />} />
-        <Route path="/app/c2/:peer" element={<C2 />} />
+
+        {/* Legacy redirect (for any old links) */}
+        <Route path="/app" element={<Navigate to="/" replace />} />
+        <Route path="/app/questionnaires" element={<Navigate to="/" replace />} />
+
+        {/* New participant routes scoped by processSlug */}
+        <Route path="/app/:processSlug/questionnaires" element={<Questionnaires />} />
+        <Route path="/app/:processSlug/c1" element={<C1 />} />
+        <Route path="/app/:processSlug/c2/:peerId" element={<C2 />} />
 
         {/* Admin */}
         <Route path="/admin/login" element={<AdminLogin />} />

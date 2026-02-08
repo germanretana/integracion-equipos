@@ -4,7 +4,7 @@ import Logo from "../components/Logo";
 import "../styles/auth.css";
 import { auth } from "../services/auth";
 
-const backgrounds = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"];
+const backgrounds = ["A","B","C","D","E","F","G","H","I","J","K","L"];
 const bg = backgrounds[Math.floor(Math.random() * backgrounds.length)];
 
 function isValidEmail(value) {
@@ -38,8 +38,9 @@ export default function Login() {
     setLoading(true);
 
     try {
-      await auth.login(email, password);
-      navigate("/app", { replace: true });
+      const session = await auth.login(email, password);
+      const slug = session?.process?.processSlug;
+      navigate(`/app/${slug}/questionnaires`, { replace: true });
     } catch (err) {
       setError(err?.message || "Error inesperado.");
     } finally {

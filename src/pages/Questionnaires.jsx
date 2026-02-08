@@ -1,5 +1,7 @@
-import { Link } from "react-router-dom";
+import React from "react";
+import { Link, useParams } from "react-router-dom";
 import "../styles/questionnaires.css";
+import { auth } from "../services/auth";
 
 function StatusPill({ status }) {
   if (status === "done") return <span className="pill ok">Completado</span>;
@@ -25,58 +27,73 @@ function Row({ to, title, status }) {
 }
 
 export default function Questionnaires() {
-  // TODO: esto vendrá del backend por proceso
-  const c1 = {
-    title: "Cuestionario general sobre el equipo gerencial",
-    status: "todo",
-    to: "/app/c1"
-  };
+  const { processSlug } = useParams();
 
-  // Mock explícito y claro
-  const c2 = [
-    { id: "ana-lopez", label: "Ana López", status: "done" },
-    { id: "carlos-mendez", label: "Carlos Méndez", status: "progress" },
-    { id: "laura-jimenez", label: "Laura Jiménez", status: "todo" },
-    { id: "diego-vargas", label: "Diego Vargas", status: "todo" }
-  ];
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState("");
+  const [data, setData] = React.useState(null);
+
+  React.useEffect(() => {
+    let alive = true;
+
+    async function load() {
+      setLoading(true);
+      setError("");
+      try {
+        const res = await auth.fetch(`/api/app/${processSlug}/questionnaires`);
+        if (!alive) return;
+        setData(res);
+      } catch (e) {
+        if (!alive) return;
+        setError(e?.message || "No se pudieron cargar los cuestionarios.");
+      } finally {
+        if (alive) setLoading(false);
+      }
+    }
+
+    load();
+    return () => {
+      alive = false;
+    };
+  }, [processSlug]);
 
   return (
     <div className="page">
       <div className="page-inner">
         <h1 className="h1">Cuestionarios</h1>
 
-        <p className="sub">
-          Muchas gracias por contestar estos cuestionarios. Su aporte será esencial
-          para el éxito del proceso de integración del Equipo Gerencial.
-        </p>
+        {loading ? <p className="sub">Cargando…</p> : null}
+        {error ? <div className="error">{error}</div> : null}
 
-        <div className="section">
-          <h2 className="section-title">Retroalimentación del equipo (C1)</h2>
-          <div className="section-body">
-            <Row to={c1.to} title={c1.title} status={c1.status} />
-          </div>
-        </div>
+        {!loading && data ? (
+          <>
+            <p className="sub">
+              Muchas gracias por contestar estos cuestionarios. Su aporte será esencial para el éxito del proceso de integración del Equipo Gerencial de{" "}
+              <b>{data.process.companyName}</b>.
+            </p>
 
-        <div className="section">
-          <h2 className="section-title">Retroalimentación a compañeros (C2)</h2>
-          <div className="section-body">
-            {c2.map((p) => (
-              <Row
-                key={p.id}
-                to={`/app/c2/${p.id}`}
-                title={p.label}
-                status={p.status}
-              />
-            ))}
-          </div>
-        </div>
+            <div className="section">
+              <h2 className="section-title">Retroalimentación del equipo (C1)</h2>
+              <div className="section-body">
+                <Row to={data.c1.to} title={data.c1.title} status={data.c1.status} />
+              </div>
+            </div>
 
-        <p className="footer-help">
-          Si tiene alguna duda o consulta, escriba a{" "}
-          <a href="mailto:integracion@germanretana.com">
-            integracion@germanretana.com
-          </a>
-        </p>
+            <div className="section">
+              <h2 className="section-title">Retroalimentación a compañeros (C2)</h2>
+              <div className="section-body">
+                {data.c2.map((p) => (
+                  <Row key={p.to} to={p.to} title={p.title} status={p.status} />
+                ))}
+              </div>
+            </div>
+
+            <p className="footer-help">
+              Si tiene alguna duda o consulta, escriba a{" "}
+              <a href="mailto:integracion@germanretana.com">integracion@germanretana.com</a>
+            </p>
+          </>
+        ) : null}
       </div>
     </div>
   );

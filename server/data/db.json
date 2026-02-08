@@ -33,7 +33,57 @@
           "instructionsMd": "# Retroalimentación a compañeros (C2)\n\nSu opinión sobre el desempeño y relaciones de cada uno de sus colegas es de gran valor para ayudarles a mejorar su papel como líderes en la organización.\n\n- Emita su criterio con la mayor profundidad y sinceridad.\n- No remita estos documentos a sus compañeros.\n- Completará un cuestionario sobre cada uno de sus colegas.\n- Sus colegas no conocerán la fuente de las evaluaciones o comentarios, pues esta información se procesa en forma anónima."
         }
       },
-      "participants": [],
+      "participants": [
+        {
+          "id": "p1",
+          "firstName": "German",
+          "lastName": "Retana",
+          "email": "german.retana@gmail.com",
+          "passwordHash": null
+        },
+        {
+          "id": "p2",
+          "firstName": "Ana",
+          "lastName": "López",
+          "email": "ana@example.com",
+          "passwordHash": null
+        },
+        {
+          "id": "p3",
+          "firstName": "Carlos",
+          "lastName": "Méndez",
+          "email": "carlos@example.com",
+          "passwordHash": null
+        },
+        {
+          "id": "p4",
+          "firstName": "Laura",
+          "lastName": "Jiménez",
+          "email": "laura@example.com",
+          "passwordHash": null
+        },
+        {
+          "id": "p5",
+          "firstName": "Diego",
+          "lastName": "Vargas",
+          "email": "diego@example.com",
+          "passwordHash": null
+        },
+        {
+          "id": "p-1770585305782",
+          "firstName": "ñoisjñoij",
+          "lastName": "",
+          "email": "ñoisjñoij@asdfkhn.clm",
+          "passwordHash": null
+        },
+        {
+          "id": "p-1770585712833",
+          "firstName": "asdlifuh",
+          "lastName": "",
+          "email": "asdlifuh@asdoifjosidj.com",
+          "passwordHash": null
+        }
+      ],
       "createdAt": "2026-02-08T15:23:07.199Z",
       "launchedAt": null,
       "closedAt": null

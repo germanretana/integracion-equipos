@@ -2,25 +2,54 @@ import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-me";
 
+/* =========================
+   ADMIN
+========================= */
 export function signAdminToken(admin) {
   return jwt.sign(
-    { sub: admin.email, role: "admin", name: admin.name || admin.email },
+    { type: "admin", email: admin.email, name: admin.name || "" },
     JWT_SECRET,
     { expiresIn: "12h" }
   );
 }
 
 export function requireAdmin(req, res, next) {
-  const hdr = req.headers.authorization || "";
-  const token = hdr.startsWith("Bearer ") ? hdr.slice(7) : null;
-  if (!token) return res.status(401).json({ error: "No autorizado." });
-
   try {
+    const token = (req.headers.authorization || "").replace("Bearer ", "");
+    if (!token) return res.status(401).json({ error: "No autorizado." });
+
     const payload = jwt.verify(token, JWT_SECRET);
-    if (payload.role !== "admin") return res.status(403).json({ error: "Prohibido." });
+    if (payload?.type !== "admin") return res.status(401).json({ error: "No autorizado." });
+
     req.admin = payload;
     next();
   } catch {
-    return res.status(401).json({ error: "Sesión inválida o expirada." });
+    return res.status(401).json({ error: "No autorizado." });
+  }
+}
+
+/* =========================
+   PARTICIPANTS
+========================= */
+export function signParticipantToken({ processSlug, participantId, email, name }) {
+  return jwt.sign(
+    { type: "participant", processSlug, participantId, email, name: name || "" },
+    JWT_SECRET,
+    { expiresIn: "12h" }
+  );
+}
+
+export function requireParticipant(req, res, next) {
+  try {
+    const token = (req.headers.authorization || "").replace("Bearer ", "");
+    if (!token) return res.status(401).json({ error: "No autorizado." });
+
+    const payload = jwt.verify(token, JWT_SECRET);
+    if (payload?.type !== "participant") return res.status(401).json({ error: "No autorizado." });
+
+    req.participant = payload;
+    next();
+  } catch {
+    return res.status(401).json({ error: "No autorizado." });
   }
 }
