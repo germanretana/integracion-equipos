@@ -37,18 +37,17 @@ function defaultDb() {
           "El propósito de esta encuesta es facilitar la evaluación del desempeño del equipo gerencial de la organización e identificar áreas de oportunidad para mejorar.\n\n" +
           "- Conteste con sinceridad, en beneficio propio y de todo el equipo.\n" +
           "- No remita esta encuesta a sus colegas.\n" +
-          "- Sea tan amplio como lo considere necesario para que el desempeño del equipo pueda mejorarse con base en su contribución.\n\n" +
+          "- Sea tan amplio como lo considere necesario.\n\n" +
           "Muchas gracias por su valiosa cooperación.",
         questions: []
       },
       c2: {
         instructionsMd:
           "# Retroalimentación a compañeros (C2)\n\n" +
-          "Su opinión sobre el desempeño y relaciones de cada uno de sus colegas es de gran valor para ayudarles a mejorar su papel como líderes en la organización.\n\n" +
-          "- Emita su criterio con la mayor profundidad y sinceridad.\n" +
+          "Su opinión sobre el desempeño y relaciones de cada uno de sus colegas es de gran valor.\n\n" +
+          "- Emita su criterio con profundidad y sinceridad.\n" +
           "- No remita estos documentos a sus compañeros.\n" +
-          "- Completará un cuestionario sobre cada uno de sus colegas.\n" +
-          "- Sus colegas no conocerán la fuente de las evaluaciones o comentarios, pues esta información se procesa en forma anónima.",
+          "- Sus colegas no conocerán la fuente, pues se procesa en forma anónima.",
         questions: []
       }
     },
@@ -60,11 +59,7 @@ function defaultDb() {
 function migrateDb(db) {
   let changed = false;
 
-  // Ensure top-level keys
-  if (!db || typeof db !== "object") {
-    db = defaultDb();
-    return { db, changed: true };
-  }
+  if (!db || typeof db !== "object") return { db: defaultDb(), changed: true };
 
   if (!Array.isArray(db.admins)) {
     db.admins = [];
@@ -76,19 +71,16 @@ function migrateDb(db) {
     changed = true;
   }
 
-  // Migrate baseTemplates instructions -> instructionsMd
   for (const kind of ["c1", "c2"]) {
     const t = db.baseTemplates?.[kind];
     if (!t) continue;
 
     if (typeof t.instructionsMd !== "string") {
-      // old format: instructions object
       if (t.instructions && typeof t.instructions === "object") {
         t.instructionsMd = instructionsObjToMd(t.instructions);
         delete t.instructions;
         changed = true;
       } else {
-        // set default if missing
         t.instructionsMd = defaultDb().baseTemplates[kind].instructionsMd;
         changed = true;
       }
@@ -100,16 +92,18 @@ function migrateDb(db) {
     }
   }
 
-  // Ensure processes structure
   if (!Array.isArray(db.processes)) {
     db.processes = [];
     changed = true;
   }
 
-  // Migrate process templates as well
   for (const p of db.processes) {
     if (!p || typeof p !== "object") continue;
-    if (!p.templates || typeof p.templates !== "object") continue;
+
+    if (!p.templates || typeof p.templates !== "object") {
+      p.templates = structuredClone(db.baseTemplates);
+      changed = true;
+    }
 
     for (const kind of ["c1", "c2"]) {
       const t = p.templates?.[kind];
@@ -134,9 +128,31 @@ function migrateDb(db) {
         changed = true;
       }
     }
+
+    if (!Array.isArray(p.participants)) {
+      p.participants = [];
+      changed = true;
+    }
+
+    // NEW: responses per process
+    if (!p.responses || typeof p.responses !== "object") {
+      p.responses = {
+        c1: {}, // participantId -> { draft: { freeText }, savedAt, submittedAt }
+        c2: {}  // participantId -> { [peerId]: { draft: { freeText }, savedAt, submittedAt } }
+      };
+      changed = true;
+    } else {
+      if (!p.responses.c1 || typeof p.responses.c1 !== "object") {
+        p.responses.c1 = {};
+        changed = true;
+      }
+      if (!p.responses.c2 || typeof p.responses.c2 !== "object") {
+        p.responses.c2 = {};
+        changed = true;
+      }
+    }
   }
 
-  // Ensure logs exists
   if (!Array.isArray(db.logs)) {
     db.logs = [];
     changed = true;
@@ -152,16 +168,12 @@ function ensureDb() {
     return;
   }
 
-  // Auto-migrate existing DB if needed
   try {
     const raw = fs.readFileSync(DB_PATH, "utf-8");
     const parsed = JSON.parse(raw);
     const { db, changed } = migrateDb(parsed);
-    if (changed) {
-      fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
-    }
+    if (changed) fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
   } catch {
-    // If corrupted, reset to default (dev only)
     fs.writeFileSync(DB_PATH, JSON.stringify(defaultDb(), null, 2));
   }
 }

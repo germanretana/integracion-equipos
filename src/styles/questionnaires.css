@@ -443,3 +443,22 @@ textarea:disabled {
   color: rgba(0, 0, 0, 0.45);
   cursor: not-allowed;
 }
+
+/* Form feedback */
+.field-error {
+  border-color: rgba(255, 176, 0, 0.8) !important;
+  box-shadow: 0 0 0 2px rgba(255, 176, 0, 0.18) !important;
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.form-note {
+  font-size: 13px;
+  color: rgba(255,255,255,0.70);
+}

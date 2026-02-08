@@ -86,7 +86,36 @@
       ],
       "createdAt": "2026-02-08T15:23:07.199Z",
       "launchedAt": null,
-      "closedAt": null
+      "closedAt": null,
+      "responses": {
+        "c1": {
+          "p-1770585712833": {
+            "draft": {
+              "freeText": "Hola mundo lindo.  asdf"
+            },
+            "savedAt": "2026-02-08T21:55:24.430Z",
+            "submittedAt": null
+          }
+        },
+        "c2": {
+          "p-1770585712833": {
+            "p2": {
+              "draft": {
+                "freeText": "asdf asdf"
+              },
+              "savedAt": "2026-02-08T21:55:20.005Z",
+              "submittedAt": null
+            },
+            "p1": {
+              "draft": {
+                "freeText": ""
+              },
+              "savedAt": "2026-02-08T21:55:27.421Z",
+              "submittedAt": null
+            }
+          }
+        }
+      }
     }
   ],
   "logs": []

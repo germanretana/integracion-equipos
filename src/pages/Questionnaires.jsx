@@ -3,13 +3,13 @@ import { Link, useParams } from "react-router-dom";
 import "../styles/questionnaires.css";
 import { auth } from "../services/auth";
 
-function StatusPill({ status }) {
+function StatusPill({ status, percent }) {
   if (status === "done") return <span className="pill ok">Completado</span>;
-  if (status === "progress") return <span className="pill warn">En progreso</span>;
+  if (status === "progress") return <span className="pill warn">En progreso ({percent || 0}%)</span>;
   return <span className="pill muted">Sin comenzar</span>;
 }
 
-function Row({ to, title, status }) {
+function Row({ to, title, status, percent }) {
   return (
     <Link className="row-link" to={to}>
       <div className="row" role="button">
@@ -18,7 +18,7 @@ function Row({ to, title, status }) {
         </div>
 
         <div className="row-right">
-          <StatusPill status={status} />
+          <StatusPill status={status} percent={percent} />
           <span className="chev">{">"}</span>
         </div>
       </div>
@@ -75,7 +75,7 @@ export default function Questionnaires() {
             <div className="section">
               <h2 className="section-title">Retroalimentación del equipo (C1)</h2>
               <div className="section-body">
-                <Row to={data.c1.to} title={data.c1.title} status={data.c1.status} />
+                <Row to={data.c1.to} title={data.c1.title} status={data.c1.status} percent={data.c1.percent} />
               </div>
             </div>
 
@@ -83,7 +83,7 @@ export default function Questionnaires() {
               <h2 className="section-title">Retroalimentación a compañeros (C2)</h2>
               <div className="section-body">
                 {data.c2.map((p) => (
-                  <Row key={p.to} to={p.to} title={p.title} status={p.status} />
+                  <Row key={p.to} to={p.to} title={p.title} status={p.status} percent={p.percent} />
                 ))}
               </div>
             </div>
