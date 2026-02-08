@@ -17,8 +17,29 @@ function clamp01(n) {
   return x;
 }
 
-function ProgressBar({ value }) {
-  const pct = Math.round(clamp01(value) * 100);
+function formatCR(iso) {
+  if (!iso) return "—";
+  try {
+    return new Intl.DateTimeFormat("es-CR", {
+      dateStyle: "short",
+      timeStyle: "short",
+      timeZone: "America/Costa_Rica",
+    }).format(new Date(iso));
+  } catch {
+    return iso;
+  }
+}
+
+function c2ToneFromRatio(ratio) {
+  const r = clamp01(ratio);
+  if (r >= 1) return "done";
+  if (r > 0) return "progress";
+  return "todo";
+}
+
+function ProgressBar({ value, tone }) {
+  const v = clamp01(value);
+  const pct = Math.round(v * 100);
 
   return (
     <div
@@ -33,27 +54,14 @@ function ProgressBar({ value }) {
       title={`Progreso ${pct}%`}
     >
       <div
+        className={`status-bar-fill status-${tone}`}
         style={{
           width: `${pct}%`,
           height: "100%",
-          background: "rgba(0,0,0,0.35)",
         }}
       />
     </div>
   );
-}
-
-function formatCR(iso) {
-  if (!iso) return "—";
-  try {
-    return new Intl.DateTimeFormat("es-CR", {
-      dateStyle: "short",
-      timeStyle: "short",
-      timeZone: "America/Costa_Rica",
-    }).format(new Date(iso));
-  } catch {
-    return iso;
-  }
 }
 
 export default function ProcessDashboard() {
@@ -306,6 +314,15 @@ export default function ProcessDashboard() {
                           const completed = r?.c2?.completed ?? 0;
                           const ratio = total > 0 ? completed / total : 0;
 
+                          const c1Tone =
+                            r.c1 === "done"
+                              ? "done"
+                              : r.c1 === "progress"
+                              ? "progress"
+                              : "todo";
+
+                          const c2Tone = c2ToneFromRatio(ratio);
+
                           return (
                             <tr key={r.id}>
                               <td
@@ -326,7 +343,12 @@ export default function ProcessDashboard() {
                                   borderBottom: "1px solid rgba(0,0,0,0.06)",
                                 }}
                               >
-                                <span className="pill">{c1Label(r.c1)}</span>
+                                <span
+                                  className={`status-pill status-${c1Tone}`}
+                                  title={`C1: ${c1Label(r.c1)}`}
+                                >
+                                  {c1Label(r.c1)}
+                                </span>
                               </td>
 
                               <td
@@ -342,8 +364,11 @@ export default function ProcessDashboard() {
                                     gap: 10,
                                   }}
                                 >
-                                  <ProgressBar value={ratio} />
-                                  <span className="pill">
+                                  <ProgressBar value={ratio} tone={c2Tone} />
+                                  <span
+                                    className={`status-pill status-${c2Tone}`}
+                                    title={`C2: ${completed}/${total}`}
+                                  >
                                     {completed}/{total}
                                   </span>
                                 </div>

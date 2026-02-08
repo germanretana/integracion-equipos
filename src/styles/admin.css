@@ -104,3 +104,50 @@
   font-size: 13px;
   color: rgba(255,255,255,0.70);
 }
+
+/* =========================
+   STATUS (Semantic UI)
+   Robust against app.css .pill (participants).
+========================= */
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Neutral, readable on light backgrounds */
+.status-todo {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.status-progress {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.status-done {
+  background: #dcfce7;
+  color: #166534;
+}
+
+/* Progress bar fill */
+.status-bar-fill.status-todo {
+  background: #9ca3af;
+}
+
+.status-bar-fill.status-progress {
+  background: #3b82f6;
+}
+
+.status-bar-fill.status-done {
+  background: #22c55e;
+}
