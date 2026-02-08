@@ -22,7 +22,7 @@
       "processSlug": "acme-integracion-2026",
       "companyName": "ACME",
       "processName": "Integración Equipo Gerencial 2026",
-      "status": "PREPARACION",
+      "status": "CERRADO",
       "templates": {
         "c1": {
           "questions": [],
@@ -85,8 +85,8 @@
         }
       ],
       "createdAt": "2026-02-08T15:23:07.199Z",
-      "launchedAt": null,
-      "closedAt": null,
+      "launchedAt": "2026-02-08T22:59:56.023Z",
+      "closedAt": "2026-02-08T23:00:00.338Z",
       "responses": {
         "c1": {
           "p-1770585712833": {

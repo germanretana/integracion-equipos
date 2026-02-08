@@ -1,12 +1,19 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { auth } from "../../services/auth";
 import "../../styles/admin.css";
 
 export default function ProcessesList() {
+  const navigate = useNavigate();
+
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState("");
   const [items, setItems] = React.useState([]);
+
+  function handleLogout() {
+    auth.clearAdminSession();
+    navigate("/admin/login", { replace: true });
+  }
 
   React.useEffect(() => {
     let alive = true;
@@ -33,7 +40,22 @@ export default function ProcessesList() {
   return (
     <div className="page">
       <div className="page-inner">
-        <h1 className="h1">Procesos</h1>
+        {/* Header */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+          }}
+        >
+          <h1 className="h1" style={{ margin: 0 }}>
+            Procesos
+          </h1>
+          <button className="btn" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
 
         {loading && <p className="sub">Cargando procesos…</p>}
         {error && <div className="error">{error}</div>}
@@ -56,9 +78,7 @@ export default function ProcessesList() {
                       <p className="row-title">
                         {p.companyName} — {p.processName}
                       </p>
-                      <p className="row-desc">
-                        Estado: {p.status}
-                      </p>
+                      <p className="row-desc">Estado: {p.status}</p>
                     </div>
 
                     <div className="row-right">

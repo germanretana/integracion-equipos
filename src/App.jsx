@@ -9,6 +9,7 @@ import C2 from "./pages/C2";
 
 import AdminLogin from "./pages/admin/AdminLogin";
 import ProcessesList from "./pages/admin/ProcessesList";
+import ProcessDashboard from "./pages/admin/ProcessDashboard";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 
 export default function App() {
@@ -20,7 +21,10 @@ export default function App() {
         <Route path="/forgot" element={<ForgotPassword />} />
 
         {/* Participant */}
-        <Route path="/app/:processSlug/questionnaires" element={<Questionnaires />} />
+        <Route
+          path="/app/:processSlug/questionnaires"
+          element={<Questionnaires />}
+        />
         <Route path="/app/:processSlug/c1" element={<C1 />} />
         <Route path="/app/:processSlug/c2/:peerId" element={<C2 />} />
 
@@ -28,6 +32,10 @@ export default function App() {
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route element={<AdminProtectedRoute />}>
           <Route path="/admin/processes" element={<ProcessesList />} />
+          <Route
+            path="/admin/processes/:processSlug"
+            element={<ProcessDashboard />}
+          />
         </Route>
 
         {/* Fallback */}
