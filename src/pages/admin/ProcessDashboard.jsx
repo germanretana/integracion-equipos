@@ -64,6 +64,55 @@ function ProgressBar({ value, tone }) {
   );
 }
 
+function eventLabel(evt) {
+  const t = String(evt?.type || "");
+  if (t === "ADMIN_REMINDER_REQUESTED") return "Recordatorio (mock)";
+  if (t === "ADMIN_ACCESS_RESET") return "Reset acceso (mock)";
+  return t || "Evento";
+}
+
+
+function eventPillStyle(evt) {
+  const t = String(evt?.type || "");
+
+  // Pensado para fondo oscuro (admin): colores más saturados + texto claro.
+  const base = {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 6,
+    padding: "4px 10px",
+    borderRadius: 999,
+    border: "1px solid rgba(255,255,255,0.18)",
+    fontSize: 12,
+    fontWeight: 800,
+    color: "rgba(255,255,255,0.92)",
+    background: "rgba(255,255,255,0.10)",
+    whiteSpace: "nowrap",
+  };
+
+  // Reset acceso: teal/verde
+  if (t === "ADMIN_ACCESS_RESET") {
+    return {
+      ...base,
+      background: "rgba(53, 190, 177, 0.32)",
+      border: "1px solid rgba(53, 190, 177, 0.55)",
+      color: "rgba(255,255,255,0.95)",
+    };
+  }
+
+  // Recordatorio: naranja
+  if (t === "ADMIN_REMINDER_REQUESTED") {
+    return {
+      ...base,
+      background: "rgba(255, 152, 0, 0.30)",
+      border: "1px solid rgba(255, 152, 0, 0.55)",
+      color: "rgba(255,255,255,0.95)",
+    };
+  }
+
+  return base;
+}
+
 export default function ProcessDashboard() {
   const { processSlug } = useParams();
   const navigate = useNavigate();
@@ -78,6 +127,12 @@ export default function ProcessDashboard() {
   const [resetModal, setResetModal] = React.useState(null); // { name, email, tempPassword, ts }
   const [showDebugPassword, setShowDebugPassword] = React.useState(false);
 
+  // Logs
+  const [logsLoading, setLogsLoading] = React.useState(false);
+  const [logsError, setLogsError] = React.useState("");
+  const [logs, setLogs] = React.useState([]);
+  const [logParticipantId, setLogParticipantId] = React.useState(""); // "" = todos
+
   async function load() {
     setLoading(true);
     setError("");
@@ -90,6 +145,26 @@ export default function ProcessDashboard() {
       setError(e?.message || "No se pudo cargar el proceso.");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function loadLogs(participantIdOverride) {
+    const pid = participantIdOverride ?? logParticipantId;
+
+    setLogsLoading(true);
+    setLogsError("");
+    try {
+      const qs = new URLSearchParams();
+      qs.set("processSlug", processSlug);
+      if (pid) qs.set("participantId", pid);
+      qs.set("limit", "200");
+
+      const items = await auth.fetch(`/api/admin/events?${qs.toString()}`);
+      setLogs(Array.isArray(items) ? items : []);
+    } catch (e) {
+      setLogsError(e?.message || "No se pudieron cargar los logs.");
+    } finally {
+      setLogsLoading(false);
     }
   }
 
@@ -122,6 +197,13 @@ export default function ProcessDashboard() {
     const t = setTimeout(() => setFlash(""), 2500);
     return () => clearTimeout(t);
   }, [flash]);
+
+  // cuando ya hay proceso cargado, traemos logs iniciales
+  React.useEffect(() => {
+    if (!data?.process?.processSlug) return;
+    loadLogs("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data?.process?.processSlug]);
 
   async function setStatus(nextStatus) {
     if (!data?.process) return;
@@ -156,6 +238,7 @@ export default function ProcessDashboard() {
         { method: "POST" },
       );
       setFlash(`Recordatorio registrado para ${p.name}.`);
+      loadLogs(); // refrescar logs
     } catch (e) {
       setError(e?.message || "No se pudo registrar el recordatorio.");
     } finally {
@@ -184,6 +267,7 @@ export default function ProcessDashboard() {
       });
       setShowDebugPassword(false);
       setFlash(`Acceso reseteado para ${p.name}.`);
+      loadLogs(); // refrescar logs
     } catch (e) {
       setError(e?.message || "No se pudo resetear el acceso.");
     } finally {
@@ -532,6 +616,220 @@ export default function ProcessDashboard() {
                     {formatCR(proc.closedAt)}
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Logs */}
+            <div className="section" style={{ marginTop: 16 }}>
+              <div className="section-body">
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 12,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <div>
+                    <h2 className="h2" style={{ margin: 0 }}>
+                      Logs
+                    </h2>
+                    <p className="sub" style={{ marginTop: 6 }}>
+                      Eventos de administración (mock).
+                    </p>
+                  </div>
+
+                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    <label style={{ fontSize: 13, opacity: 0.85 }}>
+                      Participante{" "}
+                      <select
+                        value={logParticipantId}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          setLogParticipantId(v);
+                          loadLogs(v);
+                        }}
+                        style={{
+                          marginLeft: 6,
+                          padding: "7px 10px",
+                          borderRadius: 10,
+                          border: "1px solid rgba(0,0,0,0.10)",
+                          background: "#fff",
+                        }}
+                      >
+                        <option value="">Todos</option>
+                        {rows.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <button
+                      className="btn"
+                      onClick={() => loadLogs()}
+                      disabled={logsLoading}
+                      title="Recargar logs"
+                    >
+                      {logsLoading ? "Cargando…" : "Actualizar"}
+                    </button>
+                  </div>
+                </div>
+
+                {logsError && (
+                  <div className="error" style={{ marginTop: 10 }}>
+                    {logsError}
+                  </div>
+                )}
+
+                {!logsLoading && !logsError && logs.length === 0 && (
+                  <p className="sub">Aún no hay eventos registrados.</p>
+                )}
+
+                {(logsLoading || logs.length > 0) && (
+                  <div style={{ overflowX: "auto", maxHeight: 320, overflowY: "auto" }}>
+                    <table
+                      style={{
+                        width: "100%",
+                        borderCollapse: "collapse",
+                        minWidth: 860,
+                      }}
+                    >
+                      <thead>
+                        <tr>
+                          <th
+                            style={{
+                              textAlign: "left",
+                              padding: "10px 8px",
+                              borderBottom: "1px solid rgba(0,0,0,0.08)",
+                              width: 170,
+                            }}
+                          >
+                            Fecha (CR)
+                          </th>
+                          <th
+                            style={{
+                              textAlign: "left",
+                              padding: "10px 8px",
+                              borderBottom: "1px solid rgba(0,0,0,0.08)",
+                              width: 220,
+                            }}
+                          >
+                            Evento
+                          </th>
+                          <th
+                            style={{
+                              textAlign: "left",
+                              padding: "10px 8px",
+                              borderBottom: "1px solid rgba(0,0,0,0.08)",
+                            }}
+                          >
+                            Detalle
+                          </th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {(logsLoading ? Array.from({ length: 3 }) : logs).map(
+                          (evt, idx) => {
+                            if (logsLoading) {
+                              return (
+                                <tr key={`sk-${idx}`}>
+                                  <td
+                                    style={{
+                                      padding: "10px 8px",
+                                      borderBottom:
+                                        "1px solid rgba(0,0,0,0.06)",
+                                      opacity: 0.6,
+                                    }}
+                                  >
+                                    …
+                                  </td>
+                                  <td
+                                    style={{
+                                      padding: "10px 8px",
+                                      borderBottom:
+                                        "1px solid rgba(0,0,0,0.06)",
+                                      opacity: 0.6,
+                                    }}
+                                  >
+                                    …
+                                  </td>
+                                  <td
+                                    style={{
+                                      padding: "10px 8px",
+                                      borderBottom:
+                                        "1px solid rgba(0,0,0,0.06)",
+                                      opacity: 0.6,
+                                    }}
+                                  >
+                                    …
+                                  </td>
+                                </tr>
+                              );
+                            }
+
+                            const pid = String(evt?.participantId || "");
+                            const p = rows.find((x) => x.id === pid) || null;
+
+                            const who =
+                              evt?.participantName ||
+                              p?.name ||
+                              evt?.participantEmail ||
+                              "—";
+
+                            const detailParts = [];
+                            if (who && who !== "—") detailParts.push(who);
+                            if (evt?.participantEmail)
+                              detailParts.push(`<${evt.participantEmail}>`);
+                            if (evt?.adminEmail)
+                              detailParts.push(`(admin: ${evt.adminEmail})`);
+
+                            return (
+                              <tr key={evt?.id || `${evt?.ts}-${idx}`}>
+                                <td
+                                  style={{
+                                    padding: "10px 8px",
+                                    borderBottom:
+                                      "1px solid rgba(0,0,0,0.06)",
+                                    fontSize: 13,
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  {formatCR(evt?.ts)}
+                                </td>
+                                <td
+                                  style={{
+                                    padding: "10px 8px",
+                                    borderBottom:
+                                      "1px solid rgba(0,0,0,0.06)",
+                                  }}
+                                >
+                                  <span style={eventPillStyle(evt)}>
+                                    {eventLabel(evt)}
+                                  </span>
+                                </td>
+                                <td
+                                  style={{
+                                    padding: "10px 8px",
+                                    borderBottom:
+                                      "1px solid rgba(0,0,0,0.06)",
+                                    fontSize: 13,
+                                    opacity: 0.9,
+                                  }}
+                                >
+                                  {detailParts.join(" ")}
+                                </td>
+                              </tr>
+                            );
+                          },
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </div>
 
