@@ -73,12 +73,17 @@ export default function ProcessDashboard() {
   const [error, setError] = React.useState("");
   const [data, setData] = React.useState(null);
 
+  const [rowBusy, setRowBusy] = React.useState({});
+  const [flash, setFlash] = React.useState("");
+  const [resetModal, setResetModal] = React.useState(null); // { name, email, tempPassword, ts }
+  const [showDebugPassword, setShowDebugPassword] = React.useState(false);
+
   async function load() {
     setLoading(true);
     setError("");
     try {
       const payload = await auth.fetch(
-        `/api/admin/processes/${processSlug}/dashboard`
+        `/api/admin/processes/${processSlug}/dashboard`,
       );
       setData(payload);
     } catch (e) {
@@ -96,7 +101,7 @@ export default function ProcessDashboard() {
       setError("");
       try {
         const payload = await auth.fetch(
-          `/api/admin/processes/${processSlug}/dashboard`
+          `/api/admin/processes/${processSlug}/dashboard`,
         );
         if (!alive) return;
         setData(payload);
@@ -112,6 +117,12 @@ export default function ProcessDashboard() {
     return () => (alive = false);
   }, [processSlug]);
 
+  React.useEffect(() => {
+    if (!flash) return;
+    const t = setTimeout(() => setFlash(""), 2500);
+    return () => clearTimeout(t);
+  }, [flash]);
+
   async function setStatus(nextStatus) {
     if (!data?.process) return;
 
@@ -123,6 +134,7 @@ export default function ProcessDashboard() {
         body: JSON.stringify({ status: nextStatus }),
       });
       await load();
+      setFlash("Estado actualizado.");
     } catch (e) {
       setError(e?.message || "No se pudo actualizar el estado.");
     } finally {
@@ -135,6 +147,59 @@ export default function ProcessDashboard() {
     navigate("/admin/login", { replace: true });
   }
 
+  async function remindParticipant(p) {
+    setError("");
+    setRowBusy((x) => ({ ...x, [p.id]: "remind" }));
+    try {
+      await auth.fetch(
+        `/api/admin/processes/${processSlug}/participants/${p.id}/remind`,
+        { method: "POST" },
+      );
+      setFlash(`Recordatorio registrado para ${p.name}.`);
+    } catch (e) {
+      setError(e?.message || "No se pudo registrar el recordatorio.");
+    } finally {
+      setRowBusy((x) => ({ ...x, [p.id]: "" }));
+    }
+  }
+
+  async function resetAccess(p) {
+    const ok = window.confirm(
+      `¿Resetear acceso de ${p.name}?\n\nSe generará una nueva contraseña y se enviará notificación por correo.`,
+    );
+    if (!ok) return;
+
+    setError("");
+    setRowBusy((x) => ({ ...x, [p.id]: "reset" }));
+    try {
+      const resp = await auth.fetch(
+        `/api/admin/processes/${processSlug}/participants/${p.id}/reset-access`,
+        { method: "POST" },
+      );
+      setResetModal({
+        name: p.name,
+        email: p.email,
+        tempPassword: resp?.tempPassword || "",
+        ts: resp?.ts || null,
+      });
+      setShowDebugPassword(false);
+      setFlash(`Acceso reseteado para ${p.name}.`);
+    } catch (e) {
+      setError(e?.message || "No se pudo resetear el acceso.");
+    } finally {
+      setRowBusy((x) => ({ ...x, [p.id]: "" }));
+    }
+  }
+
+  async function copyToClipboard(text) {
+    try {
+      await navigator.clipboard.writeText(String(text || ""));
+      setFlash("Copiado al portapapeles.");
+    } catch {
+      setFlash("No se pudo copiar (permiso del navegador).");
+    }
+  }
+
   const proc = data?.process || null;
   const rows = data?.participants || [];
 
@@ -145,6 +210,7 @@ export default function ProcessDashboard() {
   const status = proc?.status || "";
   const canLaunch = status === "PREPARACION" && !saving;
   const canClose = status === "EN_CURSO" && !saving;
+  const processClosed = status === "CERRADO";
 
   return (
     <div className="page">
@@ -170,6 +236,20 @@ export default function ProcessDashboard() {
 
         {loading && <p className="sub">Cargando proceso…</p>}
         {error && <div className="error">{error}</div>}
+        {flash && !error && (
+          <div
+            style={{
+              marginBottom: 12,
+              padding: "10px 12px",
+              borderRadius: 12,
+              border: "1px solid rgba(0,0,0,0.08)",
+              background: "rgba(0,0,0,0.04)",
+              fontSize: 13,
+            }}
+          >
+            {flash}
+          </div>
+        )}
 
         {!loading && proc && (
           <>
@@ -207,6 +287,7 @@ export default function ProcessDashboard() {
                     </h1>
                     <p className="sub" style={{ marginTop: 0 }}>
                       Estado: <strong>{proc.status}</strong>
+                      {processClosed ? " (acciones bloqueadas)" : ""}
                     </p>
                   </div>
 
@@ -261,7 +342,7 @@ export default function ProcessDashboard() {
                       style={{
                         width: "100%",
                         borderCollapse: "collapse",
-                        minWidth: 820,
+                        minWidth: 860,
                       }}
                     >
                       <thead>
@@ -300,7 +381,7 @@ export default function ProcessDashboard() {
                               textAlign: "left",
                               padding: "10px 8px",
                               borderBottom: "1px solid rgba(0,0,0,0.08)",
-                              width: 260,
+                              width: 300,
                             }}
                           >
                             Acciones
@@ -309,31 +390,34 @@ export default function ProcessDashboard() {
                       </thead>
 
                       <tbody>
-                        {rows.map((r) => {
+                        {rows.map((p) => {
                           const total = expectedC2Total;
-                          const completed = r?.c2?.completed ?? 0;
+                          const completed = p?.c2?.completed ?? 0;
                           const ratio = total > 0 ? completed / total : 0;
 
                           const c1Tone =
-                            r.c1 === "done"
+                            p.c1 === "done"
                               ? "done"
-                              : r.c1 === "progress"
-                              ? "progress"
-                              : "todo";
+                              : p.c1 === "progress"
+                                ? "progress"
+                                : "todo";
 
                           const c2Tone = c2ToneFromRatio(ratio);
 
+                          const busy = rowBusy[p.id] || "";
+                          const disableActions = processClosed || !!busy;
+
                           return (
-                            <tr key={r.id}>
+                            <tr key={p.id}>
                               <td
                                 style={{
                                   padding: "10px 8px",
                                   borderBottom: "1px solid rgba(0,0,0,0.06)",
                                 }}
                               >
-                                <div style={{ fontWeight: 600 }}>{r.name}</div>
+                                <div style={{ fontWeight: 600 }}>{p.name}</div>
                                 <div style={{ fontSize: 13, opacity: 0.8 }}>
-                                  {r.email}
+                                  {p.email}
                                 </div>
                               </td>
 
@@ -345,9 +429,9 @@ export default function ProcessDashboard() {
                               >
                                 <span
                                   className={`status-pill status-${c1Tone}`}
-                                  title={`C1: ${c1Label(r.c1)}`}
+                                  title={`C1: ${c1Label(p.c1)}`}
                                 >
-                                  {c1Label(r.c1)}
+                                  {c1Label(p.c1)}
                                 </span>
                               </td>
 
@@ -389,17 +473,32 @@ export default function ProcessDashboard() {
                                 >
                                   <button
                                     className="btn"
-                                    disabled
-                                    title="Pendiente (BLOQUE futuro)"
+                                    disabled={disableActions}
+                                    onClick={() => remindParticipant(p)}
+                                    title={
+                                      processClosed
+                                        ? "Proceso cerrado"
+                                        : "Registrar recordatorio (mock)"
+                                    }
                                   >
-                                    Recordatorio
+                                    {busy === "remind"
+                                      ? "Enviando…"
+                                      : "Recordatorio"}
                                   </button>
+
                                   <button
                                     className="btn"
-                                    disabled
-                                    title="Pendiente (BLOQUE futuro)"
+                                    disabled={disableActions}
+                                    onClick={() => resetAccess(p)}
+                                    title={
+                                      processClosed
+                                        ? "Proceso cerrado"
+                                        : "Reset de acceso (mock)"
+                                    }
                                   >
-                                    Reset acceso
+                                    {busy === "reset"
+                                      ? "Reseteando…"
+                                      : "Reset acceso"}
                                   </button>
                                 </div>
                               </td>
@@ -435,6 +534,147 @@ export default function ProcessDashboard() {
                 </div>
               </div>
             </div>
+
+            {/* Reset modal */}
+            {resetModal && (
+              <div
+                role="dialog"
+                aria-modal="true"
+                style={{
+                  position: "fixed",
+                  inset: 0,
+                  background: "rgba(0,0,0,0.70)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: 16,
+                  zIndex: 50,
+                }}
+                onClick={() => setResetModal(null)}
+              >
+                <div
+                  style={{
+                    width: "min(640px, 100%)",
+                    borderRadius: 16,
+                    background: "#ffffff",
+                    color: "#111827",
+                    border: "1px solid rgba(0,0,0,0.12)",
+                    boxShadow:
+                      "0 20px 60px rgba(0,0,0,0.25), 0 2px 8px rgba(0,0,0,0.10)",
+                    overflow: "hidden",
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div
+                    style={{
+                      padding: 16,
+                      borderBottom: "1px solid rgba(0,0,0,0.08)",
+                    }}
+                  >
+                    <div style={{ fontSize: 16, fontWeight: 800 }}>
+                      Acceso reseteado
+                    </div>
+                    <div
+                      style={{ marginTop: 4, fontSize: 13, color: "#4b5563" }}
+                    >
+                      {resetModal.name} — {resetModal.email}
+                    </div>
+                  </div>
+
+                  <div style={{ padding: 16 }}>
+                    <div style={{ fontSize: 14, lineHeight: 1.5 }}>
+                      Se registró el envío de un correo al participante con su
+                      nueva clave <strong>(mock)</strong>.
+                      <br />
+                      El admin no necesita reenviar la contraseña manualmente.
+                    </div>
+
+                    {resetModal.ts && (
+                      <div
+                        style={{
+                          marginTop: 10,
+                          fontSize: 13,
+                          color: "#4b5563",
+                        }}
+                      >
+                        Timestamp: {formatCR(resetModal.ts)}
+                      </div>
+                    )}
+
+                    {/* Debug toggle */}
+                    <div
+                      style={{
+                        marginTop: 14,
+                        paddingTop: 12,
+                        borderTop: "1px solid rgba(0,0,0,0.08)",
+                      }}
+                    >
+                      <label
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                          fontSize: 13,
+                          color: "#374151",
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={showDebugPassword}
+                          onChange={(e) =>
+                            setShowDebugPassword(e.target.checked)
+                          }
+                        />
+                        Ver clave (debug local)
+                      </label>
+
+                      {showDebugPassword && (
+                        <div
+                          style={{
+                            marginTop: 10,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            gap: 10,
+                            padding: "10px 12px",
+                            borderRadius: 12,
+                            border: "1px solid rgba(0,0,0,0.10)",
+                            background: "#f9fafb",
+                          }}
+                        >
+                          <code style={{ fontSize: 16, fontWeight: 800 }}>
+                            {resetModal.tempPassword}
+                          </code>
+                          <button
+                            className="btn"
+                            onClick={() =>
+                              copyToClipboard(resetModal.tempPassword)
+                            }
+                          >
+                            Copiar
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    <div
+                      style={{
+                        marginTop: 14,
+                        display: "flex",
+                        justifyContent: "flex-end",
+                      }}
+                    >
+                      <button
+                        className="btn"
+                        onClick={() => setResetModal(null)}
+                      >
+                        Cerrar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>
