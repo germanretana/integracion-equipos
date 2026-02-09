@@ -52,9 +52,15 @@ export default function ProcessesList() {
           <h1 className="h1" style={{ margin: 0 }}>
             Procesos
           </h1>
-          <button className="btn" onClick={handleLogout}>
-            Logout
-          </button>
+
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <Link to="/admin/master-templates" className="btn">
+              Plantillas Maestras
+            </Link>
+            <button className="btn" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
         </div>
 
         {loading && <p className="sub">Cargando procesos…</p>}

@@ -10,6 +10,7 @@ import C2 from "./pages/C2";
 import AdminLogin from "./pages/admin/AdminLogin";
 import ProcessesList from "./pages/admin/ProcessesList";
 import ProcessDashboard from "./pages/admin/ProcessDashboard";
+import MasterTemplates from "./pages/admin/MasterTemplates";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 
 export default function App() {
@@ -36,6 +37,7 @@ export default function App() {
             path="/admin/processes/:processSlug"
             element={<ProcessDashboard />}
           />
+          <Route path="/admin/master-templates" element={<MasterTemplates />} />
         </Route>
 
         {/* Fallback */}
