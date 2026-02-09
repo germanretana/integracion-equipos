@@ -2,8 +2,8 @@ import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "../styles/questionnaires.css";
 import Markdown from "../components/Markdown";
+import QuestionnaireRenderer from "../components/QuestionnaireRenderer";
 import { auth } from "../services/auth";
-import DynamicQuestionnaire, { validateQuestionnaire } from "../components/DynamicQuestionnaire";
 
 function useDebouncedEffect(value, delayMs, effect) {
   React.useEffect(() => {
@@ -22,24 +22,25 @@ export default function C1() {
   const [tpl, setTpl] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
 
+  // Nuevo modelo: draft.answers
   const [answers, setAnswers] = React.useState({});
   const [savedAt, setSavedAt] = React.useState(null);
   const [submittedAt, setSubmittedAt] = React.useState(null);
 
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState("");
-  const [showErrors, setShowErrors] = React.useState(false);
 
-  // Para pairing_rows (C1 q10)
-  const [peerOptions, setPeerOptions] = React.useState([]);
+  // peers para pairing_rows
+  const [peers, setPeers] = React.useState([]);
 
   React.useEffect(() => {
     let alive = true;
+
     async function load() {
       setLoading(true);
       setError("");
       try {
-        const [tplRes, entryRes, qsRes] = await Promise.all([
+        const [tplRes, entryRes, qs] = await Promise.all([
           auth.fetch(`/api/app/${processSlug}/templates/c1`),
           auth.fetch(`/api/app/${processSlug}/c1`),
           auth.fetch(`/api/app/${processSlug}/questionnaires`),
@@ -54,15 +55,11 @@ export default function C1() {
         setSavedAt(entryRes?.savedAt || null);
         setSubmittedAt(entryRes?.submittedAt || null);
 
-        // peer options from questionnaires.c2
-        const peers = Array.isArray(qsRes?.c2) ? qsRes.c2 : [];
-        const opts = peers.map((p) => {
-          const to = String(p?.to || "");
-          const peerId = to.split("/c2/")[1] || "";
-          return { id: peerId, name: p?.title || peerId };
-        }).filter((x) => x.id);
-
-        setPeerOptions(opts);
+        const peerList = (qs?.c2 || []).map((x) => {
+          const id = String(x.to || "").split("/").pop();
+          return { id, name: x.title || "Compañero" };
+        });
+        setPeers(peerList);
       } catch (e) {
         if (!alive) return;
         setError(e?.message || "No se pudo cargar el cuestionario.");
@@ -70,13 +67,14 @@ export default function C1() {
         if (alive) setLoading(false);
       }
     }
+
     load();
     return () => (alive = false);
   }, [processSlug]);
 
   const doSave = React.useCallback(async () => {
     if (submittedAt) return;
-    if (!tpl?.questions?.length) return;
+    if (!tpl?.questions || tpl.questions.length === 0) return;
 
     setSaving(true);
     setError("");
@@ -91,29 +89,16 @@ export default function C1() {
     } finally {
       setSaving(false);
     }
-  }, [processSlug, answers, submittedAt, tpl]);
+  }, [processSlug, answers, submittedAt, tpl?.questions]);
 
-  useDebouncedEffect(JSON.stringify(answers), 700, doSave);
+  useDebouncedEffect(answers, 600, doSave);
 
   async function onSubmit() {
     setError("");
-
-    const questions = tpl?.questions || [];
-    const v = validateQuestionnaire(questions, answers);
-
-    if (!v.ok) {
-      setShowErrors(true);
-      // Scroll a la primera con error
-      const firstId = Object.keys(v.errors)[0];
-      if (firstId) {
-        const el = document.querySelector(`[data-qid="${firstId}"]`);
-        el?.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-      return;
-    }
-
     try {
-      const entry = await auth.fetch(`/api/app/${processSlug}/c1/submit`, { method: "POST" });
+      const entry = await auth.fetch(`/api/app/${processSlug}/c1/submit`, {
+        method: "POST",
+      });
       setSubmittedAt(entry?.submittedAt || new Date().toISOString());
     } catch (e) {
       setError(e?.message || "No se pudo enviar.");
@@ -121,7 +106,7 @@ export default function C1() {
   }
 
   const instructions = tpl?.instructionsMd || "";
-  const questions = tpl?.questions || [];
+  const questions = Array.isArray(tpl?.questions) ? tpl.questions : [];
 
   return (
     <div className="page">
@@ -145,59 +130,48 @@ export default function C1() {
           </div>
         ) : null}
 
-        <div className="section">
-          <div className="section-body">
-            {!loading && questions.length === 0 ? (
+        {!loading && questions.length === 0 ? (
+          <div className="section">
+            <div className="section-body">
               <p className="sub">No hay preguntas configuradas.</p>
-            ) : (
-              <div>
-                {/* Wrapper para permitir scroll al error */}
-                <div>
-                  {questions.map((q) => (
-                    <div key={q.id} data-qid={q.id}>
-                      {/* el renderer interno maneja showIf; esto solo crea anchors */}
-                    </div>
-                  ))}
-                </div>
-
-                <DynamicQuestionnaire
-                  questions={questions}
-                  answers={answers}
-                  setAnswers={setAnswers}
-                  disabled={!!submittedAt}
-                  peerOptions={peerOptions}
-                />
-
-                {showErrors ? (
-                  <div style={{ marginTop: 14, fontSize: 13, color: "#b91c1c" }}>
-                    Revise los campos marcados como requeridos antes de enviar.
-                  </div>
-                ) : null}
-              </div>
-            )}
-
-            <div className="form-actions" style={{ marginTop: 18 }}>
-              <span className="form-note">
-                {submittedAt
-                  ? "Este cuestionario ya fue enviado y no se puede editar."
-                  : saving
-                    ? "Guardando…"
-                    : savedAt
-                      ? "Guardado."
-                      : "—"}
-              </span>
-
-              <button
-                className="admin-btn"
-                type="button"
-                onClick={onSubmit}
-                disabled={!!submittedAt || loading || questions.length === 0}
-              >
-                Enviar
-              </button>
             </div>
           </div>
-        </div>
+        ) : null}
+
+        {!loading && questions.length > 0 ? (
+          <div className="section">
+            <div className="section-body">
+              <QuestionnaireRenderer
+                questions={questions}
+                answers={answers}
+                onChange={setAnswers}
+                peers={peers}
+                disabled={!!submittedAt}
+              />
+
+              <div className="form-actions">
+                <span className="form-note">
+                  {submittedAt
+                    ? "Este cuestionario ya fue enviado y no se puede editar."
+                    : saving
+                      ? "Guardando…"
+                      : savedAt
+                        ? "Guardado."
+                        : "—"}
+                </span>
+
+                <button
+                  className="admin-btn"
+                  type="button"
+                  onClick={onSubmit}
+                  disabled={!!submittedAt}
+                >
+                  Enviar
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
       </div>
     </div>
   );

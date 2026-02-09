@@ -476,24 +476,48 @@ app.get("/api/app/:processSlug/c1", requireParticipant, (req, res) => {
   if (scoped.error) return res.status(scoped.status).json({ error: scoped.error });
 
   const entry = scoped.proc.responses.c1[scoped.me.id] || null;
-  res.json(entry || { draft: { freeText: "" }, savedAt: null, submittedAt: null });
+
+  if (!entry) {
+    return res.json({ draft: { answers: {} }, savedAt: null, submittedAt: null });
+  }
+
+  entry.draft = entry.draft || {};
+  if (!entry.draft.answers || typeof entry.draft.answers !== "object") {
+    entry.draft.answers = {};
+  }
+
+  res.json(entry);
 });
 
 app.put("/api/app/:processSlug/c1", requireParticipant, (req, res) => {
   const { draft } = req.body || {};
-  const freeText = String(draft?.freeText || "");
+  const incomingDraft = draft && typeof draft === "object" ? draft : {};
+  const freeText = String(incomingDraft?.freeText || ""); // legacy
 
   const next = updateDb((db2) => {
     const scoped2 = getProcAndMeScoped(db2, req);
     if (scoped2.error) return db2;
 
     const { proc, me } = scoped2;
+
     proc.responses.c1[me.id] =
-      proc.responses.c1[me.id] || { draft: { freeText: "" }, savedAt: null, submittedAt: null };
+      proc.responses.c1[me.id] || { draft: { answers: {} }, savedAt: null, submittedAt: null };
 
     if (proc.responses.c1[me.id].submittedAt) return db2; // locked after submit
 
-    proc.responses.c1[me.id].draft = { freeText };
+    const prev = proc.responses.c1[me.id].draft || {};
+    const answers =
+      incomingDraft.answers && typeof incomingDraft.answers === "object"
+        ? incomingDraft.answers
+        : prev.answers || {};
+
+    proc.responses.c1[me.id].draft = {
+      ...prev,
+      ...incomingDraft,
+      freeText, // keep legacy compatibility
+      answers,
+    };
+
     proc.responses.c1[me.id].savedAt = new Date().toISOString();
     return db2;
   });
@@ -510,8 +534,9 @@ app.post("/api/app/:processSlug/c1/submit", requireParticipant, (req, res) => {
     if (scoped2.error) return db2;
 
     const { proc, me } = scoped2;
+
     const entry =
-      proc.responses.c1[me.id] || { draft: { freeText: "" }, savedAt: null, submittedAt: null };
+      proc.responses.c1[me.id] || { draft: { answers: {} }, savedAt: null, submittedAt: null };
 
     if (!hasMeaningfulDraft(entry.draft)) return db2;
 
@@ -531,6 +556,9 @@ app.post("/api/app/:processSlug/c1/submit", requireParticipant, (req, res) => {
   res.json(entry);
 });
 
+/* =========================
+   C2 DRAFT + SUBMIT (per peer)
+========================= */
 /* =========================
    C2 DRAFT + SUBMIT (per peer)
 ========================= */
