@@ -2,7 +2,12 @@ import express from "express";
 import cors from "cors";
 import bcrypt from "bcryptjs";
 import { readDb, updateDb } from "./lib/db.js";
-import { requireAdmin, signAdminToken, requireParticipant, signParticipantToken } from "./lib/auth.js";
+import {
+  requireAdmin,
+  signAdminToken,
+  requireParticipant,
+  signParticipantToken,
+} from "./lib/auth.js";
 
 const app = express();
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3001;
@@ -28,11 +33,41 @@ function ensureMockParticipantsForProcess(proc) {
   if (Array.isArray(proc.participants) && proc.participants.length > 0) return;
 
   proc.participants = [
-    { id: "p1", firstName: "German", lastName: "Retana", email: "german.retana@gmail.com", passwordHash: null },
-    { id: "p2", firstName: "Ana", lastName: "López", email: "ana@example.com", passwordHash: null },
-    { id: "p3", firstName: "Carlos", lastName: "Méndez", email: "carlos@example.com", passwordHash: null },
-    { id: "p4", firstName: "Laura", lastName: "Jiménez", email: "laura@example.com", passwordHash: null },
-    { id: "p5", firstName: "Diego", lastName: "Vargas", email: "diego@example.com", passwordHash: null }
+    {
+      id: "p1",
+      firstName: "German",
+      lastName: "Retana",
+      email: "german.retana@gmail.com",
+      passwordHash: null,
+    },
+    {
+      id: "p2",
+      firstName: "Ana",
+      lastName: "López",
+      email: "ana@example.com",
+      passwordHash: null,
+    },
+    {
+      id: "p3",
+      firstName: "Carlos",
+      lastName: "Méndez",
+      email: "carlos@example.com",
+      passwordHash: null,
+    },
+    {
+      id: "p4",
+      firstName: "Laura",
+      lastName: "Jiménez",
+      email: "laura@example.com",
+      passwordHash: null,
+    },
+    {
+      id: "p5",
+      firstName: "Diego",
+      lastName: "Vargas",
+      email: "diego@example.com",
+      passwordHash: null,
+    },
   ];
 }
 
@@ -44,12 +79,15 @@ function participantDisplayName(p) {
 
 function getProcAndMeScoped(db, req) {
   const { processSlug } = req.params;
-  if (req.participant.processSlug !== processSlug) return { error: "Acceso denegado.", status: 403 };
+  if (req.participant.processSlug !== processSlug)
+    return { error: "Acceso denegado.", status: 403 };
 
   const proc = db.processes.find((p) => p.processSlug === processSlug);
   if (!proc) return { error: "Proceso no encontrado.", status: 404 };
 
-  const me = (proc.participants || []).find((p) => p.id === req.participant.participantId);
+  const me = (proc.participants || []).find(
+    (p) => p.id === req.participant.participantId,
+  );
   if (!me) return { error: "Acceso denegado.", status: 403 };
 
   // ensure responses objects exist
@@ -60,13 +98,38 @@ function getProcAndMeScoped(db, req) {
   return { proc, me };
 }
 
-function calcStatusFromFreeText(entry) {
-  // entry: { draft: { freeText }, savedAt, submittedAt }
+function hasMeaningfulDraft(draft) {
+  if (!draft) return false;
+
+  // legacy (freeText)
+  const txt = String(draft?.freeText || "").trim();
+  if (txt) return true;
+
+  const answers = draft?.answers;
+  if (!answers || typeof answers !== "object") return false;
+
+  // Cualquier respuesta "no vacía" cuenta como progreso
+  for (const v of Object.values(answers)) {
+    if (v == null) continue;
+    if (typeof v === "string" && v.trim()) return true;
+    if (typeof v === "number" && Number.isFinite(v)) return true;
+    if (Array.isArray(v) && v.some((x) => String(x || "").trim())) return true;
+    if (typeof v === "object") {
+      if (typeof v.value === "number" && Number.isFinite(v.value)) return true;
+      if (typeof v.suggestion === "string" && v.suggestion.trim()) return true;
+      if (typeof v.leftId === "string" && v.leftId) return true;
+      if (typeof v.rightId === "string" && v.rightId) return true;
+    }
+  }
+
+  return false;
+}
+
+function calcStatusFromDraft(entry) {
+  // entry: { draft, savedAt, submittedAt }
   if (!entry) return { status: "todo", percent: 0 };
   if (entry.submittedAt) return { status: "done", percent: 100 };
-
-  const txt = String(entry?.draft?.freeText || "").trim();
-  if (!txt) return { status: "todo", percent: 0 };
+  if (!hasMeaningfulDraft(entry.draft)) return { status: "todo", percent: 0 };
   return { status: "progress", percent: 100 };
 }
 
@@ -75,10 +138,12 @@ function calcStatusFromFreeText(entry) {
 ========================= */
 app.post("/api/admin/bootstrap", async (req, res) => {
   const { email, password, name } = req.body || {};
-  if (!email || !password) return res.status(400).json({ error: "email y password requeridos." });
+  if (!email || !password)
+    return res.status(400).json({ error: "email y password requeridos." });
 
   const db = readDb();
-  if (db.admins.length > 0) return res.status(409).json({ error: "Bootstrap ya realizado." });
+  if (db.admins.length > 0)
+    return res.status(409).json({ error: "Bootstrap ya realizado." });
 
   const passwordHash = await bcrypt.hash(String(password), 10);
 
@@ -87,7 +152,7 @@ app.post("/api/admin/bootstrap", async (req, res) => {
       email: String(email).toLowerCase(),
       name: String(name || ""),
       passwordHash,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     });
     return db2;
   });
@@ -98,7 +163,9 @@ app.post("/api/admin/bootstrap", async (req, res) => {
 app.post("/api/admin/login", async (req, res) => {
   const { email, password } = req.body || {};
   const db = readDb();
-  const admin = db.admins.find((a) => a.email === String(email || "").toLowerCase());
+  const admin = db.admins.find(
+    (a) => a.email === String(email || "").toLowerCase(),
+  );
   if (!admin) return res.status(401).json({ error: "Credenciales inválidas." });
 
   const ok = await bcrypt.compare(String(password || ""), admin.passwordHash);
@@ -113,7 +180,8 @@ app.post("/api/admin/login", async (req, res) => {
 ========================= */
 app.get("/api/admin/base-templates/:kind", requireAdmin, (req, res) => {
   const kind = req.params.kind;
-  if (!["c1", "c2"].includes(kind)) return res.status(404).json({ error: "No encontrado." });
+  if (!["c1", "c2"].includes(kind))
+    return res.status(404).json({ error: "No encontrado." });
 
   const db = readDb();
   res.json(db.baseTemplates?.[kind] || null);
@@ -121,7 +189,8 @@ app.get("/api/admin/base-templates/:kind", requireAdmin, (req, res) => {
 
 app.put("/api/admin/base-templates/:kind", requireAdmin, (req, res) => {
   const kind = req.params.kind;
-  if (!["c1", "c2"].includes(kind)) return res.status(404).json({ error: "No encontrado." });
+  if (!["c1", "c2"].includes(kind))
+    return res.status(404).json({ error: "No encontrado." });
 
   const incoming = req.body || {};
 
@@ -144,10 +213,12 @@ app.get("/api/admin/processes", requireAdmin, (_req, res) => {
 
 app.post("/api/admin/processes", requireAdmin, (req, res) => {
   const { processSlug, companyName, processName } = req.body || {};
-  if (!processSlug || !companyName || !processName) return res.status(400).json({ error: "Datos incompletos." });
+  if (!processSlug || !companyName || !processName)
+    return res.status(400).json({ error: "Datos incompletos." });
 
   const db = readDb();
-  if (db.processes.some((p) => p.processSlug === processSlug)) return res.status(409).json({ error: "processSlug ya existe." });
+  if (db.processes.some((p) => p.processSlug === processSlug))
+    return res.status(409).json({ error: "processSlug ya existe." });
 
   const now = new Date().toISOString();
   const newProcess = {
@@ -160,7 +231,7 @@ app.post("/api/admin/processes", requireAdmin, (req, res) => {
     responses: { c1: {}, c2: {} },
     createdAt: now,
     launchedAt: null,
-    closedAt: null
+    closedAt: null,
   };
 
   updateDb((db2) => {
@@ -180,7 +251,8 @@ app.get("/api/admin/processes/:processSlug", requireAdmin, (req, res) => {
 
 app.patch("/api/admin/processes/:processSlug/status", requireAdmin, (req, res) => {
   const { status } = req.body || {};
-  if (!["PREPARACION", "EN_CURSO", "CERRADO"].includes(status)) return res.status(400).json({ error: "Estado inválido." });
+  if (!["PREPARACION", "EN_CURSO", "CERRADO"].includes(status))
+    return res.status(400).json({ error: "Estado inválido." });
 
   const db = readDb();
   const proc = db.processes.find((p) => p.processSlug === req.params.processSlug);
@@ -197,36 +269,47 @@ app.patch("/api/admin/processes/:processSlug/status", requireAdmin, (req, res) =
 /* =========================
    PROCESS TEMPLATES (ADMIN)
 ========================= */
-app.get("/api/admin/processes/:processSlug/templates/:kind", requireAdmin, (req, res) => {
-  const { processSlug, kind } = req.params;
-  if (!["c1", "c2"].includes(kind)) return res.status(404).json({ error: "No encontrado." });
+app.get(
+  "/api/admin/processes/:processSlug/templates/:kind",
+  requireAdmin,
+  (req, res) => {
+    const { processSlug, kind } = req.params;
+    if (!["c1", "c2"].includes(kind))
+      return res.status(404).json({ error: "No encontrado." });
 
-  const db = readDb();
-  const proc = db.processes.find((p) => p.processSlug === processSlug);
-  if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
-
-  res.json(proc.templates?.[kind] || null);
-});
-
-app.put("/api/admin/processes/:processSlug/templates/:kind", requireAdmin, (req, res) => {
-  const { processSlug, kind } = req.params;
-  if (!["c1", "c2"].includes(kind)) return res.status(404).json({ error: "No encontrado." });
-
-  const incoming = req.body || {};
-
-  const next = updateDb((db) => {
+    const db = readDb();
     const proc = db.processes.find((p) => p.processSlug === processSlug);
-    if (!proc) return db;
+    if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
 
-    proc.templates = proc.templates || {};
-    proc.templates[kind] = { ...proc.templates[kind], ...incoming };
-    return db;
-  });
+    res.json(proc.templates?.[kind] || null);
+  },
+);
 
-  const proc = next.processes.find((p) => p.processSlug === processSlug);
-  if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
-  res.json(proc.templates[kind]);
-});
+app.put(
+  "/api/admin/processes/:processSlug/templates/:kind",
+  requireAdmin,
+  (req, res) => {
+    const { processSlug, kind } = req.params;
+    if (!["c1", "c2"].includes(kind))
+      return res.status(404).json({ error: "No encontrado." });
+
+    const incoming = req.body || {};
+
+    const next = updateDb((db) => {
+      const proc = db.processes.find((p) => p.processSlug === processSlug);
+      if (!proc) return db;
+
+      proc.templates = proc.templates || {};
+      proc.templates[kind] = { ...proc.templates[kind], ...incoming };
+      return db;
+    });
+
+    const proc = next.processes.find((p) => p.processSlug === processSlug);
+    if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
+
+    res.json(proc.templates[kind]);
+  },
+);
 
 /* =========================
    PARTICIPANTS AUTH (APP)
@@ -235,15 +318,19 @@ app.post("/api/app/login", async (req, res) => {
   const { email, password } = req.body || {};
   const emailNorm = String(email || "").toLowerCase();
 
-  if (!emailNorm || !password) return res.status(400).json({ error: "Datos incompletos." });
+  if (!emailNorm || !password)
+    return res.status(400).json({ error: "Datos incompletos." });
 
   const db = readDb();
-  if (!Array.isArray(db.processes) || db.processes.length === 0) return res.status(409).json({ error: "No hay procesos configurados." });
+  if (!Array.isArray(db.processes) || db.processes.length === 0)
+    return res.status(409).json({ error: "No hay procesos configurados." });
 
   const matches = [];
   for (const proc of db.processes) {
     if (!proc.participants) proc.participants = [];
-    const found = proc.participants.find((p) => String(p.email || "").toLowerCase() === emailNorm);
+    const found = proc.participants.find(
+      (p) => String(p.email || "").toLowerCase() === emailNorm,
+    );
     if (found) matches.push({ proc, participant: found });
   }
 
@@ -254,10 +341,19 @@ app.post("/api/app/login", async (req, res) => {
     proc = db.processes[0];
     ensureMockParticipantsForProcess(proc);
 
-    participant = proc.participants.find((p) => String(p.email).toLowerCase() === emailNorm);
+    participant = proc.participants.find(
+      (p) => String(p.email).toLowerCase() === emailNorm,
+    );
+
     if (!participant) {
       const newId = `p-${Date.now()}`;
-      participant = { id: newId, firstName: emailNorm.split("@")[0], lastName: "", email: emailNorm, passwordHash: null };
+      participant = {
+        id: newId,
+        firstName: emailNorm.split("@")[0],
+        lastName: "",
+        email: emailNorm,
+        passwordHash: null,
+      };
       proc.participants.push(participant);
     }
 
@@ -269,29 +365,44 @@ app.post("/api/app/login", async (req, res) => {
   } else if (matches.length === 1) {
     proc = matches[0].proc;
     participant = matches[0].participant;
+
     ensureMockParticipantsForProcess(proc);
+
     updateDb((db2) => {
       const p2 = db2.processes.find((x) => x.processSlug === proc.processSlug);
-      if (p2 && (!Array.isArray(p2.participants) || p2.participants.length === 0)) p2.participants = proc.participants;
+      if (p2 && (!Array.isArray(p2.participants) || p2.participants.length === 0))
+        p2.participants = proc.participants;
       return db2;
     });
   } else {
-    return res.status(409).json({ error: "Este correo pertenece a más de un proceso. Ingrese utilizando el enlace de invitación." });
+    return res.status(409).json({
+      error:
+        "Este correo pertenece a más de un proceso. Ingrese utilizando el enlace de invitación.",
+    });
   }
 
-  if (String(password).length < 6) return res.status(401).json({ error: "Credenciales inválidas." });
+  if (String(password).length < 6)
+    return res.status(401).json({ error: "Credenciales inválidas." });
 
   const token = signParticipantToken({
     processSlug: proc.processSlug,
     participantId: participant.id,
     email: participant.email,
-    name: participantDisplayName(participant)
+    name: participantDisplayName(participant),
   });
 
   res.json({
     token,
-    participant: { id: participant.id, name: participantDisplayName(participant), email: participant.email },
-    process: { processSlug: proc.processSlug, companyName: proc.companyName, processName: proc.processName }
+    participant: {
+      id: participant.id,
+      name: participantDisplayName(participant),
+      email: participant.email,
+    },
+    process: {
+      processSlug: proc.processSlug,
+      companyName: proc.companyName,
+      processName: proc.processName,
+    },
   });
 });
 
@@ -306,43 +417,48 @@ app.get("/api/app/:processSlug/questionnaires", requireParticipant, (req, res) =
   const { proc, me } = scoped;
 
   const c1Entry = proc.responses?.c1?.[me.id];
-  const c1Status = calcStatusFromFreeText(c1Entry);
+  const c1Status = calcStatusFromDraft(c1Entry);
 
   const peers = (proc.participants || [])
     .filter((p) => p.id !== me.id)
     .map((p) => {
       const perMap = proc.responses?.c2?.[me.id] || {};
       const entry = perMap?.[p.id];
-      const st = calcStatusFromFreeText(entry);
+      const st = calcStatusFromDraft(entry);
       return {
         peerId: p.id,
         name: participantDisplayName(p),
         to: `/app/${proc.processSlug}/c2/${p.id}`,
         status: st.status,
-        percent: st.percent
+        percent: st.percent,
       };
     });
 
   res.json({
-    process: { processSlug: proc.processSlug, companyName: proc.companyName, processName: proc.processName },
+    process: {
+      processSlug: proc.processSlug,
+      companyName: proc.companyName,
+      processName: proc.processName,
+    },
     c1: {
       to: `/app/${proc.processSlug}/c1`,
       title: "Cuestionario general sobre el equipo gerencial",
       status: c1Status.status,
-      percent: c1Status.percent
+      percent: c1Status.percent,
     },
     c2: peers.map((x) => ({
       to: x.to,
       title: x.name,
       status: x.status,
-      percent: x.percent
-    }))
+      percent: x.percent,
+    })),
   });
 });
 
 app.get("/api/app/:processSlug/templates/:kind", requireParticipant, (req, res) => {
   const { kind } = req.params;
-  if (!["c1", "c2"].includes(kind)) return res.status(404).json({ error: "No encontrado." });
+  if (!["c1", "c2"].includes(kind))
+    return res.status(404).json({ error: "No encontrado." });
 
   const db = readDb();
   const scoped = getProcAndMeScoped(db, req);
@@ -372,8 +488,10 @@ app.put("/api/app/:processSlug/c1", requireParticipant, (req, res) => {
     if (scoped2.error) return db2;
 
     const { proc, me } = scoped2;
-    proc.responses.c1[me.id] = proc.responses.c1[me.id] || { draft: { freeText: "" }, savedAt: null, submittedAt: null };
-    if (proc.responses.c1[me.id].submittedAt) return db2; // no edits after submit
+    proc.responses.c1[me.id] =
+      proc.responses.c1[me.id] || { draft: { freeText: "" }, savedAt: null, submittedAt: null };
+
+    if (proc.responses.c1[me.id].submittedAt) return db2; // locked after submit
 
     proc.responses.c1[me.id].draft = { freeText };
     proc.responses.c1[me.id].savedAt = new Date().toISOString();
@@ -392,9 +510,10 @@ app.post("/api/app/:processSlug/c1/submit", requireParticipant, (req, res) => {
     if (scoped2.error) return db2;
 
     const { proc, me } = scoped2;
-    const entry = proc.responses.c1[me.id] || { draft: { freeText: "" }, savedAt: null, submittedAt: null };
-    const txt = String(entry?.draft?.freeText || "").trim();
-    if (!txt) return db2;
+    const entry =
+      proc.responses.c1[me.id] || { draft: { freeText: "" }, savedAt: null, submittedAt: null };
+
+    if (!hasMeaningfulDraft(entry.draft)) return db2;
 
     entry.submittedAt = new Date().toISOString();
     proc.responses.c1[me.id] = entry;
@@ -404,9 +523,11 @@ app.post("/api/app/:processSlug/c1/submit", requireParticipant, (req, res) => {
   const db = next;
   const proc = db.processes.find((p) => p.processSlug === req.params.processSlug);
   const entry = proc?.responses?.c1?.[req.participant.participantId];
-  if (!String(entry?.draft?.freeText || "").trim()) {
+
+  if (!hasMeaningfulDraft(entry?.draft)) {
     return res.status(400).json({ error: "Debe completar el cuestionario antes de enviarlo." });
   }
+
   res.json(entry);
 });
 
@@ -443,7 +564,8 @@ app.put("/api/app/:processSlug/c2/:peerId", requireParticipant, (req, res) => {
     if (!exists) return db2;
 
     proc.responses.c2[me.id] = proc.responses.c2[me.id] || {};
-    proc.responses.c2[me.id][peerId] = proc.responses.c2[me.id][peerId] || { draft: { freeText: "" }, savedAt: null, submittedAt: null };
+    proc.responses.c2[me.id][peerId] =
+      proc.responses.c2[me.id][peerId] || { draft: { freeText: "" }, savedAt: null, submittedAt: null };
 
     if (proc.responses.c2[me.id][peerId].submittedAt) return db2; // locked after submit
 
@@ -471,9 +593,10 @@ app.post("/api/app/:processSlug/c2/:peerId/submit", requireParticipant, (req, re
     if (!exists) return db2;
 
     proc.responses.c2[me.id] = proc.responses.c2[me.id] || {};
-    const entry = proc.responses.c2[me.id][peerId] || { draft: { freeText: "" }, savedAt: null, submittedAt: null };
-    const txt = String(entry?.draft?.freeText || "").trim();
-    if (!txt) return db2;
+    const entry =
+      proc.responses.c2[me.id][peerId] || { draft: { freeText: "" }, savedAt: null, submittedAt: null };
+
+    if (!hasMeaningfulDraft(entry.draft)) return db2;
 
     entry.submittedAt = new Date().toISOString();
     proc.responses.c2[me.id][peerId] = entry;
@@ -484,15 +607,11 @@ app.post("/api/app/:processSlug/c2/:peerId/submit", requireParticipant, (req, re
   const proc = db.processes.find((p) => p.processSlug === req.params.processSlug);
   const entry = proc?.responses?.c2?.[req.participant.participantId]?.[peerId];
 
-  if (!String(entry?.draft?.freeText || "").trim()) {
+  if (!hasMeaningfulDraft(entry?.draft)) {
     return res.status(400).json({ error: "Debe completar el cuestionario antes de enviarlo." });
   }
 
   res.json(entry);
-});
-
-app.listen(PORT, () => {
-  console.log(`Backend listening on http://localhost:${PORT}`);
 });
 
 /* =========================
@@ -506,9 +625,7 @@ app.get("/api/admin/processes-summary", requireAdmin, (_req, res) => {
     const responses = p.responses || { c1: {}, c2: {} };
 
     const c1Total = participants.length;
-    const c1Completed = Object.values(responses.c1 || {}).filter(
-      (r) => r?.submittedAt
-    ).length;
+    const c1Completed = Object.values(responses.c1 || {}).filter((r) => r?.submittedAt).length;
 
     let c2Total = 0;
     let c2Completed = 0;
@@ -531,8 +648,8 @@ app.get("/api/admin/processes-summary", requireAdmin, (_req, res) => {
         c1Completed,
         c1Total,
         c2Completed,
-        c2Total
-      }
+        c2Total,
+      },
     };
   });
 
@@ -541,7 +658,6 @@ app.get("/api/admin/processes-summary", requireAdmin, (_req, res) => {
 
 /* =========================
    ADMIN – PROCESS DASHBOARD
-   (participants table + per-user C1/C2 progress)
 ========================= */
 app.get("/api/admin/processes/:processSlug/dashboard", requireAdmin, (req, res) => {
   const db = readDb();
@@ -555,7 +671,7 @@ app.get("/api/admin/processes/:processSlug/dashboard", requireAdmin, (req, res) 
 
   const rows = participants.map((p) => {
     const c1Entry = c1?.[p.id] || null;
-    const c1Status = calcStatusFromFreeText(c1Entry); // { status, percent }
+    const c1Status = calcStatusFromDraft(c1Entry);
 
     const peersCount = participants.filter((x) => x.id !== p.id).length;
     const myMap = c2?.[p.id] || {};
@@ -565,7 +681,7 @@ app.get("/api/admin/processes/:processSlug/dashboard", requireAdmin, (req, res) 
       id: p.id,
       name: participantDisplayName(p),
       email: p.email || "",
-      c1: c1Status.status, // todo | progress | done
+      c1: c1Status.status,
       c2: { completed, total: peersCount },
     };
   });
@@ -586,10 +702,7 @@ app.get("/api/admin/processes/:processSlug/dashboard", requireAdmin, (req, res) 
 
 /* =========================
    ADMIN – PARTICIPANT ACTIONS
-   - Reminder (log event)
-   - Reset access (generate password + hash + log event)
 ========================= */
-
 function ensureEventsArray(db) {
   db.events = Array.isArray(db.events) ? db.events : [];
   return db.events;
@@ -601,7 +714,6 @@ function pushEvent(db, evt) {
 }
 
 function genTempPassword() {
-  // Simple y usable para el mock. (Luego podemos endurecer reglas.)
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
   let out = "";
   for (let i = 0; i < 10; i++) out += alphabet[Math.floor(Math.random() * alphabet.length)];
@@ -645,7 +757,7 @@ app.post(
     });
 
     res.json({ ok: true, ts: now });
-  }
+  },
 );
 
 app.post(
@@ -688,13 +800,13 @@ app.post(
       return db2;
     });
 
-    // En mock devolvemos la contraseña para que el admin la copie.
+    // Mock: devolvemos la clave para debug local (tu UI ya la oculta por defecto)
     res.json({
       ok: true,
       ts: now,
       tempPassword,
     });
-  }
+  },
 );
 
 /* =========================
@@ -708,7 +820,9 @@ app.post(
 app.get("/api/admin/events", requireAdmin, (req, res) => {
   const { processSlug, participantId, type } = req.query || {};
   const limitRaw = Number(req.query?.limit);
-  const limit = Number.isFinite(limitRaw) ? Math.min(Math.max(limitRaw, 1), 500) : 200;
+  const limit = Number.isFinite(limitRaw)
+    ? Math.min(Math.max(limitRaw, 1), 500)
+    : 200;
 
   const db = readDb();
   const events = Array.isArray(db.events) ? db.events : [];
@@ -725,4 +839,11 @@ app.get("/api/admin/events", requireAdmin, (req, res) => {
     .slice(0, limit);
 
   res.json(out);
+});
+
+/* =========================
+   START SERVER
+========================= */
+app.listen(PORT, () => {
+  console.log(`Backend listening on http://localhost:${PORT}`);
 });
