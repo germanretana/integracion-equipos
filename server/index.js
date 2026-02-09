@@ -538,3 +538,191 @@ app.get("/api/admin/processes-summary", requireAdmin, (_req, res) => {
 
   res.json(summary);
 });
+
+/* =========================
+   ADMIN – PROCESS DASHBOARD
+   (participants table + per-user C1/C2 progress)
+========================= */
+app.get("/api/admin/processes/:processSlug/dashboard", requireAdmin, (req, res) => {
+  const db = readDb();
+  const proc = db.processes.find((p) => p.processSlug === req.params.processSlug);
+  if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
+
+  const participants = proc.participants || [];
+  const responses = proc.responses || { c1: {}, c2: {} };
+  const c1 = responses.c1 || {};
+  const c2 = responses.c2 || {};
+
+  const rows = participants.map((p) => {
+    const c1Entry = c1?.[p.id] || null;
+    const c1Status = calcStatusFromFreeText(c1Entry); // { status, percent }
+
+    const peersCount = participants.filter((x) => x.id !== p.id).length;
+    const myMap = c2?.[p.id] || {};
+    const completed = Object.values(myMap).filter((r) => r?.submittedAt).length;
+
+    return {
+      id: p.id,
+      name: participantDisplayName(p),
+      email: p.email || "",
+      c1: c1Status.status, // todo | progress | done
+      c2: { completed, total: peersCount },
+    };
+  });
+
+  res.json({
+    process: {
+      processSlug: proc.processSlug,
+      companyName: proc.companyName,
+      processName: proc.processName,
+      status: proc.status,
+      logoUrl: proc.logoUrl || null,
+      launchedAt: proc.launchedAt || null,
+      closedAt: proc.closedAt || null,
+    },
+    participants: rows,
+  });
+});
+
+/* =========================
+   ADMIN – PARTICIPANT ACTIONS
+   - Reminder (log event)
+   - Reset access (generate password + hash + log event)
+========================= */
+
+function ensureEventsArray(db) {
+  db.events = Array.isArray(db.events) ? db.events : [];
+  return db.events;
+}
+
+function pushEvent(db, evt) {
+  const events = ensureEventsArray(db);
+  events.push(evt);
+}
+
+function genTempPassword() {
+  // Simple y usable para el mock. (Luego podemos endurecer reglas.)
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
+  let out = "";
+  for (let i = 0; i < 10; i++) out += alphabet[Math.floor(Math.random() * alphabet.length)];
+  return out;
+}
+
+app.post(
+  "/api/admin/processes/:processSlug/participants/:participantId/remind",
+  requireAdmin,
+  (req, res) => {
+    const { processSlug, participantId } = req.params;
+
+    const db = readDb();
+    const proc = db.processes.find((p) => p.processSlug === processSlug);
+    if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
+
+    const participant = (proc.participants || []).find((p) => p.id === participantId);
+    if (!participant) return res.status(404).json({ error: "Participante no encontrado." });
+
+    const now = new Date().toISOString();
+
+    updateDb((db2) => {
+      const proc2 = db2.processes.find((p) => p.processSlug === processSlug);
+      if (!proc2) return db2;
+
+      const part2 = (proc2.participants || []).find((p) => p.id === participantId);
+      if (!part2) return db2;
+
+      pushEvent(db2, {
+        id: `evt-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        ts: now,
+        type: "ADMIN_REMINDER_REQUESTED",
+        processSlug,
+        participantId,
+        participantEmail: String(part2.email || ""),
+        participantName: participantDisplayName(part2),
+        adminEmail: req.admin?.email || null,
+      });
+
+      return db2;
+    });
+
+    res.json({ ok: true, ts: now });
+  }
+);
+
+app.post(
+  "/api/admin/processes/:processSlug/participants/:participantId/reset-access",
+  requireAdmin,
+  async (req, res) => {
+    const { processSlug, participantId } = req.params;
+
+    const db = readDb();
+    const proc = db.processes.find((p) => p.processSlug === processSlug);
+    if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
+
+    const participant = (proc.participants || []).find((p) => p.id === participantId);
+    if (!participant) return res.status(404).json({ error: "Participante no encontrado." });
+
+    const tempPassword = genTempPassword();
+    const passwordHash = await bcrypt.hash(String(tempPassword), 10);
+    const now = new Date().toISOString();
+
+    updateDb((db2) => {
+      const proc2 = db2.processes.find((p) => p.processSlug === processSlug);
+      if (!proc2) return db2;
+
+      const part2 = (proc2.participants || []).find((p) => p.id === participantId);
+      if (!part2) return db2;
+
+      part2.passwordHash = passwordHash;
+
+      pushEvent(db2, {
+        id: `evt-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        ts: now,
+        type: "ADMIN_ACCESS_RESET",
+        processSlug,
+        participantId,
+        participantEmail: String(part2.email || ""),
+        participantName: participantDisplayName(part2),
+        adminEmail: req.admin?.email || null,
+      });
+
+      return db2;
+    });
+
+    // En mock devolvemos la contraseña para que el admin la copie.
+    res.json({
+      ok: true,
+      ts: now,
+      tempPassword,
+    });
+  }
+);
+
+/* =========================
+   ADMIN – EVENTS (LOGS)
+   Query:
+    - processSlug (optional)
+    - participantId (optional)
+    - type (optional)
+    - limit (optional, default 200, max 500)
+========================= */
+app.get("/api/admin/events", requireAdmin, (req, res) => {
+  const { processSlug, participantId, type } = req.query || {};
+  const limitRaw = Number(req.query?.limit);
+  const limit = Number.isFinite(limitRaw) ? Math.min(Math.max(limitRaw, 1), 500) : 200;
+
+  const db = readDb();
+  const events = Array.isArray(db.events) ? db.events : [];
+
+  let out = events;
+
+  if (processSlug) out = out.filter((e) => e?.processSlug === String(processSlug));
+  if (participantId) out = out.filter((e) => e?.participantId === String(participantId));
+  if (type) out = out.filter((e) => e?.type === String(type));
+
+  out = out
+    .slice()
+    .sort((a, b) => String(b?.ts || "").localeCompare(String(a?.ts || "")))
+    .slice(0, limit);
+
+  res.json(out);
+});

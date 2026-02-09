@@ -14,7 +14,7 @@
     },
     "c2": {
       "questions": [],
-      "instructionsMd": "# Retroalimentación a compañeros (C2)\n\nSu opinión sobre el desempeño y relaciones de cada uno de sus colegas es de gran valor para ayudarles a mejorar su papel como líderes en la organización.\n\n- Emita su criterio con la mayor profundidad y sinceridad.\n- No remita estos documentos a sus compañeros.\n- Completará un cuestionario sobre cada uno de sus colegas.\n- Sus colegas no conocerán la fuente de las evaluaciones o comentarios, pues esta información se procesa en forma anónima."
+      "instructionsMd": "# Retroalimentación a compañeros (C2)\n\nSu opinión sobre el desempeño y relaciones de cada uno de sus colegas es de gran valor para ayudarles a mejorar su papel como líderes en la organización.\n\n- Emita su criterio con la mayor profundidad y sinceridad.\n- No remita estos documentos a sus compañeros.\n- Completará un cuestionario sobre cada uno de sus colegas.\n- Sus colegas no conocerán la fuente de las evaluaciones o comentarios, pues esta información se procesa en forma anónima.\n\nHola mundo.\n"
     }
   },
   "processes": [
@@ -22,7 +22,7 @@
       "processSlug": "acme-integracion-2026",
       "companyName": "ACME",
       "processName": "Integración Equipo Gerencial 2026",
-      "status": "CERRADO",
+      "status": "EN_CURSO",
       "templates": {
         "c1": {
           "questions": [],
@@ -46,7 +46,7 @@
           "firstName": "Ana",
           "lastName": "López",
           "email": "ana@example.com",
-          "passwordHash": null
+          "passwordHash": "$2a$10$yovqr5zQPJscxWOA1kfOtOC9skaGHD1BTatikZC07kgwaDOHqZw0S"
         },
         {
           "id": "p3",
@@ -60,7 +60,7 @@
           "firstName": "Laura",
           "lastName": "Jiménez",
           "email": "laura@example.com",
-          "passwordHash": null
+          "passwordHash": "$2a$10$VFoklid0ts/GySfhA1THt.3scYJHrS.DyP1TX8Cac4r8tSzdt6tjm"
         },
         {
           "id": "p5",
@@ -68,55 +68,98 @@
           "lastName": "Vargas",
           "email": "diego@example.com",
           "passwordHash": null
-        },
-        {
-          "id": "p-1770585305782",
-          "firstName": "ñoisjñoij",
-          "lastName": "",
-          "email": "ñoisjñoij@asdfkhn.clm",
-          "passwordHash": null
-        },
-        {
-          "id": "p-1770585712833",
-          "firstName": "asdlifuh",
-          "lastName": "",
-          "email": "asdlifuh@asdoifjosidj.com",
-          "passwordHash": null
         }
       ],
       "createdAt": "2026-02-08T15:23:07.199Z",
       "launchedAt": "2026-02-08T22:59:56.023Z",
-      "closedAt": "2026-02-08T23:00:00.338Z",
+      "closedAt": null,
       "responses": {
-        "c1": {
-          "p-1770585712833": {
-            "draft": {
-              "freeText": "Hola mundo lindo.  asdf"
-            },
-            "savedAt": "2026-02-08T21:55:24.430Z",
-            "submittedAt": null
-          }
-        },
-        "c2": {
-          "p-1770585712833": {
-            "p2": {
-              "draft": {
-                "freeText": "asdf asdf"
-              },
-              "savedAt": "2026-02-08T21:55:20.005Z",
-              "submittedAt": null
-            },
-            "p1": {
-              "draft": {
-                "freeText": ""
-              },
-              "savedAt": "2026-02-08T21:55:27.421Z",
-              "submittedAt": null
-            }
-          }
-        }
+        "c1": {},
+        "c2": {}
       }
     }
   ],
-  "logs": []
+  "logs": [],
+  "events": [
+    {
+      "id": "evt-1770593828008-c6e80e49fb4958",
+      "ts": "2026-02-08T23:37:08.007Z",
+      "type": "ADMIN_REMINDER_REQUESTED",
+      "processSlug": "acme-integracion-2026",
+      "participantId": "p1",
+      "participantEmail": "german.retana@gmail.com",
+      "participantName": "German Retana",
+      "adminEmail": "german.retana@gmail.com"
+    },
+    {
+      "id": "evt-1770593842368-f70e88e764376",
+      "ts": "2026-02-08T23:37:22.368Z",
+      "type": "ADMIN_ACCESS_RESET",
+      "processSlug": "acme-integracion-2026",
+      "participantId": "p2",
+      "participantEmail": "ana@example.com",
+      "participantName": "Ana López",
+      "adminEmail": "german.retana@gmail.com"
+    },
+    {
+      "id": "evt-1770594050121-c516d7666060f8",
+      "ts": "2026-02-08T23:40:50.120Z",
+      "type": "ADMIN_REMINDER_REQUESTED",
+      "processSlug": "acme-integracion-2026",
+      "participantId": "p2",
+      "participantEmail": "ana@example.com",
+      "participantName": "Ana López",
+      "adminEmail": "german.retana@gmail.com"
+    },
+    {
+      "id": "evt-1770594059887-c2e38198127328",
+      "ts": "2026-02-08T23:40:59.887Z",
+      "type": "ADMIN_ACCESS_RESET",
+      "processSlug": "acme-integracion-2026",
+      "participantId": "p2",
+      "participantEmail": "ana@example.com",
+      "participantName": "Ana López",
+      "adminEmail": "german.retana@gmail.com"
+    },
+    {
+      "id": "evt-1770594336606-854cfefcb21e68",
+      "ts": "2026-02-08T23:45:36.605Z",
+      "type": "ADMIN_REMINDER_REQUESTED",
+      "processSlug": "acme-integracion-2026",
+      "participantId": "p3",
+      "participantEmail": "carlos@example.com",
+      "participantName": "Carlos Méndez",
+      "adminEmail": "german.retana@gmail.com"
+    },
+    {
+      "id": "evt-1770594360759-eda0b135f0c17",
+      "ts": "2026-02-08T23:46:00.758Z",
+      "type": "ADMIN_ACCESS_RESET",
+      "processSlug": "acme-integracion-2026",
+      "participantId": "p4",
+      "participantEmail": "laura@example.com",
+      "participantName": "Laura Jiménez",
+      "adminEmail": "german.retana@gmail.com"
+    },
+    {
+      "id": "evt-1770594501221-fb492af12a0f58",
+      "ts": "2026-02-08T23:48:21.221Z",
+      "type": "ADMIN_REMINDER_REQUESTED",
+      "processSlug": "acme-integracion-2026",
+      "participantId": "p4",
+      "participantEmail": "laura@example.com",
+      "participantName": "Laura Jiménez",
+      "adminEmail": "german.retana@gmail.com"
+    },
+    {
+      "id": "evt-1770594795017-62493283993af",
+      "ts": "2026-02-08T23:53:15.016Z",
+      "type": "ADMIN_REMINDER_REQUESTED",
+      "processSlug": "acme-integracion-2026",
+      "participantId": "p3",
+      "participantEmail": "carlos@example.com",
+      "participantName": "Carlos Méndez",
+      "adminEmail": "german.retana@gmail.com"
+    }
+  ]
 }

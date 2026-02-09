@@ -1,0 +1,122 @@
+{
+  "admins": [
+    {
+      "email": "german.retana@gmail.com",
+      "name": "German",
+      "passwordHash": "$2a$10$u8JmQxeFjy9ZwEQhfqvSt.LLYRtu0BhPtV9CW8/kwuWwIow6y2Lp2",
+      "createdAt": "2026-02-08T15:22:30.058Z"
+    }
+  ],
+  "baseTemplates": {
+    "c1": {
+      "questions": [],
+      "instructionsMd": "# Retroalimentación del equipo (C1)\n\nEl propósito de esta encuesta es facilitar la evaluación del desempeño del equipo gerencial de la organización e identificar áreas de oportunidad para mejorar.\n\n- Conteste con sinceridad, en beneficio propio y de todo el equipo.\n- No remita esta encuesta a sus colegas.\n- Sea tan amplio como lo considere necesario para que el desempeño del equipo pueda mejorarse con base en su contribución.\n\nMuchas gracias por su valiosa cooperación."
+    },
+    "c2": {
+      "questions": [],
+      "instructionsMd": "# Retroalimentación a compañeros (C2)\n\nSu opinión sobre el desempeño y relaciones de cada uno de sus colegas es de gran valor para ayudarles a mejorar su papel como líderes en la organización.\n\n- Emita su criterio con la mayor profundidad y sinceridad.\n- No remita estos documentos a sus compañeros.\n- Completará un cuestionario sobre cada uno de sus colegas.\n- Sus colegas no conocerán la fuente de las evaluaciones o comentarios, pues esta información se procesa en forma anónima."
+    }
+  },
+  "processes": [
+    {
+      "processSlug": "acme-integracion-2026",
+      "companyName": "ACME",
+      "processName": "Integración Equipo Gerencial 2026",
+      "status": "CERRADO",
+      "templates": {
+        "c1": {
+          "questions": [],
+          "instructionsMd": "# Retroalimentación del equipo (C1)\n\nEl propósito de esta encuesta es facilitar la evaluación del desempeño del equipo gerencial de la organización e identificar áreas de oportunidad para mejorar.\n\n- Conteste con sinceridad, en beneficio propio y de todo el equipo.\n- No remita esta encuesta a sus colegas.\n- Sea tan amplio como lo considere necesario para que el desempeño del equipo pueda mejorarse con base en su contribución.\n\nMuchas gracias por su valiosa cooperación. **Hola mundo**."
+        },
+        "c2": {
+          "questions": [],
+          "instructionsMd": "# Retroalimentación a compañeros (C2)\n\nSu opinión sobre el desempeño y relaciones de cada uno de sus colegas es de gran valor para ayudarles a mejorar su papel como líderes en la organización.\n\n- Emita su criterio con la mayor profundidad y sinceridad.\n- No remita estos documentos a sus compañeros.\n- Completará un cuestionario sobre cada uno de sus colegas.\n- Sus colegas no conocerán la fuente de las evaluaciones o comentarios, pues esta información se procesa en forma anónima."
+        }
+      },
+      "participants": [
+        {
+          "id": "p1",
+          "firstName": "German",
+          "lastName": "Retana",
+          "email": "german.retana@gmail.com",
+          "passwordHash": null
+        },
+        {
+          "id": "p2",
+          "firstName": "Ana",
+          "lastName": "López",
+          "email": "ana@example.com",
+          "passwordHash": null
+        },
+        {
+          "id": "p3",
+          "firstName": "Carlos",
+          "lastName": "Méndez",
+          "email": "carlos@example.com",
+          "passwordHash": null
+        },
+        {
+          "id": "p4",
+          "firstName": "Laura",
+          "lastName": "Jiménez",
+          "email": "laura@example.com",
+          "passwordHash": null
+        },
+        {
+          "id": "p5",
+          "firstName": "Diego",
+          "lastName": "Vargas",
+          "email": "diego@example.com",
+          "passwordHash": null
+        },
+        {
+          "id": "p-1770585305782",
+          "firstName": "ñoisjñoij",
+          "lastName": "",
+          "email": "ñoisjñoij@asdfkhn.clm",
+          "passwordHash": null
+        },
+        {
+          "id": "p-1770585712833",
+          "firstName": "asdlifuh",
+          "lastName": "",
+          "email": "asdlifuh@asdoifjosidj.com",
+          "passwordHash": null
+        }
+      ],
+      "createdAt": "2026-02-08T15:23:07.199Z",
+      "launchedAt": "2026-02-08T22:59:56.023Z",
+      "closedAt": "2026-02-08T23:00:00.338Z",
+      "responses": {
+        "c1": {
+          "p-1770585712833": {
+            "draft": {
+              "freeText": "Hola mundo lindo.  asdf"
+            },
+            "savedAt": "2026-02-08T21:55:24.430Z",
+            "submittedAt": null
+          }
+        },
+        "c2": {
+          "p-1770585712833": {
+            "p2": {
+              "draft": {
+                "freeText": "asdf asdf"
+              },
+              "savedAt": "2026-02-08T21:55:20.005Z",
+              "submittedAt": null
+            },
+            "p1": {
+              "draft": {
+                "freeText": ""
+              },
+              "savedAt": "2026-02-08T21:55:27.421Z",
+              "submittedAt": null
+            }
+          }
+        }
+      }
+    }
+  ],
+  "logs": []
+}
