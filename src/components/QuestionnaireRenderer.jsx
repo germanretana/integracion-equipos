@@ -73,6 +73,16 @@ function helpText(minEntries, maxEntries) {
   return "";
 }
 
+function isC2Q9Id(id) {
+  const x = String(id || "");
+  return /^c2-9[_-]\d{2}$/i.test(x) || /^c2\.q9\.\d{2}$/i.test(x);
+}
+
+function isC2Q9HeaderId(id) {
+  const x = String(id || "");
+  return /^c2-9$/i.test(x) || /^c2\.q9$/i.test(x);
+}
+
 function qText(q) {
   return q?.text ?? q?.item ?? q?.Item ?? q?.title ?? q?.label ?? "";
 }
@@ -293,6 +303,44 @@ export default function QuestionnaireRenderer({
     );
   }
 
+  function renderValue04Compact(q) {
+    const curRaw = answers?.[q.id];
+    const cur = curRaw && typeof curRaw === "object" ? curRaw : {};
+    const val = cur && typeof cur === "object" ? cur.value : null;
+    const valNum = Number.isFinite(val) ? val : null;
+
+    return (
+      <div className="c2q9-item" data-qid={q.id}>
+        <p className="c2q9-label">
+          <Html html={qText(q)} />
+        </p>
+
+        <div className="c2q9-inputRow">
+          <input
+            className="admin-input"
+            style={{ width: 140 }}
+            disabled={disabled}
+            inputMode="numeric"
+            value={valNum == null ? "" : String(valNum)}
+            placeholder="0 a 4"
+            onChange={(e) => {
+              const nextVal = e.target.value === "" ? null : clampInt(e.target.value, 0, 4);
+              // C2.q9: sin suggestion
+              setAnswer(q.id, { value: nextVal });
+            }}
+          />
+          <span style={{ fontSize: 12, opacity: 0.75 }}>0–4</span>
+        </div>
+
+        {missingSet.has(String(q.id)) ? (
+          <div className="c2q9-help" style={{ color: "#ff668f", opacity: 1 }}>
+            Falta completar esta pregunta
+          </div>
+        ) : null}
+      </div>
+    );
+  }
+
   function renderValue04(q) {
     const meta = q?.meta && typeof q.meta === "object" ? q.meta : {};
     const noSuggestion = meta.noSuggestion === true;
@@ -494,9 +542,69 @@ export default function QuestionnaireRenderer({
     );
   }
 
+  // === Special layout: C2 q9 value_0_4 in 2 columns ===
+  const hasC2Q9 = React.useMemo(() => {
+    return (questions || []).some((q) => isC2Q9HeaderId(q?.id) || isC2Q9Id(q?.id));
+  }, [questions]);
+
+  const rendered = React.useMemo(() => {
+    if (!hasC2Q9) return null;
+
+    const out = [];
+    const qs = questions || [];
+    let i = 0;
+
+    while (i < qs.length) {
+      const q = qs[i];
+      const id = String(q?.id || q?.key || `${i}`);
+      const type = String(q?.type || "").toLowerCase();
+
+      // Detect header for c2-9
+      if (isC2Q9HeaderId(id) && type === "header") {
+        // render header normally
+        out.push(
+          <MissingWrap key={id} qid={id} missing={false}>
+            {renderHeader({ ...q, id })}
+          </MissingWrap>
+        );
+
+        // collect subsequent c2-9 items
+        const items = [];
+        i += 1;
+        while (i < qs.length) {
+          const q2 = qs[i];
+          const id2 = String(q2?.id || q2?.key || `${i}`);
+          if (!isC2Q9Id(id2)) break;
+          items.push({ ...q2, id: id2 });
+          i += 1;
+        }
+
+        if (items.length) {
+          out.push(
+            <div key="c2q9-grid" className="c2q9-grid">
+              {items.map((it) => renderValue04Compact(it))}
+            </div>
+          );
+        }
+        continue;
+      }
+
+      // default render
+      out.push(
+        <MissingWrap key={id} qid={id} missing={missingSet.has(id)}>
+          {renderQuestion({ ...q, id })}
+        </MissingWrap>
+      );
+      i += 1;
+    }
+
+    return out;
+  }, [hasC2Q9, questions, missingSet, disabled, answers]);
+
   return (
     <div>
-      {questions.map((q, idx) => {
+      {/* C2 q9 grid render */}
+      {rendered ? rendered : questions.map((q, idx) => {
         const id = String(q?.id || q?.key || `${idx}`);
         const missing = missingSet.has(id);
         return (
