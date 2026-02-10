@@ -1,7 +1,15 @@
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 
-const DB_PATH = path.resolve(process.cwd(), "server", "data", "db.json");
+/**
+ * DB canonical: server/data/db.json
+ * IMPORTANT: path must be independent from process.cwd() because the server
+ * may be started from repo root or from ./server.
+ */
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const DB_PATH = path.resolve(__dirname, "..", "data", "db.json");
 
 function instructionsObjToMd(ins) {
   if (!ins || typeof ins !== "object") return "";
@@ -39,7 +47,7 @@ function defaultDb() {
           "- No remita esta encuesta a sus colegas.\n" +
           "- Sea tan amplio como lo considere necesario.\n\n" +
           "Muchas gracias por su valiosa cooperación.",
-        questions: []
+        questions: [],
       },
       c2: {
         instructionsMd:
@@ -48,11 +56,11 @@ function defaultDb() {
           "- Emita su criterio con profundidad y sinceridad.\n" +
           "- No remita estos documentos a sus compañeros.\n" +
           "- Sus colegas no conocerán la fuente, pues se procesa en forma anónima.",
-        questions: []
-      }
+        questions: [],
+      },
     },
     processes: [],
-    events: []
+    events: [],
   };
 }
 

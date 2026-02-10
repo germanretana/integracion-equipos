@@ -5426,7 +5426,7 @@
                 "c1-6b": "asdf",
                 "c1-7": "sadf",
                 "c1.q8.01": {
-                  "value": null,
+                  "value": 3,
                   "suggestion": ""
                 },
                 "c1.q8.02": {
@@ -5543,8 +5543,8 @@
               },
               "freeText": ""
             },
-            "savedAt": "2026-02-10T20:27:29.532Z",
-            "submittedAt": null
+            "savedAt": "2026-02-10T20:37:36.421Z",
+            "submittedAt": "2026-02-10T20:37:42.101Z"
           }
         },
         "c2": {
