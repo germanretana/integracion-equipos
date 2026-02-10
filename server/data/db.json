@@ -2609,7 +2609,7 @@
           }
         }
       ],
-      "instructionsMd": "# Retroalimentación a compañeros (C2)\n\nSu opinión sobre el desempeño y relaciones de cada uno de sus colegas es de gran valor para ayudarles a mejorar su papel como líderes en la organización.\n\n- Emita su criterio con la mayor profundidad y sinceridad.\n- No remita estos documentos a sus compañeros.\n- Completará un cuestionario sobre cada uno de sus colegas.\n- Sus colegas no conocerán la fuente de las evaluaciones o comentarios, pues esta información se procesa en forma anónima.\n\nHola mundo.\n"
+      "instructionsMd": "# Retroalimentación a compañeros (C2)\n\nSu opinión sobre el desempeño y relaciones de cada uno de sus colegas es de gran valor para ayudarles a mejorar su papel como líderes en la organización.\n\n- Emita su criterio con la mayor profundidad y sinceridad.\n- No remita estos documentos a sus compañeros.\n- Completará un cuestionario sobre cada uno de sus colegas.\n- Sus colegas no conocerán la fuente de las evaluaciones o comentarios, pues esta información se procesa en forma anónima."
     }
   },
   "processes": [
@@ -5220,7 +5220,7 @@
               }
             }
           ],
-          "instructionsMd": "# Retroalimentación a compañeros (C2)\n\nSu opinión sobre el desempeño y relaciones de cada uno de sus colegas es de gran valor para ayudarles a mejorar su papel como líderes en la organización.\n\n- Emita su criterio con la mayor profundidad y sinceridad.\n- No remita estos documentos a sus compañeros.\n- Completará un cuestionario sobre cada uno de sus colegas.\n- Sus colegas no conocerán la fuente de las evaluaciones o comentarios, pues esta información se procesa en forma anónima.\n\nHola mundo.\n"
+          "instructionsMd": "# Retroalimentación a compañeros (C2)\n\nSu opinión sobre el desempeño y relaciones de cada uno de sus colegas es de gran valor para ayudarles a mejorar su papel como líderes en la organización.\n\n- Emita su criterio con la mayor profundidad y sinceridad.\n- No remita estos documentos a sus compañeros.\n- Completará un cuestionario sobre cada uno de sus colegas.\n- Sus colegas no conocerán la fuente de las evaluaciones o comentarios, pues esta información se procesa en forma anónima."
         }
       },
       "participants": [
@@ -5260,13 +5260,6 @@
           "passwordHash": null
         },
         {
-          "id": "p-1770651336869",
-          "firstName": "asdñofisoij",
-          "lastName": "",
-          "email": "asdñofisoij@sadofij.com",
-          "passwordHash": null
-        },
-        {
           "id": "p-1770695754891",
           "firstName": "ana",
           "lastName": "",
@@ -5279,54 +5272,21 @@
       "closedAt": "2026-02-10T03:49:49.734Z",
       "responses": {
         "c1": {
-          "p-1770651336869": {
-            "draft": {
-              "freeText": "",
-              "answers": {}
-            },
-            "savedAt": "2026-02-09T22:29:24.914Z",
-            "submittedAt": null
-          },
           "p-1770695754891": {
             "draft": {
               "answers": {
                 "c1-1": 3,
                 "c1-3": [
-                  "",
-                  "ff",
-                  ""
+                  "ff"
                 ]
               },
               "freeText": ""
             },
-            "savedAt": "2026-02-10T13:14:59.335Z",
-            "submittedAt": "2026-02-10T13:15:02.801Z"
+            "savedAt": "2026-02-10T15:17:17.276Z",
+            "submittedAt": null
           }
         },
         "c2": {
-          "p-1770651336869": {
-            "p1": {
-              "draft": {
-                "freeText": ""
-              },
-              "savedAt": "2026-02-09T21:41:56.854Z",
-              "submittedAt": null
-            },
-            "p3": {
-              "draft": {
-                "freeText": ""
-              },
-              "savedAt": "2026-02-09T15:47:36.973Z",
-              "submittedAt": null
-            },
-            "p2": {
-              "draft": {
-                "freeText": ""
-              },
-              "savedAt": "2026-02-09T22:27:36.962Z",
-              "submittedAt": null
-            }
-          },
           "p-1770695754891": {
             "p2": {
               "draft": {
@@ -5356,16 +5316,13 @@
               "draft": {
                 "answers": {
                   "c2-1": [
-                    "aa",
-                    "",
-                    "",
-                    ""
+                    "aa"
                   ]
                 },
                 "freeText": ""
               },
               "savedAt": "2026-02-10T13:14:37.413Z",
-              "submittedAt": "2026-02-10T13:14:43.139Z"
+              "submittedAt": null
             },
             "p1": {
               "draft": {
@@ -5402,8 +5359,7 @@
                     "asdf"
                   ],
                   "c2-7c": [
-                    "asdf",
-                    ""
+                    "asdf"
                   ],
                   "c2-8": 1,
                   "c2-9_01": {
@@ -5593,7 +5549,7 @@
                 "freeText": ""
               },
               "savedAt": "2026-02-10T13:44:16.394Z",
-              "submittedAt": "2026-02-10T13:44:16.861Z"
+              "submittedAt": null
             }
           }
         }
