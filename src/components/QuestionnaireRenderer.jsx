@@ -125,7 +125,7 @@ function ButtonsRow({ children }) {
   );
 }
 
-function BtnChoice({ active, disabled, onClick, children, title }) {
+function BtnChoice({ active, disabled, onClick, children, title, style }) {
   return (
     <button
       type="button"
@@ -135,8 +135,12 @@ function BtnChoice({ active, disabled, onClick, children, title }) {
       title={title}
       style={{
         opacity: disabled ? 0.6 : 1,
-        border: active ? "1px solid rgba(255,255,255,0.40)" : undefined,
-        background: active ? "rgba(255,255,255,0.14)" : undefined,
+        ...(active
+          ? {
+              border: "1px solid rgba(255,255,255,0.50)",
+            }
+          : null),
+        ...style,
       }}
     >
       {children}
@@ -145,7 +149,6 @@ function BtnChoice({ active, disabled, onClick, children, title }) {
 }
 
 function MissingWrap({ qid, missing, children }) {
-  // If a deprecated/unsupported question returns null, don't render a wrapper box.
   if (children == null) return null;
 
   return (
@@ -175,6 +178,22 @@ function MissingWrap({ qid, missing, children }) {
       {children}
     </div>
   );
+}
+
+function ratingActiveStyle(value) {
+  // Rojo -> naranja -> ámbar -> verde -> verde fuerte
+  const palette = {
+    0: { bg: "rgba(255, 80, 80, 0.26)", bd: "rgba(255, 80, 80, 0.55)" },
+    1: { bg: "rgba(255, 150, 60, 0.24)", bd: "rgba(255, 150, 60, 0.52)" },
+    2: { bg: "rgba(255, 200, 60, 0.22)", bd: "rgba(255, 200, 60, 0.50)" },
+    3: { bg: "rgba(120, 220, 120, 0.22)", bd: "rgba(120, 220, 120, 0.50)" },
+    4: { bg: "rgba(0, 230, 160, 0.24)", bd: "rgba(0, 230, 160, 0.55)" },
+  };
+  const p = palette[value] || { bg: "rgba(255,255,255,0.14)", bd: "rgba(255,255,255,0.40)" };
+  return {
+    background: p.bg,
+    border: `1px solid ${p.bd}`,
+  };
 }
 
 export default function QuestionnaireRenderer({
@@ -318,6 +337,7 @@ export default function QuestionnaireRenderer({
               active={curNum === o.value}
               onClick={() => setAnswer(q.id, o.value)}
               title={`Valor: ${o.value}`}
+              style={curNum === o.value ? ratingActiveStyle(o.value) : undefined}
             >
               {feminine ? o.labelF : o.labelM}
             </BtnChoice>
@@ -353,7 +373,7 @@ export default function QuestionnaireRenderer({
               setAnswer(q.id, { value: nextVal });
             }}
           />
-          <span className="c2q9-scaleNote">0–4</span>
+          {/* Nota "0–4" removida por UX (backlog #1/#2) */}
         </div>
 
         {missingSet.has(String(q.id)) ? (
@@ -397,7 +417,7 @@ export default function QuestionnaireRenderer({
         >
           <div>
             <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 6 }}>
-              Valor (0..4)
+              Valor
             </div>
             <input
               className="admin-input"
@@ -469,9 +489,7 @@ export default function QuestionnaireRenderer({
               setAnswer(q.id, nextVal);
             }}
           />
-          <div style={{ fontSize: 12, opacity: 0.75 }}>
-            Escala 0..10 (se reporta promedio).
-          </div>
+          {/* Ayuda redundante removida (backlog #3). Si luego queremos, la reintroducimos vía meta. */}
         </div>
       </DefaultFieldWrap>
     );

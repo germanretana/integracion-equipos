@@ -574,7 +574,7 @@ app.post("/api/app/:processSlug/c1/submit", requireParticipant, (req, res) => {
 
     if (entry.submittedAt) return db2;
 
-    entry.submittedAt = new Date().toISOString();
+    { const now = new Date().toISOString(); entry.submittedAt = now; entry.savedAt = entry.savedAt || now; }
     proc.responses.c1[me.id] = entry;
     return db2;
   });
@@ -669,7 +669,7 @@ app.post("/api/app/:processSlug/c2/:peerId/submit", requireParticipant, (req, re
     const entry = ensureC2Entry(proc, me.id, peerId);
     if (entry.submittedAt) return db2;
 
-    entry.submittedAt = new Date().toISOString();
+    { const now = new Date().toISOString(); entry.submittedAt = now; entry.savedAt = entry.savedAt || now; }
     proc.responses.c2[me.id][peerId] = entry;
     return db2;
   });
