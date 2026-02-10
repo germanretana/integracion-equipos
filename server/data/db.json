@@ -989,54 +989,17 @@
         },
         {
           "schemaVersion": 1,
-          "id": "c1-10a",
+          "id": "c1-10",
           "order": 10.1,
-          "item": "",
-          "type": "pairing_of_peers",
+          "item": "Sugerencias de conversaciones entre colegas (opcional)",
+          "type": "pairing_rows",
+          "rows": 3,
           "minEntries": 0,
-          "maxEntries": 1,
           "explanation": null,
           "condition": null,
           "groupId": null,
           "dependsOn": null,
           "meta": {
-            "row": 1,
-            "leftLabel": "Persona",
-            "rightLabel": "Con"
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c1-10b",
-          "order": 10.2,
-          "item": "",
-          "type": "pairing_of_peers",
-          "minEntries": 0,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": null,
-          "dependsOn": null,
-          "meta": {
-            "row": 2,
-            "leftLabel": "Persona",
-            "rightLabel": "Con"
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c1-10c",
-          "order": 10.3,
-          "item": "",
-          "type": "pairing_of_peers",
-          "minEntries": 0,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": null,
-          "dependsOn": null,
-          "meta": {
-            "row": 3,
             "leftLabel": "Persona",
             "rightLabel": "Con"
           }
@@ -3584,54 +3547,17 @@
             },
             {
               "schemaVersion": 1,
-              "id": "c1-10a",
+              "id": "c1-10",
               "order": 10.1,
-              "item": "",
-              "type": "pairing_of_peers",
+              "item": "Sugerencias de conversaciones entre colegas (opcional)",
+              "type": "pairing_rows",
+              "rows": 3,
               "minEntries": 0,
-              "maxEntries": 1,
               "explanation": null,
               "condition": null,
               "groupId": null,
               "dependsOn": null,
               "meta": {
-                "row": 1,
-                "leftLabel": "Persona",
-                "rightLabel": "Con"
-              }
-            },
-            {
-              "schemaVersion": 1,
-              "id": "c1-10b",
-              "order": 10.2,
-              "item": "",
-              "type": "pairing_of_peers",
-              "minEntries": 0,
-              "maxEntries": 1,
-              "explanation": null,
-              "condition": null,
-              "groupId": null,
-              "dependsOn": null,
-              "meta": {
-                "row": 2,
-                "leftLabel": "Persona",
-                "rightLabel": "Con"
-              }
-            },
-            {
-              "schemaVersion": 1,
-              "id": "c1-10c",
-              "order": 10.3,
-              "item": "",
-              "type": "pairing_of_peers",
-              "minEntries": 0,
-              "maxEntries": 1,
-              "explanation": null,
-              "condition": null,
-              "groupId": null,
-              "dependsOn": null,
-              "meta": {
-                "row": 3,
                 "leftLabel": "Persona",
                 "rightLabel": "Con"
               }
@@ -5376,7 +5302,7 @@
                   "asdf",
                   "asfd"
                 ],
-                "c1-10a": [
+                "c1-10": [
                   {
                     "leftId": "p3",
                     "rightId": "p5"
@@ -5388,34 +5314,6 @@
                   {
                     "leftId": "p3",
                     "rightId": "p4"
-                  }
-                ],
-                "c1-10b": [
-                  {
-                    "leftId": "p4",
-                    "rightId": "p4"
-                  },
-                  {
-                    "leftId": "p3",
-                    "rightId": "p4"
-                  },
-                  {
-                    "leftId": "p4",
-                    "rightId": "p4"
-                  }
-                ],
-                "c1-10c": [
-                  {
-                    "leftId": "p1",
-                    "rightId": "p4"
-                  },
-                  {
-                    "leftId": "p3",
-                    "rightId": "p4"
-                  },
-                  {
-                    "leftId": "p3",
-                    "rightId": "p3"
                   }
                 ]
               },

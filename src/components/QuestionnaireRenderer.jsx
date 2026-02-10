@@ -451,7 +451,6 @@ export default function QuestionnaireRenderer({
         </div>
 
         <div style={{ marginTop: 8, fontSize: 12, opacity: 0.7 }}>
-          Nota: lo haremos dinámico y con validaciones en un bloque posterior.
         </div>
       </DefaultFieldWrap>
     );
