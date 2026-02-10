@@ -1048,6 +1048,22 @@
       "questions": [
         {
           "schemaVersion": 1,
+          "id": "c2-0",
+          "order": 0,
+          "item": "Para:",
+          "type": "select_peer",
+          "minEntries": 1,
+          "maxEntries": 1,
+          "explanation": null,
+          "condition": null,
+          "groupId": null,
+          "dependsOn": null,
+          "meta": {
+            "note": "En la app real, el peer viene por URL (/c2/:peerId)."
+          }
+        },
+        {
+          "schemaVersion": 1,
           "id": "c2-1",
           "order": 1,
           "item": "Las primeras palabras que se me ocurren para describirle a usted son:",
@@ -3643,6 +3659,22 @@
           "questions": [
             {
               "schemaVersion": 1,
+              "id": "c2-0",
+              "order": 0,
+              "item": "Para:",
+              "type": "select_peer",
+              "minEntries": 1,
+              "maxEntries": 1,
+              "explanation": null,
+              "condition": null,
+              "groupId": null,
+              "dependsOn": null,
+              "meta": {
+                "note": "En la app real, el peer viene por URL (/c2/:peerId)."
+              }
+            },
+            {
+              "schemaVersion": 1,
               "id": "c2-1",
               "order": 1,
               "item": "Las primeras palabras que se me ocurren para describirle a usted son:",
@@ -5552,15 +5584,7 @@
                 "answers": {},
                 "freeText": ""
               },
-              "savedAt": "2026-02-10T17:11:07.417Z",
-              "submittedAt": null
-            },
-            "p4": {
-              "draft": {
-                "answers": {},
-                "freeText": ""
-              },
-              "savedAt": "2026-02-10T17:11:11.933Z",
+              "savedAt": "2026-02-10T17:04:51.186Z",
               "submittedAt": null
             }
           }
