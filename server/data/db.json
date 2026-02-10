@@ -203,7 +203,7 @@
         },
         {
           "schemaVersion": 1,
-          "id": "c1-8",
+          "id": "c1.q8",
           "order": 8,
           "item": "Utilice la siguiente escala para evaluar el desempeño del Equipo Gerencial:",
           "type": "header",
@@ -217,7 +217,7 @@
         },
         {
           "schemaVersion": 1,
-          "id": "c1-8a",
+          "id": "c1.q8.01",
           "order": 8.01,
           "item": "Participación, fluidez y compromiso en formulación y ejecución de la estrategia:",
           "type": "value_0_4",
@@ -248,7 +248,7 @@
         },
         {
           "schemaVersion": 1,
-          "id": "c1-8b",
+          "id": "c1.q8.02",
           "order": 8.02,
           "item": "Periodicidad de reuniones como equipo líder.",
           "type": "value_0_4",
@@ -279,7 +279,7 @@
         },
         {
           "schemaVersion": 1,
-          "id": "c1-8c",
+          "id": "c1.q8.03",
           "order": 8.03,
           "item": "Conducción, involucramiento y eficiencia en cada reunión:",
           "type": "value_0_4",
@@ -310,7 +310,7 @@
         },
         {
           "schemaVersion": 1,
-          "id": "c1-8e",
+          "id": "c1.q8.04",
           "order": 8.04,
           "item": "Calidad de información disponible entre nosotros para análisis y toma de decisiones:",
           "type": "value_0_4",
@@ -341,7 +341,7 @@
         },
         {
           "schemaVersion": 1,
-          "id": "c1-8f",
+          "id": "c1.q8.05",
           "order": 8.05,
           "item": "Seguimiento a cumplimiento de nuestros acuerdos como Equipo Gerencial.",
           "type": "value_0_4",
@@ -372,7 +372,7 @@
         },
         {
           "schemaVersion": 1,
-          "id": "c1-8g",
+          "id": "c1.q8.06",
           "order": 8.06,
           "item": "Juego limpio en nuestra comunicación formal y no formal (no chismes).",
           "type": "value_0_4",
@@ -403,7 +403,7 @@
         },
         {
           "schemaVersion": 1,
-          "id": "c1-8h",
+          "id": "c1.q8.07",
           "order": 8.07,
           "item": "Objetividad y neutralidad de decisiones (sin intereses o agendas personales de por medio):",
           "type": "value_0_4",
@@ -434,7 +434,7 @@
         },
         {
           "schemaVersion": 1,
-          "id": "c1-8i",
+          "id": "c1.q8.08",
           "order": 8.08,
           "item": "Ambiente de equipo, cooperación, solidaridad,  confidencialidad y respeto entre nosotros:",
           "type": "value_0_4",
@@ -465,7 +465,7 @@
         },
         {
           "schemaVersion": 1,
-          "id": "c1-8j",
+          "id": "c1.q8.09",
           "order": 8.09,
           "item": "Relaciones de miembros de equipo gerencial con siguiente nivel de gestión en la organización:",
           "type": "value_0_4",
@@ -496,7 +496,7 @@
         },
         {
           "schemaVersion": 1,
-          "id": "c1-8k",
+          "id": "c1.q8.10",
           "order": 8.1,
           "item": "Calidad de las relaciones interpersonales (formales y no formales) entre nosotros:",
           "type": "value_0_4",
@@ -527,7 +527,7 @@
         },
         {
           "schemaVersion": 1,
-          "id": "c1-8l",
+          "id": "c1.q8.11",
           "order": 8.11,
           "item": "Apertura para ejecutar proyectos conjuntos entre diversas áreas a nuestro cargo:",
           "type": "value_0_4",
@@ -558,7 +558,7 @@
         },
         {
           "schemaVersion": 1,
-          "id": "c1-8m",
+          "id": "c1.q8.12",
           "order": 8.12,
           "item": "Compromiso con metas de la organización y responsabilidades individuales para alcanzarlas:",
           "type": "value_0_4",
@@ -589,7 +589,7 @@
         },
         {
           "schemaVersion": 1,
-          "id": "c1-8n",
+          "id": "c1.q8.13",
           "order": 8.13,
           "item": "Sabemos y respetamos quién puede decidir qué y cuándo:",
           "type": "value_0_4",
@@ -620,7 +620,7 @@
         },
         {
           "schemaVersion": 1,
-          "id": "c1-8o",
+          "id": "c1.q8.14",
           "order": 8.14,
           "item": "Proactividad para resolver conflictos y diferencias de criterio en el equipo:",
           "type": "value_0_4",
@@ -651,7 +651,7 @@
         },
         {
           "schemaVersion": 1,
-          "id": "c1-8p",
+          "id": "c1.q8.15",
           "order": 8.15,
           "item": "Apertura y cultura de retroalimentación mutua, directa y adecuada (asertividad):",
           "type": "value_0_4",
@@ -682,7 +682,7 @@
         },
         {
           "schemaVersion": 1,
-          "id": "c1-8q",
+          "id": "c1.q8.16",
           "order": 8.16,
           "item": "Actitud de aprendizaje, mejoramiento, creatividad e innovación en equipo:",
           "type": "value_0_4",
@@ -713,7 +713,7 @@
         },
         {
           "schemaVersion": 1,
-          "id": "c1-8r",
+          "id": "c1.q8.17",
           "order": 8.17,
           "item": "Desempeño como un solo equipo ante el resto de la organización; consistencia en el trato del personal:",
           "type": "value_0_4",
@@ -744,7 +744,7 @@
         },
         {
           "schemaVersion": 1,
-          "id": "c1-8s",
+          "id": "c1.q8.18",
           "order": 8.18,
           "item": "Escucha activa, receptividad y respeto en la comunicación entre colegas o pares:",
           "type": "value_0_4",
@@ -775,7 +775,7 @@
         },
         {
           "schemaVersion": 1,
-          "id": "c1-8t",
+          "id": "c1.q8.19",
           "order": 8.19,
           "item": "Percepción de equidad en nuestros beneficios e incentivos:",
           "type": "value_0_4",
@@ -806,7 +806,7 @@
         },
         {
           "schemaVersion": 1,
-          "id": "c1-8u",
+          "id": "c1.q8.20",
           "order": 8.2,
           "item": "Somos ejemplo de práctica de valores y cultura deseada para la organización:",
           "type": "value_0_4",
@@ -837,7 +837,7 @@
         },
         {
           "schemaVersion": 1,
-          "id": "c1-8v",
+          "id": "c1.q8.21",
           "order": 8.21,
           "item": "Cooperación, servicio y compromiso entre gerencias:",
           "type": "value_0_4",
@@ -868,7 +868,7 @@
         },
         {
           "schemaVersion": 1,
-          "id": "c1-8w",
+          "id": "c1.q8.22",
           "order": 8.22,
           "item": "Cultura de reconocimiento y aprecio por logros individuales y de los departamentos:",
           "type": "value_0_4",
@@ -899,7 +899,7 @@
         },
         {
           "schemaVersion": 1,
-          "id": "c1-8x",
+          "id": "c1.q8.23",
           "order": 8.23,
           "item": "Empoderamiento y auto-empoderamiento adecuado según nivel de responsabilidad:",
           "type": "value_0_4",
@@ -930,7 +930,7 @@
         },
         {
           "schemaVersion": 1,
-          "id": "c1-8y",
+          "id": "c1.q8.24",
           "order": 8.24,
           "item": "Cumplimiento excelente y constante de responsabilidades individuales con el equipo:",
           "type": "value_0_4",
@@ -2798,7 +2798,7 @@
             },
             {
               "schemaVersion": 1,
-              "id": "c1-8",
+              "id": "c1.q8",
               "order": 8,
               "item": "Utilice la siguiente escala para evaluar el desempeño del Equipo Gerencial:",
               "type": "header",
@@ -2812,7 +2812,7 @@
             },
             {
               "schemaVersion": 1,
-              "id": "c1-8a",
+              "id": "c1.q8.01",
               "order": 8.01,
               "item": "Participación, fluidez y compromiso en formulación y ejecución de la estrategia:",
               "type": "value_0_4",
@@ -2843,7 +2843,7 @@
             },
             {
               "schemaVersion": 1,
-              "id": "c1-8b",
+              "id": "c1.q8.02",
               "order": 8.02,
               "item": "Periodicidad de reuniones como equipo líder.",
               "type": "value_0_4",
@@ -2874,7 +2874,7 @@
             },
             {
               "schemaVersion": 1,
-              "id": "c1-8c",
+              "id": "c1.q8.03",
               "order": 8.03,
               "item": "Conducción, involucramiento y eficiencia en cada reunión:",
               "type": "value_0_4",
@@ -2905,7 +2905,7 @@
             },
             {
               "schemaVersion": 1,
-              "id": "c1-8e",
+              "id": "c1.q8.04",
               "order": 8.04,
               "item": "Calidad de información disponible entre nosotros para análisis y toma de decisiones:",
               "type": "value_0_4",
@@ -2936,7 +2936,7 @@
             },
             {
               "schemaVersion": 1,
-              "id": "c1-8f",
+              "id": "c1.q8.05",
               "order": 8.05,
               "item": "Seguimiento a cumplimiento de nuestros acuerdos como Equipo Gerencial.",
               "type": "value_0_4",
@@ -2967,7 +2967,7 @@
             },
             {
               "schemaVersion": 1,
-              "id": "c1-8g",
+              "id": "c1.q8.06",
               "order": 8.06,
               "item": "Juego limpio en nuestra comunicación formal y no formal (no chismes).",
               "type": "value_0_4",
@@ -2998,7 +2998,7 @@
             },
             {
               "schemaVersion": 1,
-              "id": "c1-8h",
+              "id": "c1.q8.07",
               "order": 8.07,
               "item": "Objetividad y neutralidad de decisiones (sin intereses o agendas personales de por medio):",
               "type": "value_0_4",
@@ -3029,7 +3029,7 @@
             },
             {
               "schemaVersion": 1,
-              "id": "c1-8i",
+              "id": "c1.q8.08",
               "order": 8.08,
               "item": "Ambiente de equipo, cooperación, solidaridad,  confidencialidad y respeto entre nosotros:",
               "type": "value_0_4",
@@ -3060,7 +3060,7 @@
             },
             {
               "schemaVersion": 1,
-              "id": "c1-8j",
+              "id": "c1.q8.09",
               "order": 8.09,
               "item": "Relaciones de miembros de equipo gerencial con siguiente nivel de gestión en la organización:",
               "type": "value_0_4",
@@ -3091,7 +3091,7 @@
             },
             {
               "schemaVersion": 1,
-              "id": "c1-8k",
+              "id": "c1.q8.10",
               "order": 8.1,
               "item": "Calidad de las relaciones interpersonales (formales y no formales) entre nosotros:",
               "type": "value_0_4",
@@ -3122,7 +3122,7 @@
             },
             {
               "schemaVersion": 1,
-              "id": "c1-8l",
+              "id": "c1.q8.11",
               "order": 8.11,
               "item": "Apertura para ejecutar proyectos conjuntos entre diversas áreas a nuestro cargo:",
               "type": "value_0_4",
@@ -3153,7 +3153,7 @@
             },
             {
               "schemaVersion": 1,
-              "id": "c1-8m",
+              "id": "c1.q8.12",
               "order": 8.12,
               "item": "Compromiso con metas de la organización y responsabilidades individuales para alcanzarlas:",
               "type": "value_0_4",
@@ -3184,7 +3184,7 @@
             },
             {
               "schemaVersion": 1,
-              "id": "c1-8n",
+              "id": "c1.q8.13",
               "order": 8.13,
               "item": "Sabemos y respetamos quién puede decidir qué y cuándo:",
               "type": "value_0_4",
@@ -3215,7 +3215,7 @@
             },
             {
               "schemaVersion": 1,
-              "id": "c1-8o",
+              "id": "c1.q8.14",
               "order": 8.14,
               "item": "Proactividad para resolver conflictos y diferencias de criterio en el equipo:",
               "type": "value_0_4",
@@ -3246,7 +3246,7 @@
             },
             {
               "schemaVersion": 1,
-              "id": "c1-8p",
+              "id": "c1.q8.15",
               "order": 8.15,
               "item": "Apertura y cultura de retroalimentación mutua, directa y adecuada (asertividad):",
               "type": "value_0_4",
@@ -3277,7 +3277,7 @@
             },
             {
               "schemaVersion": 1,
-              "id": "c1-8q",
+              "id": "c1.q8.16",
               "order": 8.16,
               "item": "Actitud de aprendizaje, mejoramiento, creatividad e innovación en equipo:",
               "type": "value_0_4",
@@ -3308,7 +3308,7 @@
             },
             {
               "schemaVersion": 1,
-              "id": "c1-8r",
+              "id": "c1.q8.17",
               "order": 8.17,
               "item": "Desempeño como un solo equipo ante el resto de la organización; consistencia en el trato del personal:",
               "type": "value_0_4",
@@ -3339,7 +3339,7 @@
             },
             {
               "schemaVersion": 1,
-              "id": "c1-8s",
+              "id": "c1.q8.18",
               "order": 8.18,
               "item": "Escucha activa, receptividad y respeto en la comunicación entre colegas o pares:",
               "type": "value_0_4",
@@ -3370,7 +3370,7 @@
             },
             {
               "schemaVersion": 1,
-              "id": "c1-8t",
+              "id": "c1.q8.19",
               "order": 8.19,
               "item": "Percepción de equidad en nuestros beneficios e incentivos:",
               "type": "value_0_4",
@@ -3401,7 +3401,7 @@
             },
             {
               "schemaVersion": 1,
-              "id": "c1-8u",
+              "id": "c1.q8.20",
               "order": 8.2,
               "item": "Somos ejemplo de práctica de valores y cultura deseada para la organización:",
               "type": "value_0_4",
@@ -3432,7 +3432,7 @@
             },
             {
               "schemaVersion": 1,
-              "id": "c1-8v",
+              "id": "c1.q8.21",
               "order": 8.21,
               "item": "Cooperación, servicio y compromiso entre gerencias:",
               "type": "value_0_4",
@@ -3463,7 +3463,7 @@
             },
             {
               "schemaVersion": 1,
-              "id": "c1-8w",
+              "id": "c1.q8.22",
               "order": 8.22,
               "item": "Cultura de reconocimiento y aprecio por logros individuales y de los departamentos:",
               "type": "value_0_4",
@@ -3494,7 +3494,7 @@
             },
             {
               "schemaVersion": 1,
-              "id": "c1-8x",
+              "id": "c1.q8.23",
               "order": 8.23,
               "item": "Empoderamiento y auto-empoderamiento adecuado según nivel de responsabilidad:",
               "type": "value_0_4",
@@ -3525,7 +3525,7 @@
             },
             {
               "schemaVersion": 1,
-              "id": "c1-8y",
+              "id": "c1.q8.24",
               "order": 8.24,
               "item": "Cumplimiento excelente y constante de responsabilidades individuales con el equipo:",
               "type": "value_0_4",
@@ -5256,12 +5256,173 @@
           "p2": {
             "draft": {
               "answers": {
-                "c1.q1": "test"
+                "c1.q1": "test",
+                "c1-1": 1,
+                "c1-2": [
+                  "asdf",
+                  ""
+                ],
+                "c1-3": [
+                  "asf",
+                  "",
+                  ""
+                ],
+                "c1-4a": 2,
+                "c1-4b": "asf",
+                "c1-5a": "yes",
+                "c1-5b": "no",
+                "c1-5c": "yes",
+                "c1-6a": "no",
+                "c1-6b": "asdf",
+                "c1-7": "sadf",
+                "c1.q8.01": {
+                  "value": 4,
+                  "suggestion": ""
+                },
+                "c1.q8.02": {
+                  "value": 1,
+                  "suggestion": ""
+                },
+                "c1.q8.03": {
+                  "value": 2,
+                  "suggestion": ""
+                },
+                "c1.q8.04": {
+                  "value": 3,
+                  "suggestion": "1"
+                },
+                "c1.q8.05": {
+                  "value": 1,
+                  "suggestion": "2"
+                },
+                "c1.q8.06": {
+                  "value": 2,
+                  "suggestion": ""
+                },
+                "c1.q8.07": {
+                  "value": 3,
+                  "suggestion": ""
+                },
+                "c1.q8.08": {
+                  "value": 1,
+                  "suggestion": ""
+                },
+                "c1.q8.09": {
+                  "value": 2,
+                  "suggestion": ""
+                },
+                "c1.q8.10": {
+                  "value": 3,
+                  "suggestion": ""
+                },
+                "c1.q8.11": {
+                  "value": 1,
+                  "suggestion": ""
+                },
+                "c1.q8.12": {
+                  "value": 2,
+                  "suggestion": ""
+                },
+                "c1.q8.13": {
+                  "value": 3,
+                  "suggestion": ""
+                },
+                "c1.q8.14": {
+                  "value": 1,
+                  "suggestion": ""
+                },
+                "c1.q8.15": {
+                  "value": 2,
+                  "suggestion": ""
+                },
+                "c1.q8.16": {
+                  "value": 3,
+                  "suggestion": ""
+                },
+                "c1.q8.17": {
+                  "value": 1,
+                  "suggestion": ""
+                },
+                "c1.q8.18": {
+                  "value": 2,
+                  "suggestion": ""
+                },
+                "c1.q8.19": {
+                  "value": 3,
+                  "suggestion": ""
+                },
+                "c1.q8.20": {
+                  "value": 1,
+                  "suggestion": ""
+                },
+                "c1.q8.21": {
+                  "value": 2,
+                  "suggestion": ""
+                },
+                "c1.q8.22": {
+                  "value": 3,
+                  "suggestion": ""
+                },
+                "c1.q8.23": {
+                  "value": 1,
+                  "suggestion": ""
+                },
+                "c1.q8.24": {
+                  "value": 2,
+                  "suggestion": ""
+                },
+                "c1-9": [
+                  "sasdf",
+                  "asdf",
+                  "asfd"
+                ],
+                "c1-10a": [
+                  {
+                    "leftId": "p3",
+                    "rightId": "p5"
+                  },
+                  {
+                    "leftId": "p3",
+                    "rightId": "p4"
+                  },
+                  {
+                    "leftId": "p3",
+                    "rightId": "p4"
+                  }
+                ],
+                "c1-10b": [
+                  {
+                    "leftId": "p4",
+                    "rightId": "p4"
+                  },
+                  {
+                    "leftId": "p3",
+                    "rightId": "p4"
+                  },
+                  {
+                    "leftId": "p4",
+                    "rightId": "p4"
+                  }
+                ],
+                "c1-10c": [
+                  {
+                    "leftId": "p1",
+                    "rightId": "p4"
+                  },
+                  {
+                    "leftId": "p3",
+                    "rightId": "p4"
+                  },
+                  {
+                    "leftId": "p3",
+                    "rightId": "p3"
+                  }
+                ]
               },
               "freeText": ""
             },
-            "savedAt": "2026-02-10T17:02:47.918Z",
-            "submittedAt": null
+            "savedAt": "2026-02-10T17:20:29.022Z",
+            "submittedAt": "2026-02-10T17:20:29.572Z"
           }
         },
         "c2": {
