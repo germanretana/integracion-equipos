@@ -153,7 +153,27 @@
   background: #22c55e;
 }
 
+/* ===== Button alias: keep .btn consistent with .admin-btn ===== */
 .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.92);
+  padding: 9px 12px;
+  cursor: pointer;
+
   text-decoration: none;
-  font-size: 14px;
+  line-height: 1.2;
 }
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+

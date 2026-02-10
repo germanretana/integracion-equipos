@@ -1,3 +1,230 @@
+/* =========================
+   Shared button system
+   - Single visual style for .admin-btn and .btn
+   - NO font-size hardcode: inherit from context
+========================= */
+
+:where(.admin-btn, .btn) {
+  appearance: none;
+  -webkit-appearance: none;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  font: inherit;            /* <-- key: inherit font-size/family from context */
+  font-size: 14px;
+  line-height: 1.2;
+
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.92);
+
+  padding: 9px 12px;
+  cursor: pointer;
+
+  text-decoration: none;    /* so <a class="btn"> looks identical */
+  user-select: none;
+}
+
+:where(.admin-btn, .btn):hover {
+  background: rgba(255, 255, 255, 0.11);
+}
+
+:where(.admin-btn, .btn):active {
+  transform: translateY(0.5px);
+}
+
+:where(.admin-btn, .btn):disabled,
+:where(.admin-btn, .btn)[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+:where(.admin-btn, .btn):focus {
+  outline: none;
+}
+
+:where(.admin-btn, .btn):focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.26);
+  outline-offset: 2px;
+}
+
+
+/* =========================
+   Admin layout + controls
+========================= */
+
+.admin-wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 22px 60px;
+}
+
+.admin-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px 0 22px;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0 16px;
+}
+
+.admin-tab {
+  appearance: none;
+  -webkit-appearance: none;
+
+  border-radius: 999px;
+  padding: 8px 12px;
+
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.85);
+
+  font: inherit;
+  line-height: 1.2;
+}
+
+.admin-tab:hover {
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.admin-tab.active {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.admin-card {
+  margin-top: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.admin-card-head {
+  padding: 16px 18px 6px;
+}
+
+.admin-card-body {
+  padding: 10px 18px 18px;
+}
+
+.admin-label {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.70);
+  margin: 12px 0 6px;
+}
+
+.admin-input,
+.admin-textarea {
+  width: 100%;
+  box-sizing: border-box;
+
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.92);
+
+  padding: 10px 12px;
+  font: inherit;
+  line-height: 1.4;
+}
+
+.admin-textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.admin-input:focus,
+.admin-textarea:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.26);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.08);
+}
+
+.admin-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.admin-note {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.70);
+}
+
+
+/* =========================
+   Admin status pills
+   (avoid collisions with participant .pill)
+========================= */
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.status-todo {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.status-progress {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.status-done {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-bar-fill.status-todo {
+  background: #9ca3af;
+}
+
+.status-bar-fill.status-progress {
+  background: #3b82f6;
+}
+
+.status-bar-fill.status-done {
+  background: #22c55e;
+}
+
+
+/* =========================
+   Participant pages (C1/C2 list + forms)
+   NOTE: scoped to .page to avoid affecting Admin
+========================= */
+
 .page {
   min-height: 100vh;
   background: transparent;
@@ -8,45 +235,6 @@
   max-width: 1100px;
   margin: 0 auto;
   padding: 28px 22px 60px;
-}
-
-.topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  padding: 16px 0 22px;
-}
-
-.topbar-left {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.brand-logo {
-  height: 54px;
-  width: auto;
-  display: block;
-}
-
-.nav {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.nav a {
-  color: rgba(255, 255, 255, 0.78);
-  text-decoration: none;
-  padding: 10px 12px;
-  border-radius: 10px;
-}
-
-.nav a.active {
-  color: rgba(255, 255, 255, 0.95);
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .h1 {
@@ -108,12 +296,6 @@
   text-overflow: ellipsis;
 }
 
-.row-desc {
-  margin: 4px 0 0;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 14px;
-}
-
 .row-right {
   display: flex;
   align-items: center;
@@ -139,7 +321,7 @@
   color: rgba(210, 255, 240, 0.95);
 }
 
-.pill.pill-warn {
+.pill.warn {
   background: rgba(255, 176, 0, 0.12);
   border-color: rgba(255, 176, 0, 0.26);
   color: rgba(255, 230, 190, 0.95);
@@ -147,8 +329,8 @@
 
 .pill.muted {
   background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.7);
+  border-color: rgba(255, 255, 255, 0.10);
+  color: rgba(255, 255, 255, 0.70);
 }
 
 .chev {
@@ -158,8 +340,8 @@
   place-items: center;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  color: rgba(255, 255, 255, 0.70);
   font-size: 18px;
   line-height: 1;
 }
@@ -185,7 +367,8 @@
   color: rgba(255, 255, 255, 0.82);
 }
 
-/* ===== Form styles (C1/C2) ===== */
+
+/* ===== Participant form actions ===== */
 
 .form-actions {
   display: flex;
@@ -203,14 +386,16 @@
 .error {
   margin-top: 10px;
   color: rgba(255, 210, 210, 0.92);
-  background: rgba(255, 60, 60, 0.1);
-  border: 1px solid rgba(255, 60, 60, 0.2);
+  background: rgba(255, 60, 60, 0.10);
+  border: 1px solid rgba(255, 60, 60, 0.20);
   padding: 10px 12px;
   border-radius: 12px;
   font-size: 13px;
 }
 
-/* Markdown rendering */
+
+/* ===== Markdown rendering (participant) ===== */
+
 .md {
   color: rgba(255, 255, 255, 0.8);
   font-size: 15px;
@@ -224,25 +409,16 @@
   margin: 10px 0 8px;
 }
 
-.md p {
-  margin: 8px 0;
-}
+.md p { margin: 8px 0; }
+.md ul { margin: 8px 0 8px 18px; }
+.md li { margin: 4px 0; }
+.md strong { color: rgba(255, 255, 255, 0.95); }
 
-.md ul {
-  margin: 8px 0 8px 18px;
-}
-
-.md li {
-  margin: 4px 0;
-}
-
-.md strong {
-  color: rgba(255, 255, 255, 0.95);
-}
 
 /* =========================================
-   Participant inputs (SCOPED) — avoid global collisions
-   ========================================= */
+   Participant inputs: force white inputs
+   (scoped to .page only)
+========================================= */
 
 .page input[type="text"],
 .page input[type="email"],
@@ -260,7 +436,7 @@
   color: #0b1b3a;
 
   border: 1px solid rgba(0, 0, 0, 0.18);
-  font-size: 15px;
+  font: inherit;
   line-height: 1.4;
 }
 
@@ -287,7 +463,8 @@
   cursor: not-allowed;
 }
 
-/* ===== C2 q9: 2-column grid for value_0_4 items ===== */
+
+/* ===== C2 q9 grid (participant) ===== */
 
 .c2q9-grid {
   display: grid;
@@ -337,7 +514,6 @@
   text-align: center;
 }
 
-
 .c2q9-help {
   font-size: 12px;
   opacity: 0.72;
@@ -359,72 +535,47 @@
   }
 }
 
-/* ===== C1 q8: 3-column block for value_0_4 items (label | value | suggestion) ===== */
 
-.c1q8-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 12px;
+/* =========================
+   Unified Button Base
+   - Makes Admin .btn match .admin-btn
+   - Lets Admin inherit font-size like Participants
+========================= */
+
+.admin-btn,
+.btn {
+  appearance: none;
+  -webkit-appearance: none;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.92);
+
+  padding: 9px 12px;
+  cursor: pointer;
+
+  text-decoration: none;
+
+  /* KEY: inherit typography from the page; buttons forced to 14px */
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.2;
 }
 
-.c1q8-item {
-  background: rgba(0, 0, 0, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  padding: 12px;
-
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 110px minmax(0, 1.2fr);
-  gap: 12px;
-  align-items: start;
+.admin-btn:hover,
+.btn:hover {
+  background: rgba(255, 255, 255, 0.11);
 }
 
-.c1q8-label {
-  margin: 0;
-  font-size: 13px;
-  line-height: 1.35;
-  color: rgba(255, 255, 255, 0.86);
-  font-weight: 650;
+.admin-btn:disabled,
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
-.c1q8-control {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.c1q8-control .admin-input {
-  width: 96px;
-  max-width: 96px;
-  padding: 10px 10px;
-  text-align: center;
-}
-
-.c1q8-textarea {
-  resize: none;
-  overflow: hidden;
-  min-height: 44px;
-}
-
-.c1q8-help {
-  font-size: 12px;
-  margin-top: 6px;
-}
-
-.c1q8-missing {
-  border-color: rgba(255, 102, 143, 0.45);
-  background: rgba(255, 102, 143, 0.08);
-}
-
-@media (max-width: 860px) {
-  .c1q8-item {
-    grid-template-columns: 1fr;
-  }
-  .c1q8-control {
-    justify-content: flex-start;
-  }
-  .c1q8-control .admin-input {
-    width: 120px;
-    max-width: 120px;
-  }
-}
