@@ -39,6 +39,26 @@ function isFilledString(s) {
   return String(s || "").trim().length > 0;
 }
 
+function normalizeType(typeRaw) {
+  const t = String(typeRaw || "").toLowerCase().trim();
+
+  // Canon types expected by this renderer:
+  // header, input_list, text_area, binary_yes_no, rating_masc_5, rating_fem_5,
+  // value_0_4, evaluation_0_10, pairing_rows, select_peer (legacy display-only)
+
+  // Legacy / aliases:
+  if (t === "pairing_of_peers") return "pairing_rows";
+  if (t === "valor_0_4") return "value_0_4";
+  if (t === "eval_0_10") return "evaluation_0_10";
+
+  // Some alternate spellings (defensive)
+  if (t === "textarea") return "text_area";
+  if (t === "binary") return "binary_yes_no";
+  if (t === "input") return "input_list";
+
+  return t;
+}
+
 function helpText(minEntries, maxEntries) {
   if (minEntries == null && maxEntries == null) return "";
   if (minEntries === maxEntries && Number.isFinite(minEntries)) {
@@ -438,7 +458,7 @@ export default function QuestionnaireRenderer({
   }
 
   function renderQuestion(q) {
-    const type = String(q?.type || "").toLowerCase();
+    const type = normalizeType(q?.type);
 
     if (type === "header") return renderHeader(q);
     if (type === "text_area") return renderTextArea(q);
