@@ -519,3 +519,98 @@ textarea:disabled {
   opacity: 0.72;
   margin-top: 8px;
 }
+
+/* ===== Participant forms: force white inputs ===== */
+.page .admin-input,
+.page input[type="text"],
+.page input[type="email"],
+.page input[type="password"],
+.page input[type="number"],
+.page textarea,
+.page select {
+  background: #ffffff !important;
+  color: #0b1b3a !important;
+  border: 1px solid rgba(0, 0, 0, 0.18) !important;
+}
+
+.page .admin-input::placeholder,
+.page input::placeholder,
+.page textarea::placeholder {
+  color: rgba(0, 0, 0, 0.45) !important;
+}
+
+.page .admin-input:focus,
+.page input:focus,
+.page textarea:focus,
+.page select:focus {
+  outline: none;
+  border-color: #00165e !important;
+  box-shadow: 0 0 0 2px rgba(0, 22, 94, 0.15) !important;
+}
+
+.page .admin-input:disabled,
+.page input:disabled,
+.page textarea:disabled,
+.page select:disabled {
+  background: #f2f4f8 !important;
+  color: rgba(0, 0, 0, 0.45) !important;
+}
+
+
+/* ===== Fix: C2 q9 inputs must stay on the right (override global width:100%) ===== */
+
+.c2q9-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: nowrap;
+}
+
+.c2q9-labelWrap {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.c2q9-control {
+  flex: 0 0 auto;
+}
+
+/* Key: override global input width:100% */
+.c2q9-control .admin-input {
+  width: 120px !important;
+  max-width: 120px !important;
+  flex: 0 0 120px !important;
+  display: block;
+}
+
+/* On small screens, allow it to stack nicely */
+@media (max-width: 860px) {
+  .c2q9-item {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .c2q9-control .admin-input {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 1 1 100% !important;
+  }
+}
+
+
+/* ===== Tweak: C2 q9 label typography + narrower numeric input ===== */
+
+.c2q9-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.86);
+}
+
+.c2q9-control .admin-input {
+  width: 96px !important;
+  max-width: 96px !important;
+  flex: 0 0 96px !important;
+  padding: 10px 10px !important;
+  text-align: center;
+}
+
