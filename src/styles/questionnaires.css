@@ -80,7 +80,7 @@
 }
 
 .row {
-  display: flex;
+display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
@@ -88,6 +88,8 @@
   border-radius: 14px;
   background: rgba(0,0,0,0.18);
   border: 1px solid rgba(255,255,255,0.08);
+  min-height: 70px;
+  box-sizing: border-box;
 }
 
 .row + .row {
@@ -99,8 +101,11 @@
 }
 
 .row-title {
-  font-weight: 650;
+font-weight: 650;
   margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .row-desc {
@@ -117,6 +122,7 @@
 }
 
 .pill {
+
   font-size: 13px;
   padding: 6px 10px;
   border-radius: 999px;
@@ -124,9 +130,13 @@
   background: rgba(255,255,255,0.06);
   color: rgba(255,255,255,0.85);
   white-space: nowrap;
+  /* Normalizar altura entre estados */
+  line-height: 18px;
+  padding: 6px 10px;
+  box-sizing: border-box;
 }
 
-.pill.ok {
+.pill.pill-ok {
   background: rgba(0, 255, 170, 0.10);
   border-color: rgba(0, 255, 170, 0.22);
   color: rgba(210,255,240,0.95);

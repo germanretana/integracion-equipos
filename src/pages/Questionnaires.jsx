@@ -4,7 +4,7 @@ import "../styles/questionnaires.css";
 import { auth } from "../services/auth";
 
 function StatusPill({ status, percent }) {
-  if (status === "done") return <span className="pill ok">Completado</span>;
+  if (status === "done") return <span className="pill pill-ok">Completado</span>;
   if (status === "progress")
     return (
       <span className="pill warn">En progreso ({percent || 0}%)</span>
