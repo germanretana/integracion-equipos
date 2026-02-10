@@ -358,3 +358,73 @@
     max-width: 120px;
   }
 }
+
+/* ===== C1 q8: 3-column block for value_0_4 items (label | value | suggestion) ===== */
+
+.c1q8-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.c1q8-item {
+  background: rgba(0, 0, 0, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 12px;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 110px minmax(0, 1.2fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.c1q8-label {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.86);
+  font-weight: 650;
+}
+
+.c1q8-control {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.c1q8-control .admin-input {
+  width: 96px;
+  max-width: 96px;
+  padding: 10px 10px;
+  text-align: center;
+}
+
+.c1q8-textarea {
+  resize: none;
+  overflow: hidden;
+  min-height: 44px;
+}
+
+.c1q8-help {
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.c1q8-missing {
+  border-color: rgba(255, 102, 143, 0.45);
+  background: rgba(255, 102, 143, 0.08);
+}
+
+@media (max-width: 860px) {
+  .c1q8-item {
+    grid-template-columns: 1fr;
+  }
+  .c1q8-control {
+    justify-content: flex-start;
+  }
+  .c1q8-control .admin-input {
+    width: 120px;
+    max-width: 120px;
+  }
+}

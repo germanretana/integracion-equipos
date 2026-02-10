@@ -79,8 +79,9 @@ function helpText(minEntries, maxEntries) {
 }
 
 /**
- * Temporary fallback for existing seeds/templates:
- * C2.q9 is currently detected by ID patterns. We will later migrate this to meta.block/meta.layout.
+ * TEMP fallback for existing seeds/templates:
+ * We currently detect special blocks by ID patterns.
+ * Later we should migrate to meta.block/meta.layout.
  */
 function isC2Q9Id(id) {
   const x = String(id || "");
@@ -90,6 +91,17 @@ function isC2Q9Id(id) {
 function isC2Q9HeaderId(id) {
   const x = String(id || "");
   return /^c2-9$/i.test(x) || /^c2\.q9$/i.test(x);
+}
+
+function isC1Q8HeaderId(id) {
+  const x = String(id || "");
+  return /^c1-8$/i.test(x) || /^c1\.q8$/i.test(x);
+}
+
+function isC1Q8ValueId(id) {
+  const x = String(id || "");
+  // c1-8a ... c1-8z (una letra) o c1.q8.a
+  return /^c1-8[a-z]$/i.test(x) || /^c1\.q8\.[a-z]$/i.test(x);
 }
 
 function qText(q) {
@@ -135,11 +147,7 @@ function BtnChoice({ active, disabled, onClick, children, title, style }) {
       title={title}
       style={{
         opacity: disabled ? 0.6 : 1,
-        ...(active
-          ? {
-              border: "1px solid rgba(255,255,255,0.50)",
-            }
-          : null),
+        ...(active ? { border: "1px solid rgba(255,255,255,0.50)" } : null),
         ...style,
       }}
     >
@@ -189,11 +197,12 @@ function ratingActiveStyle(value) {
     3: { bg: "rgba(120, 220, 120, 0.22)", bd: "rgba(120, 220, 120, 0.50)" },
     4: { bg: "rgba(0, 230, 160, 0.24)", bd: "rgba(0, 230, 160, 0.55)" },
   };
-  const p = palette[value] || { bg: "rgba(255,255,255,0.14)", bd: "rgba(255,255,255,0.40)" };
-  return {
-    background: p.bg,
-    border: `1px solid ${p.bd}`,
-  };
+  const p =
+    palette[value] || {
+      bg: "rgba(255,255,255,0.14)",
+      bd: "rgba(255,255,255,0.40)",
+    };
+  return { background: p.bg, border: `1px solid ${p.bd}` };
 }
 
 export default function QuestionnaireRenderer({
@@ -257,10 +266,7 @@ export default function QuestionnaireRenderer({
     const min = Number.isFinite(q.minEntries) ? q.minEntries : 0;
 
     const arr = ensureArrayLen(answers?.[q.id], max);
-    const missingCount = Math.max(
-      0,
-      min - arr.filter((x) => isFilledString(x)).length,
-    );
+    const missingCount = Math.max(0, min - arr.filter((x) => isFilledString(x)).length);
 
     return (
       <DefaultFieldWrap
@@ -347,6 +353,7 @@ export default function QuestionnaireRenderer({
     );
   }
 
+  // C2.q9 item: compact (no suggestion, no "0–4" note)
   function renderValue04Compact(q) {
     const curRaw = answers?.[q.id];
     const cur = curRaw && typeof curRaw === "object" ? curRaw : {};
@@ -367,13 +374,10 @@ export default function QuestionnaireRenderer({
             value={valNum == null ? "" : String(valNum)}
             placeholder="0 a 4"
             onChange={(e) => {
-              const nextVal =
-                e.target.value === "" ? null : clampInt(e.target.value, 0, 4);
-              // C2.q9: sin suggestion
+              const nextVal = e.target.value === "" ? null : clampInt(e.target.value, 0, 4);
               setAnswer(q.id, { value: nextVal });
             }}
           />
-          {/* Nota "0–4" removida por UX (backlog #1/#2) */}
         </div>
 
         {missingSet.has(String(q.id)) ? (
@@ -381,6 +385,66 @@ export default function QuestionnaireRenderer({
             Falta completar esta pregunta
           </div>
         ) : null}
+      </div>
+    );
+  }
+
+  // C1.q8 row: 3 cols (label | value | suggestion) with autogrow textarea
+  function renderValue04C1Q8Row(q) {
+    const curRaw = answers?.[q.id];
+    const cur = curRaw && typeof curRaw === "object" ? curRaw : {};
+    const val = cur && typeof cur === "object" ? cur.value : null;
+    const sug = cur && typeof cur === "object" ? String(cur.suggestion || "") : "";
+    const valNum = Number.isFinite(val) ? val : null;
+    const missing = missingSet.has(String(q.id));
+
+    function autoGrow(el) {
+      if (!el) return;
+      el.style.height = "auto";
+      el.style.height = `${el.scrollHeight}px`;
+    }
+
+    return (
+      <div className={"c1q8-item" + (missing ? " c1q8-missing" : "")} data-qid={q.id}>
+        <div className="c1q8-labelWrap">
+          <p className="c1q8-label">
+            <Html html={qText(q)} />
+          </p>
+        </div>
+
+        <div className="c1q8-control">
+          <input
+            className="admin-input"
+            disabled={disabled}
+            inputMode="numeric"
+            value={valNum == null ? "" : String(valNum)}
+            placeholder="0 a 4"
+            onChange={(e) => {
+              const nextVal = e.target.value === "" ? null : clampInt(e.target.value, 0, 4);
+              setAnswer(q.id, { value: nextVal, suggestion: sug });
+            }}
+          />
+        </div>
+
+        <div className="c1q8-suggestion">
+          <textarea
+            disabled={disabled}
+            value={sug}
+            rows={1}
+            placeholder={q.explanationLabel || "Sugerencias para mejorar (opcional)"}
+            className="c1q8-textarea"
+            onInput={(e) => autoGrow(e.currentTarget)}
+            onChange={(e) => setAnswer(q.id, { value: valNum, suggestion: e.target.value })}
+            ref={(el) => {
+              if (el) autoGrow(el);
+            }}
+          />
+          {missing ? (
+            <div className="c1q8-help" style={{ color: "#ff668f", opacity: 1 }}>
+              Falta completar esta pregunta
+            </div>
+          ) : null}
+        </div>
       </div>
     );
   }
@@ -407,18 +471,9 @@ export default function QuestionnaireRenderer({
         title={<Html html={qText(q)} />}
         requiredHint={helpText(q.minEntries, q.maxEntries)}
       >
-        <div
-          style={{
-            display: "flex",
-            gap: 12,
-            alignItems: "flex-start",
-            flexWrap: "wrap",
-          }}
-        >
+        <div style={{ display: "flex", gap: 12, alignItems: "flex-start", flexWrap: "wrap" }}>
           <div>
-            <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 6 }}>
-              Valor
-            </div>
+            <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 6 }}>Valor</div>
             <input
               className="admin-input"
               style={{ width: 160 }}
@@ -427,8 +482,7 @@ export default function QuestionnaireRenderer({
               value={valNum == null ? "" : String(valNum)}
               placeholder="0 a 4"
               onChange={(e) => {
-                const nextVal =
-                  e.target.value === "" ? null : clampInt(e.target.value, 0, 4);
+                const nextVal = e.target.value === "" ? null : clampInt(e.target.value, 0, 4);
                 setValue(nextVal);
               }}
             />
@@ -448,9 +502,7 @@ export default function QuestionnaireRenderer({
                 disabled={disabled}
                 value={sug}
                 placeholder="Sugerencias…"
-                onChange={(e) =>
-                  setAnswer(q.id, { value: valNum, suggestion: e.target.value })
-                }
+                onChange={(e) => setAnswer(q.id, { value: valNum, suggestion: e.target.value })}
               />
             </div>
           ) : null}
@@ -468,14 +520,7 @@ export default function QuestionnaireRenderer({
         title={<Html html={qText(q)} />}
         requiredHint={helpText(q.minEntries, q.maxEntries)}
       >
-        <div
-          style={{
-            display: "flex",
-            gap: 12,
-            alignItems: "center",
-            flexWrap: "wrap",
-          }}
-        >
+        <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
           <input
             className="admin-input"
             style={{ width: 160 }}
@@ -484,8 +529,7 @@ export default function QuestionnaireRenderer({
             value={curNum == null ? "" : String(curNum)}
             placeholder="0 a 10"
             onChange={(e) => {
-              const nextVal =
-                e.target.value === "" ? null : clampInt(e.target.value, 0, 10);
+              const nextVal = e.target.value === "" ? null : clampInt(e.target.value, 0, 10);
               setAnswer(q.id, nextVal);
             }}
           />
@@ -515,12 +559,7 @@ export default function QuestionnaireRenderer({
           {cur.map((row, idx) => (
             <div
               key={idx}
-              style={{
-                display: "flex",
-                gap: 10,
-                alignItems: "center",
-                flexWrap: "wrap",
-              }}
+              style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}
             >
               <select
                 className="admin-input"
@@ -583,18 +622,10 @@ export default function QuestionnaireRenderer({
     if (type === "rating_fem_5") return renderRating5(q, true);
     if (type === "value_0_4" || type === "valor_0_4") return renderValue04(q);
     if (type === "evaluation_0_10") return renderEvaluation010(q);
-    if (type === "pairing_rows" || type === "pairing_of_peers")
-      return renderPairingRows(q);
+    if (type === "pairing_rows" || type === "pairing_of_peers") return renderPairingRows(q);
 
     return (
-      <div
-        style={{
-          marginTop: 14,
-          padding: 10,
-          borderRadius: 12,
-          background: "rgba(255,255,255,0.06)",
-        }}
-      >
+      <div style={{ marginTop: 14, padding: 10, borderRadius: 12, background: "rgba(255,255,255,0.06)" }}>
         <div style={{ fontWeight: 800 }}>
           Tipo no soportado: <code>{type || "?"}</code>
         </div>
@@ -605,15 +636,16 @@ export default function QuestionnaireRenderer({
     );
   }
 
-  // === Special layout: C2 q9 value_0_4 in 2 columns (TEMP fallback by ID) ===
   const hasC2Q9 = React.useMemo(() => {
-    return (questions || []).some(
-      (q) => isC2Q9HeaderId(q?.id) || isC2Q9Id(q?.id),
-    );
+    return (questions || []).some((q) => isC2Q9HeaderId(q?.id) || isC2Q9Id(q?.id));
+  }, [questions]);
+
+  const hasC1Q8 = React.useMemo(() => {
+    return (questions || []).some((q) => isC1Q8HeaderId(q?.id) || isC1Q8ValueId(q?.id));
   }, [questions]);
 
   const rendered = React.useMemo(() => {
-    if (!hasC2Q9) return null;
+    if (!hasC2Q9 && !hasC1Q8) return null;
 
     const out = [];
     const qs = questions || [];
@@ -624,15 +656,44 @@ export default function QuestionnaireRenderer({
       const id = String(q?.id || q?.key || `${i}`);
       const type = normalizeType(q?.type);
 
-      // Detect header for c2-9
-      if (isC2Q9HeaderId(id) && type === "header") {
+      // C1.q8: header + items (3 columns)
+      if (hasC1Q8 && isC1Q8HeaderId(id) && type === "header") {
         out.push(
           <MissingWrap key={id} qid={id} missing={false}>
             {renderHeader({ ...q, id })}
           </MissingWrap>,
         );
 
-        // collect subsequent c2-9 items
+        const items = [];
+        i += 1;
+        while (i < qs.length) {
+          const q2 = qs[i];
+          const id2 = String(q2?.id || q2?.key || `${i}`);
+          const t2 = normalizeType(q2?.type);
+          if (!isC1Q8ValueId(id2)) break;
+          if (t2 !== "value_0_4") break;
+          items.push({ ...q2, id: id2 });
+          i += 1;
+        }
+
+        if (items.length) {
+          out.push(
+            <div key="c1q8-grid" className="c1q8-grid">
+              {items.map((it) => renderValue04C1Q8Row(it))}
+            </div>,
+          );
+        }
+        continue;
+      }
+
+      // C2.q9: header + items (2 columns)
+      if (hasC2Q9 && isC2Q9HeaderId(id) && type === "header") {
+        out.push(
+          <MissingWrap key={id} qid={id} missing={false}>
+            {renderHeader({ ...q, id })}
+          </MissingWrap>,
+        );
+
         const items = [];
         i += 1;
         while (i < qs.length) {
@@ -653,6 +714,7 @@ export default function QuestionnaireRenderer({
         continue;
       }
 
+      // default
       const child = renderQuestion({ ...q, id });
       out.push(
         <MissingWrap key={id} qid={id} missing={missingSet.has(id)}>
@@ -663,7 +725,7 @@ export default function QuestionnaireRenderer({
     }
 
     return out;
-  }, [hasC2Q9, questions, missingSet, disabled, answers]);
+  }, [hasC2Q9, hasC1Q8, questions, missingSet, disabled, answers]);
 
   return (
     <div>
