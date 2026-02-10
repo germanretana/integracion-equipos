@@ -54,15 +54,7 @@ function helpText(minEntries, maxEntries) {
 }
 
 function qText(q) {
-  // soporta seeds con Item/item/text/title/label
-  return (
-    q?.text ??
-    q?.item ??
-    q?.Item ??
-    q?.title ??
-    q?.label ??
-    ""
-  );
+  return q?.text ?? q?.item ?? q?.Item ?? q?.title ?? q?.label ?? "";
 }
 
 function Html({ html }) {
@@ -113,6 +105,27 @@ function BtnChoice({ active, disabled, onClick, children, title }) {
   );
 }
 
+function MissingWrap({ qid, missing, children }) {
+  return (
+    <div
+      data-qid={qid}
+      style={{
+        borderRadius: 14,
+        padding: missing ? 10 : 0,
+        border: missing ? "1px solid rgba(255,102,143,0.85)" : "1px solid transparent",
+        background: missing ? "rgba(255,102,143,0.10)" : "transparent",
+      }}
+    >
+      {missing ? (
+        <div style={{ fontSize: 12, fontWeight: 800, marginBottom: 6, color: "#ff668f" }}>
+          Falta completar esta pregunta
+        </div>
+      ) : null}
+      {children}
+    </div>
+  );
+}
+
 export default function QuestionnaireRenderer({
   questions = [],
   answers = {},
@@ -123,7 +136,18 @@ export default function QuestionnaireRenderer({
   // para select_peer (C2)
   currentPeerId = "",
   currentPeerName = "",
+
+  // para excluirme de listas (C1 pairings)
+  currentParticipantId = "",
+
+  // ids faltantes (desde submit)
+  missingIds = [],
 }) {
+  const missingSet = React.useMemo(
+    () => new Set((missingIds || []).map((x) => String(x))),
+    [missingIds],
+  );
+
   function setAnswer(qid, value) {
     onChange?.({ ...answers, [qid]: value });
   }
@@ -163,10 +187,7 @@ export default function QuestionnaireRenderer({
     const min = Number.isFinite(q.minEntries) ? q.minEntries : 0;
 
     const arr = ensureArrayLen(answers?.[q.id], max);
-    const missingCount = Math.max(
-      0,
-      min - arr.filter((x) => isFilledString(x)).length,
-    );
+    const missingCount = Math.max(0, min - arr.filter((x) => isFilledString(x)).length);
 
     return (
       <DefaultFieldWrap
@@ -335,7 +356,6 @@ export default function QuestionnaireRenderer({
   }
 
   function renderSelectPeer(q) {
-    // Para C2: ya estás en un peerId fijo. Lo mostramos como bloque informativo.
     const name = currentPeerName || "Compañero";
     return (
       <div style={{ marginTop: 10, padding: 10, borderRadius: 12, background: "rgba(255,255,255,0.06)" }}>
@@ -354,7 +374,7 @@ export default function QuestionnaireRenderer({
       return { leftId: String(o.leftId || ""), rightId: String(o.rightId || "") };
     });
 
-    const options = peers || [];
+    const options = (peers || []).filter((p) => String(p?.id || "") !== String(currentParticipantId || ""));
 
     return (
       <DefaultFieldWrap
@@ -365,12 +385,7 @@ export default function QuestionnaireRenderer({
           {cur.map((row, idx) => (
             <div
               key={idx}
-              style={{
-                display: "flex",
-                gap: 10,
-                alignItems: "center",
-                flexWrap: "wrap",
-              }}
+              style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}
             >
               <select
                 className="admin-input"
@@ -431,17 +446,9 @@ export default function QuestionnaireRenderer({
     if (type === "binary_yes_no") return renderBinaryYesNo(q);
     if (type === "rating_masc_5") return renderRating5(q, false);
     if (type === "rating_fem_5") return renderRating5(q, true);
-
-    // alias: value_0_4 vs valor_0_4
     if (type === "value_0_4" || type === "valor_0_4") return renderValue04(q);
-
-    // evaluation 0..10
     if (type === "evaluation_0_10") return renderEvaluation010(q);
-
-    // C2 q0 (Para:) mientras exista en seeds
     if (type === "select_peer") return renderSelectPeer(q);
-
-    // Pairings (aliases)
     if (type === "pairing_rows" || type === "pairing_of_peers") return renderPairingRows(q);
 
     return (
@@ -456,5 +463,17 @@ export default function QuestionnaireRenderer({
     );
   }
 
-  return <div>{questions.map((q) => <div key={q.id || Math.random()}>{renderQuestion(q)}</div>)}</div>;
+  return (
+    <div>
+      {questions.map((q, idx) => {
+        const id = String(q?.id || q?.key || `${idx}`);
+        const missing = missingSet.has(id);
+        return (
+          <MissingWrap key={id} qid={id} missing={missing}>
+            {renderQuestion({ ...q, id })}
+          </MissingWrap>
+        );
+      })}
+    </div>
+  );
 }

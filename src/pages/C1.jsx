@@ -18,11 +18,11 @@ export default function C1() {
 
   const session = auth.getSession();
   const companyName = session?.process?.companyName || "";
+  const myId = session?.participant?.id || "";
 
   const [tpl, setTpl] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
 
-  // Nuevo modelo: draft.answers
   const [answers, setAnswers] = React.useState({});
   const [savedAt, setSavedAt] = React.useState(null);
   const [submittedAt, setSubmittedAt] = React.useState(null);
@@ -30,8 +30,10 @@ export default function C1() {
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState("");
 
-  // peers para pairing_rows
   const [peers, setPeers] = React.useState([]);
+
+  // submit validation feedback
+  const [missingIds, setMissingIds] = React.useState([]);
 
   React.useEffect(() => {
     let alive = true;
@@ -93,14 +95,29 @@ export default function C1() {
 
   useDebouncedEffect(answers, 600, doSave);
 
+  function scrollToFirstMissing(ids) {
+    const first = (ids || [])[0];
+    if (!first) return;
+    setTimeout(() => {
+      const el = document.querySelector(`[data-qid="${CSS.escape(String(first))}"]`);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 0);
+  }
+
   async function onSubmit() {
     setError("");
+    setMissingIds([]);
     try {
       const entry = await auth.fetch(`/api/app/${processSlug}/c1/submit`, {
         method: "POST",
       });
       setSubmittedAt(entry?.submittedAt || new Date().toISOString());
     } catch (e) {
+      const ids = e?.data?.missingIds;
+      if (Array.isArray(ids) && ids.length > 0) {
+        setMissingIds(ids);
+        scrollToFirstMissing(ids);
+      }
       setError(e?.message || "No se pudo enviar.");
     }
   }
@@ -144,9 +161,14 @@ export default function C1() {
               <QuestionnaireRenderer
                 questions={questions}
                 answers={answers}
-                onChange={setAnswers}
+                onChange={(next) => {
+                  setMissingIds([]); // al editar, limpiamos resaltado de submit previo
+                  setAnswers(next);
+                }}
                 peers={peers}
                 disabled={!!submittedAt}
+                currentParticipantId={myId}
+                missingIds={missingIds}
               />
 
               <div className="form-actions">

@@ -33,41 +33,11 @@ function ensureMockParticipantsForProcess(proc) {
   if (Array.isArray(proc.participants) && proc.participants.length > 0) return;
 
   proc.participants = [
-    {
-      id: "p1",
-      firstName: "German",
-      lastName: "Retana",
-      email: "german.retana@gmail.com",
-      passwordHash: null,
-    },
-    {
-      id: "p2",
-      firstName: "Ana",
-      lastName: "López",
-      email: "ana@example.com",
-      passwordHash: null,
-    },
-    {
-      id: "p3",
-      firstName: "Carlos",
-      lastName: "Méndez",
-      email: "carlos@example.com",
-      passwordHash: null,
-    },
-    {
-      id: "p4",
-      firstName: "Laura",
-      lastName: "Jiménez",
-      email: "laura@example.com",
-      passwordHash: null,
-    },
-    {
-      id: "p5",
-      firstName: "Diego",
-      lastName: "Vargas",
-      email: "diego@example.com",
-      passwordHash: null,
-    },
+    { id: "p1", firstName: "German", lastName: "Retana", email: "german.retana@gmail.com", passwordHash: null },
+    { id: "p2", firstName: "Ana", lastName: "López", email: "ana@example.com", passwordHash: null },
+    { id: "p3", firstName: "Carlos", lastName: "Méndez", email: "carlos@example.com", passwordHash: null },
+    { id: "p4", firstName: "Laura", lastName: "Jiménez", email: "laura@example.com", passwordHash: null },
+    { id: "p5", firstName: "Diego", lastName: "Vargas", email: "diego@example.com", passwordHash: null },
   ];
 }
 
@@ -90,7 +60,6 @@ function getProcAndMeScoped(db, req) {
   );
   if (!me) return { error: "Acceso denegado.", status: 403 };
 
-  // ensure responses objects exist
   proc.responses = proc.responses || { c1: {}, c2: {} };
   proc.responses.c1 = proc.responses.c1 || {};
   proc.responses.c2 = proc.responses.c2 || {};
@@ -98,39 +67,148 @@ function getProcAndMeScoped(db, req) {
   return { proc, me };
 }
 
+/* =========================
+   COMPLETION + PROGRESS
+========================= */
+function getQuestionsFromTemplate(template) {
+  const qs = template?.questions;
+  return Array.isArray(qs) ? qs : [];
+}
+
+function qId(q, idx) {
+  return String(q?.id || q?.key || `${idx}`);
+}
+
+function qType(q) {
+  return String(q?.type || "").toLowerCase();
+}
+
+function isFilledString(x) {
+  return String(x || "").trim().length > 0;
+}
+
+function clampInt(n, min, max) {
+  const x = Number(n);
+  if (!Number.isFinite(x)) return null;
+  const y = Math.trunc(x);
+  if (y < min || y > max) return null;
+  return y;
+}
+
+function isAnswerableQuestion(q) {
+  const t = qType(q);
+  if (!t) return false;
+  if (t === "header") return false;
+  // select_peer es informativo (legacy), no debe bloquear completitud
+  if (t === "select_peer") return false;
+  return true;
+}
+
+function isQuestionAnswered(q, ans) {
+  const t = qType(q);
+
+  if (t === "text_area") return isFilledString(ans);
+
+  if (t === "binary_yes_no") return ans === "yes" || ans === "no";
+
+  if (t === "rating_masc_5" || t === "rating_fem_5") {
+    return Number.isFinite(ans) && clampInt(ans, 0, 4) !== null;
+  }
+
+  if (t === "evaluation_0_10") {
+    return Number.isFinite(ans) && clampInt(ans, 0, 10) !== null;
+  }
+
+  if (t === "value_0_4" || t === "valor_0_4") {
+    if (!ans || typeof ans !== "object") return false;
+    return Number.isFinite(ans.value) && clampInt(ans.value, 0, 4) !== null;
+  }
+
+  if (t === "input_list") {
+    const max = Number.isFinite(q.maxEntries) ? q.maxEntries : 1;
+    const min = Number.isFinite(q.minEntries) ? q.minEntries : 1;
+    const arr = Array.isArray(ans) ? ans.slice(0, max) : [];
+    const filled = arr.filter(isFilledString).length;
+    return filled >= min;
+  }
+
+  if (t === "pairing_rows" || t === "pairing_of_peers") {
+    const rows = Number.isFinite(q.rows) ? q.rows : 3;
+    const arr = Array.isArray(ans) ? ans.slice(0, rows) : [];
+    if (arr.length < rows) return false;
+    return arr.every((x) => {
+      if (!x || typeof x !== "object") return false;
+      return isFilledString(x.leftId) && isFilledString(x.rightId);
+    });
+  }
+
+  // fallback: string/number truthy-ish
+  if (typeof ans === "string") return isFilledString(ans);
+  if (typeof ans === "number") return Number.isFinite(ans);
+  if (Array.isArray(ans)) return ans.some((x) => isFilledString(x));
+  if (ans && typeof ans === "object") {
+    if (typeof ans.value === "number" && Number.isFinite(ans.value)) return true;
+    if (typeof ans.value === "string" && isFilledString(ans.value)) return true;
+    if (typeof ans.suggestion === "string" && isFilledString(ans.suggestion)) return true;
+    if (typeof ans.leftId === "string" && isFilledString(ans.leftId)) return true;
+    if (typeof ans.rightId === "string" && isFilledString(ans.rightId)) return true;
+  }
+  return false;
+}
+
+function computeCompletionFromTemplate(template, draft) {
+  const questions = getQuestionsFromTemplate(template).filter(isAnswerableQuestion);
+  const answers = (draft?.answers && typeof draft.answers === "object") ? draft.answers : {};
+
+  const total = questions.length;
+  if (total === 0) return { total: 0, answered: 0, percent: 0, missingIds: [] };
+
+  let answered = 0;
+  const missingIds = [];
+
+  for (let i = 0; i < questions.length; i++) {
+    const q = questions[i];
+    const id = qId(q, i);
+    const a = answers[id];
+
+    if (isQuestionAnswered(q, a)) answered += 1;
+    else missingIds.push(id);
+  }
+
+  const percent = Math.max(0, Math.min(100, Math.round((answered / total) * 100)));
+  return { total, answered, percent, missingIds };
+}
+
 function hasMeaningfulDraft(draft) {
   if (!draft) return false;
-
-  // legacy (freeText)
   const txt = String(draft?.freeText || "").trim();
   if (txt) return true;
 
   const answers = draft?.answers;
   if (!answers || typeof answers !== "object") return false;
 
-  // Cualquier respuesta "no vacía" cuenta como progreso
-  for (const v of Object.values(answers)) {
-    if (v == null) continue;
-    if (typeof v === "string" && v.trim()) return true;
-    if (typeof v === "number" && Number.isFinite(v)) return true;
-    if (Array.isArray(v) && v.some((x) => String(x || "").trim())) return true;
+  return Object.values(answers).some((v) => {
+    if (v == null) return false;
+    if (typeof v === "string") return isFilledString(v);
+    if (typeof v === "number") return Number.isFinite(v);
+    if (Array.isArray(v)) return v.some((x) => isFilledString(x));
     if (typeof v === "object") {
       if (typeof v.value === "number" && Number.isFinite(v.value)) return true;
-      if (typeof v.suggestion === "string" && v.suggestion.trim()) return true;
-      if (typeof v.leftId === "string" && v.leftId) return true;
-      if (typeof v.rightId === "string" && v.rightId) return true;
+      if (typeof v.suggestion === "string" && isFilledString(v.suggestion)) return true;
+      if (typeof v.leftId === "string" && isFilledString(v.leftId)) return true;
+      if (typeof v.rightId === "string" && isFilledString(v.rightId)) return true;
     }
-  }
-
-  return false;
+    return false;
+  });
 }
 
-function calcStatusFromDraft(entry) {
-  // entry: { draft, savedAt, submittedAt }
+function calcStatusFromEntryAndTemplate(entry, template) {
   if (!entry) return { status: "todo", percent: 0 };
   if (entry.submittedAt) return { status: "done", percent: 100 };
   if (!hasMeaningfulDraft(entry.draft)) return { status: "todo", percent: 0 };
-  return { status: "progress", percent: 100 };
+
+  const comp = computeCompletionFromTemplate(template, entry.draft);
+  return { status: "progress", percent: comp.percent };
 }
 
 /* =========================
@@ -254,62 +332,61 @@ app.patch("/api/admin/processes/:processSlug/status", requireAdmin, (req, res) =
   if (!["PREPARACION", "EN_CURSO", "CERRADO"].includes(status))
     return res.status(400).json({ error: "Estado inválido." });
 
-  const db = readDb();
-  const proc = db.processes.find((p) => p.processSlug === req.params.processSlug);
+  const now = new Date().toISOString();
+
+  const next = updateDb((db2) => {
+    const proc2 = db2.processes.find((p) => p.processSlug === req.params.processSlug);
+    if (!proc2) return db2;
+
+    proc2.status = status;
+    if (status === "EN_CURSO") proc2.launchedAt = now;
+    if (status === "CERRADO") proc2.closedAt = now;
+
+    return db2;
+  });
+
+  const proc = next.processes.find((p) => p.processSlug === req.params.processSlug);
   if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
 
-  proc.status = status;
-  if (status === "EN_CURSO") proc.launchedAt = new Date().toISOString();
-  if (status === "CERRADO") proc.closedAt = new Date().toISOString();
-
-  updateDb(() => db);
   res.json(proc);
 });
 
 /* =========================
    PROCESS TEMPLATES (ADMIN)
 ========================= */
-app.get(
-  "/api/admin/processes/:processSlug/templates/:kind",
-  requireAdmin,
-  (req, res) => {
-    const { processSlug, kind } = req.params;
-    if (!["c1", "c2"].includes(kind))
-      return res.status(404).json({ error: "No encontrado." });
+app.get("/api/admin/processes/:processSlug/templates/:kind", requireAdmin, (req, res) => {
+  const { processSlug, kind } = req.params;
+  if (!["c1", "c2"].includes(kind))
+    return res.status(404).json({ error: "No encontrado." });
 
-    const db = readDb();
+  const db = readDb();
+  const proc = db.processes.find((p) => p.processSlug === processSlug);
+  if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
+
+  res.json(proc.templates?.[kind] || null);
+});
+
+app.put("/api/admin/processes/:processSlug/templates/:kind", requireAdmin, (req, res) => {
+  const { processSlug, kind } = req.params;
+  if (!["c1", "c2"].includes(kind))
+    return res.status(404).json({ error: "No encontrado." });
+
+  const incoming = req.body || {};
+
+  const next = updateDb((db) => {
     const proc = db.processes.find((p) => p.processSlug === processSlug);
-    if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
+    if (!proc) return db;
 
-    res.json(proc.templates?.[kind] || null);
-  },
-);
+    proc.templates = proc.templates || {};
+    proc.templates[kind] = { ...proc.templates[kind], ...incoming };
+    return db;
+  });
 
-app.put(
-  "/api/admin/processes/:processSlug/templates/:kind",
-  requireAdmin,
-  (req, res) => {
-    const { processSlug, kind } = req.params;
-    if (!["c1", "c2"].includes(kind))
-      return res.status(404).json({ error: "No encontrado." });
+  const proc = next.processes.find((p) => p.processSlug === processSlug);
+  if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
 
-    const incoming = req.body || {};
-
-    const next = updateDb((db) => {
-      const proc = db.processes.find((p) => p.processSlug === processSlug);
-      if (!proc) return db;
-
-      proc.templates = proc.templates || {};
-      proc.templates[kind] = { ...proc.templates[kind], ...incoming };
-      return db;
-    });
-
-    const proc = next.processes.find((p) => p.processSlug === processSlug);
-    if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
-
-    res.json(proc.templates[kind]);
-  },
-);
+  res.json(proc.templates[kind]);
+});
 
 /* =========================
    PARTICIPANTS AUTH (APP)
@@ -381,8 +458,13 @@ app.post("/api/app/login", async (req, res) => {
     });
   }
 
-  if (String(password).length < 6)
-    return res.status(401).json({ error: "Credenciales inválidas." });
+  if (participant.passwordHash) {
+    const ok = await bcrypt.compare(String(password || ""), participant.passwordHash);
+    if (!ok) return res.status(401).json({ error: "Credenciales inválidas." });
+  } else {
+    if (String(password).length < 6)
+      return res.status(401).json({ error: "Credenciales inválidas." });
+  }
 
   const token = signParticipantToken({
     processSlug: proc.processSlug,
@@ -416,15 +498,18 @@ app.get("/api/app/:processSlug/questionnaires", requireParticipant, (req, res) =
 
   const { proc, me } = scoped;
 
-  const c1Entry = proc.responses?.c1?.[me.id];
-  const c1Status = calcStatusFromDraft(c1Entry);
+  const c1Tpl = proc.templates?.c1 || null;
+  const c2Tpl = proc.templates?.c2 || null;
+
+  const c1Entry = proc.responses?.c1?.[me.id] || null;
+  const c1Status = calcStatusFromEntryAndTemplate(c1Entry, c1Tpl);
 
   const peers = (proc.participants || [])
     .filter((p) => p.id !== me.id)
     .map((p) => {
       const perMap = proc.responses?.c2?.[me.id] || {};
-      const entry = perMap?.[p.id];
-      const st = calcStatusFromDraft(entry);
+      const entry = perMap?.[p.id] || null;
+      const st = calcStatusFromEntryAndTemplate(entry, c2Tpl);
       return {
         peerId: p.id,
         name: participantDisplayName(p),
@@ -503,7 +588,7 @@ app.put("/api/app/:processSlug/c1", requireParticipant, (req, res) => {
     proc.responses.c1[me.id] =
       proc.responses.c1[me.id] || { draft: { answers: {} }, savedAt: null, submittedAt: null };
 
-    if (proc.responses.c1[me.id].submittedAt) return db2; // locked after submit
+    if (proc.responses.c1[me.id].submittedAt) return db2;
 
     const prev = proc.responses.c1[me.id].draft || {};
     const answers =
@@ -514,7 +599,7 @@ app.put("/api/app/:processSlug/c1", requireParticipant, (req, res) => {
     proc.responses.c1[me.id].draft = {
       ...prev,
       ...incomingDraft,
-      freeText, // keep legacy compatibility
+      freeText,
       answers,
     };
 
@@ -522,43 +607,57 @@ app.put("/api/app/:processSlug/c1", requireParticipant, (req, res) => {
     return db2;
   });
 
-  const db = next;
-  const proc = db.processes.find((p) => p.processSlug === req.params.processSlug);
+  const proc = next.processes.find((p) => p.processSlug === req.params.processSlug);
   const entry = proc?.responses?.c1?.[req.participant.participantId];
   res.json(entry);
 });
 
 app.post("/api/app/:processSlug/c1/submit", requireParticipant, (req, res) => {
+  const processSlug = req.params.processSlug;
+
+  // validar primero con template real
+  const db0 = readDb();
+  const scoped0 = getProcAndMeScoped(db0, req);
+  if (scoped0.error) return res.status(scoped0.status).json({ error: scoped0.error });
+
+  const { proc: p0, me: me0 } = scoped0;
+  const entry0 = p0.responses?.c1?.[me0.id] || null;
+
+  if (!hasMeaningfulDraft(entry0?.draft)) {
+    return res.status(400).json({ error: "Debe completar el cuestionario antes de enviarlo." });
+  }
+
+  const tpl = p0.templates?.c1 || null;
+  const comp0 = computeCompletionFromTemplate(tpl, entry0?.draft);
+
+  if (comp0.total > 0 && comp0.missingIds.length > 0) {
+    return res.status(400).json({
+      error: "Debe completar todas las preguntas antes de enviarlo.",
+      missingIds: comp0.missingIds,
+      percent: comp0.percent,
+    });
+  }
+
   const next = updateDb((db2) => {
     const scoped2 = getProcAndMeScoped(db2, req);
     if (scoped2.error) return db2;
 
     const { proc, me } = scoped2;
-
     const entry =
       proc.responses.c1[me.id] || { draft: { answers: {} }, savedAt: null, submittedAt: null };
 
-    if (!hasMeaningfulDraft(entry.draft)) return db2;
+    if (entry.submittedAt) return db2;
 
     entry.submittedAt = new Date().toISOString();
     proc.responses.c1[me.id] = entry;
     return db2;
   });
 
-  const db = next;
-  const proc = db.processes.find((p) => p.processSlug === req.params.processSlug);
+  const proc = next.processes.find((p) => p.processSlug === processSlug);
   const entry = proc?.responses?.c1?.[req.participant.participantId];
-
-  if (!hasMeaningfulDraft(entry?.draft)) {
-    return res.status(400).json({ error: "Debe completar el cuestionario antes de enviarlo." });
-  }
-
   res.json(entry);
 });
 
-/* =========================
-   C2 DRAFT + SUBMIT (per peer)
-========================= */
 /* =========================
    C2 DRAFT + SUBMIT (per peer)
 ========================= */
@@ -573,15 +672,23 @@ app.get("/api/app/:processSlug/c2/:peerId", requireParticipant, (req, res) => {
   const exists = (proc.participants || []).some((p) => p.id === peerId && p.id !== me.id);
   if (!exists) return res.status(404).json({ error: "Participante no encontrado." });
 
-  const map = proc.responses.c2[me.id] || {};
-  const entry = map[peerId] || { draft: { freeText: "" }, savedAt: null, submittedAt: null };
+  proc.responses.c2[me.id] = proc.responses.c2[me.id] || {};
+  const entry =
+    proc.responses.c2[me.id][peerId] ||
+    { draft: { answers: {}, freeText: "" }, savedAt: null, submittedAt: null };
+
+  entry.draft = entry.draft || {};
+  if (!entry.draft.answers || typeof entry.draft.answers !== "object") entry.draft.answers = {};
+  if (typeof entry.draft.freeText !== "string") entry.draft.freeText = "";
+
   res.json(entry);
 });
 
 app.put("/api/app/:processSlug/c2/:peerId", requireParticipant, (req, res) => {
   const peerId = req.params.peerId;
   const { draft } = req.body || {};
-  const freeText = String(draft?.freeText || "");
+  const incomingDraft = draft && typeof draft === "object" ? draft : {};
+  const freeText = String(incomingDraft?.freeText || ""); // legacy
 
   const next = updateDb((db2) => {
     const scoped2 = getProcAndMeScoped(db2, req);
@@ -593,52 +700,93 @@ app.put("/api/app/:processSlug/c2/:peerId", requireParticipant, (req, res) => {
 
     proc.responses.c2[me.id] = proc.responses.c2[me.id] || {};
     proc.responses.c2[me.id][peerId] =
-      proc.responses.c2[me.id][peerId] || { draft: { freeText: "" }, savedAt: null, submittedAt: null };
+      proc.responses.c2[me.id][peerId] || {
+        draft: { answers: {}, freeText: "" },
+        savedAt: null,
+        submittedAt: null,
+      };
 
-    if (proc.responses.c2[me.id][peerId].submittedAt) return db2; // locked after submit
+    const entry = proc.responses.c2[me.id][peerId];
+    if (entry.submittedAt) return db2;
 
-    proc.responses.c2[me.id][peerId].draft = { freeText };
-    proc.responses.c2[me.id][peerId].savedAt = new Date().toISOString();
+    const prev = entry.draft || {};
+    const answers =
+      incomingDraft.answers && typeof incomingDraft.answers === "object"
+        ? incomingDraft.answers
+        : prev.answers || {};
+
+    entry.draft = {
+      ...prev,
+      ...incomingDraft,
+      freeText,
+      answers,
+    };
+
+    entry.savedAt = new Date().toISOString();
+    proc.responses.c2[me.id][peerId] = entry;
 
     return db2;
   });
 
-  const db = next;
-  const proc = db.processes.find((p) => p.processSlug === req.params.processSlug);
+  const proc = next.processes.find((p) => p.processSlug === req.params.processSlug);
   const entry = proc?.responses?.c2?.[req.participant.participantId]?.[peerId];
   res.json(entry);
 });
 
 app.post("/api/app/:processSlug/c2/:peerId/submit", requireParticipant, (req, res) => {
+  const processSlug = req.params.processSlug;
   const peerId = req.params.peerId;
+
+  const db0 = readDb();
+  const scoped0 = getProcAndMeScoped(db0, req);
+  if (scoped0.error) return res.status(scoped0.status).json({ error: scoped0.error });
+
+  const { proc: p0, me: me0 } = scoped0;
+  const exists = (p0.participants || []).some((p) => p.id === peerId && p.id !== me0.id);
+  if (!exists) return res.status(404).json({ error: "Participante no encontrado." });
+
+  const entry0 = p0.responses?.c2?.[me0.id]?.[peerId] || null;
+
+  if (!hasMeaningfulDraft(entry0?.draft)) {
+    return res.status(400).json({ error: "Debe completar el cuestionario antes de enviarlo." });
+  }
+
+  const tpl = p0.templates?.c2 || null;
+  const comp0 = computeCompletionFromTemplate(tpl, entry0?.draft);
+
+  if (comp0.total > 0 && comp0.missingIds.length > 0) {
+    return res.status(400).json({
+      error: "Debe completar todas las preguntas antes de enviarlo.",
+      missingIds: comp0.missingIds,
+      percent: comp0.percent,
+    });
+  }
 
   const next = updateDb((db2) => {
     const scoped2 = getProcAndMeScoped(db2, req);
     if (scoped2.error) return db2;
 
     const { proc, me } = scoped2;
-    const exists = (proc.participants || []).some((p) => p.id === peerId && p.id !== me.id);
-    if (!exists) return db2;
+    const exists2 = (proc.participants || []).some((p) => p.id === peerId && p.id !== me.id);
+    if (!exists2) return db2;
 
     proc.responses.c2[me.id] = proc.responses.c2[me.id] || {};
     const entry =
-      proc.responses.c2[me.id][peerId] || { draft: { freeText: "" }, savedAt: null, submittedAt: null };
+      proc.responses.c2[me.id][peerId] || {
+        draft: { answers: {}, freeText: "" },
+        savedAt: null,
+        submittedAt: null,
+      };
 
-    if (!hasMeaningfulDraft(entry.draft)) return db2;
+    if (entry.submittedAt) return db2;
 
     entry.submittedAt = new Date().toISOString();
     proc.responses.c2[me.id][peerId] = entry;
     return db2;
   });
 
-  const db = next;
-  const proc = db.processes.find((p) => p.processSlug === req.params.processSlug);
+  const proc = next.processes.find((p) => p.processSlug === processSlug);
   const entry = proc?.responses?.c2?.[req.participant.participantId]?.[peerId];
-
-  if (!hasMeaningfulDraft(entry?.draft)) {
-    return res.status(400).json({ error: "Debe completar el cuestionario antes de enviarlo." });
-  }
-
   res.json(entry);
 });
 
@@ -672,12 +820,7 @@ app.get("/api/admin/processes-summary", requireAdmin, (_req, res) => {
       processName: p.processName,
       status: p.status,
       logoUrl: p.logoUrl || null,
-      progress: {
-        c1Completed,
-        c1Total,
-        c2Completed,
-        c2Total,
-      },
+      progress: { c1Completed, c1Total, c2Completed, c2Total },
     };
   });
 
@@ -697,9 +840,11 @@ app.get("/api/admin/processes/:processSlug/dashboard", requireAdmin, (req, res) 
   const c1 = responses.c1 || {};
   const c2 = responses.c2 || {};
 
+  const c1Tpl = proc.templates?.c1 || null;
+
   const rows = participants.map((p) => {
     const c1Entry = c1?.[p.id] || null;
-    const c1Status = calcStatusFromDraft(c1Entry);
+    const c1Status = calcStatusFromEntryAndTemplate(c1Entry, c1Tpl);
 
     const peersCount = participants.filter((x) => x.id !== p.id).length;
     const myMap = c2?.[p.id] || {};
@@ -748,102 +893,84 @@ function genTempPassword() {
   return out;
 }
 
-app.post(
-  "/api/admin/processes/:processSlug/participants/:participantId/remind",
-  requireAdmin,
-  (req, res) => {
-    const { processSlug, participantId } = req.params;
+app.post("/api/admin/processes/:processSlug/participants/:participantId/remind", requireAdmin, (req, res) => {
+  const { processSlug, participantId } = req.params;
 
-    const db = readDb();
-    const proc = db.processes.find((p) => p.processSlug === processSlug);
-    if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
+  const db = readDb();
+  const proc = db.processes.find((p) => p.processSlug === processSlug);
+  if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
 
-    const participant = (proc.participants || []).find((p) => p.id === participantId);
-    if (!participant) return res.status(404).json({ error: "Participante no encontrado." });
+  const participant = (proc.participants || []).find((p) => p.id === participantId);
+  if (!participant) return res.status(404).json({ error: "Participante no encontrado." });
 
-    const now = new Date().toISOString();
+  const now = new Date().toISOString();
 
-    updateDb((db2) => {
-      const proc2 = db2.processes.find((p) => p.processSlug === processSlug);
-      if (!proc2) return db2;
+  updateDb((db2) => {
+    const proc2 = db2.processes.find((p) => p.processSlug === processSlug);
+    if (!proc2) return db2;
 
-      const part2 = (proc2.participants || []).find((p) => p.id === participantId);
-      if (!part2) return db2;
+    const part2 = (proc2.participants || []).find((p) => p.id === participantId);
+    if (!part2) return db2;
 
-      pushEvent(db2, {
-        id: `evt-${Date.now()}-${Math.random().toString(16).slice(2)}`,
-        ts: now,
-        type: "ADMIN_REMINDER_REQUESTED",
-        processSlug,
-        participantId,
-        participantEmail: String(part2.email || ""),
-        participantName: participantDisplayName(part2),
-        adminEmail: req.admin?.email || null,
-      });
-
-      return db2;
-    });
-
-    res.json({ ok: true, ts: now });
-  },
-);
-
-app.post(
-  "/api/admin/processes/:processSlug/participants/:participantId/reset-access",
-  requireAdmin,
-  async (req, res) => {
-    const { processSlug, participantId } = req.params;
-
-    const db = readDb();
-    const proc = db.processes.find((p) => p.processSlug === processSlug);
-    if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
-
-    const participant = (proc.participants || []).find((p) => p.id === participantId);
-    if (!participant) return res.status(404).json({ error: "Participante no encontrado." });
-
-    const tempPassword = genTempPassword();
-    const passwordHash = await bcrypt.hash(String(tempPassword), 10);
-    const now = new Date().toISOString();
-
-    updateDb((db2) => {
-      const proc2 = db2.processes.find((p) => p.processSlug === processSlug);
-      if (!proc2) return db2;
-
-      const part2 = (proc2.participants || []).find((p) => p.id === participantId);
-      if (!part2) return db2;
-
-      part2.passwordHash = passwordHash;
-
-      pushEvent(db2, {
-        id: `evt-${Date.now()}-${Math.random().toString(16).slice(2)}`,
-        ts: now,
-        type: "ADMIN_ACCESS_RESET",
-        processSlug,
-        participantId,
-        participantEmail: String(part2.email || ""),
-        participantName: participantDisplayName(part2),
-        adminEmail: req.admin?.email || null,
-      });
-
-      return db2;
-    });
-
-    // Mock: devolvemos la clave para debug local (tu UI ya la oculta por defecto)
-    res.json({
-      ok: true,
+    pushEvent(db2, {
+      id: `evt-${Date.now()}-${Math.random().toString(16).slice(2)}`,
       ts: now,
-      tempPassword,
+      type: "ADMIN_REMINDER_REQUESTED",
+      processSlug,
+      participantId,
+      participantEmail: String(part2.email || ""),
+      participantName: participantDisplayName(part2),
+      adminEmail: req.admin?.email || null,
     });
-  },
-);
+
+    return db2;
+  });
+
+  res.json({ ok: true, ts: now });
+});
+
+app.post("/api/admin/processes/:processSlug/participants/:participantId/reset-access", requireAdmin, async (req, res) => {
+  const { processSlug, participantId } = req.params;
+
+  const db = readDb();
+  const proc = db.processes.find((p) => p.processSlug === processSlug);
+  if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
+
+  const participant = (proc.participants || []).find((p) => p.id === participantId);
+  if (!participant) return res.status(404).json({ error: "Participante no encontrado." });
+
+  const tempPassword = genTempPassword();
+  const passwordHash = await bcrypt.hash(String(tempPassword), 10);
+  const now = new Date().toISOString();
+
+  updateDb((db2) => {
+    const proc2 = db2.processes.find((p) => p.processSlug === processSlug);
+    if (!proc2) return db2;
+
+    const part2 = (proc2.participants || []).find((p) => p.id === participantId);
+    if (!part2) return db2;
+
+    part2.passwordHash = passwordHash;
+
+    pushEvent(db2, {
+      id: `evt-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      ts: now,
+      type: "ADMIN_ACCESS_RESET",
+      processSlug,
+      participantId,
+      participantEmail: String(part2.email || ""),
+      participantName: participantDisplayName(part2),
+      adminEmail: req.admin?.email || null,
+    });
+
+    return db2;
+  });
+
+  res.json({ ok: true, ts: now, tempPassword });
+});
 
 /* =========================
    ADMIN – EVENTS (LOGS)
-   Query:
-    - processSlug (optional)
-    - participantId (optional)
-    - type (optional)
-    - limit (optional, default 200, max 500)
 ========================= */
 app.get("/api/admin/events", requireAdmin, (req, res) => {
   const { processSlug, participantId, type } = req.query || {};

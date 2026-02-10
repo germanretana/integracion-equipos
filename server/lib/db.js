@@ -52,7 +52,7 @@ function defaultDb() {
       }
     },
     processes: [],
-    logs: []
+    events: []
   };
 }
 
@@ -105,41 +105,13 @@ function migrateDb(db) {
       changed = true;
     }
 
-    for (const kind of ["c1", "c2"]) {
-      const t = p.templates?.[kind];
-      if (!t || typeof t !== "object") continue;
-
-      if (typeof t.instructionsMd !== "string") {
-        if (t.instructions && typeof t.instructions === "object") {
-          t.instructionsMd = instructionsObjToMd(t.instructions);
-          delete t.instructions;
-          changed = true;
-        } else if (db.baseTemplates?.[kind]?.instructionsMd) {
-          t.instructionsMd = db.baseTemplates[kind].instructionsMd;
-          changed = true;
-        } else {
-          t.instructionsMd = "";
-          changed = true;
-        }
-      }
-
-      if (!Array.isArray(t.questions)) {
-        t.questions = [];
-        changed = true;
-      }
-    }
-
     if (!Array.isArray(p.participants)) {
       p.participants = [];
       changed = true;
     }
 
-    // NEW: responses per process
     if (!p.responses || typeof p.responses !== "object") {
-      p.responses = {
-        c1: {}, // participantId -> { draft: { freeText }, savedAt, submittedAt }
-        c2: {}  // participantId -> { [peerId]: { draft: { freeText }, savedAt, submittedAt } }
-      };
+      p.responses = { c1: {}, c2: {} };
       changed = true;
     } else {
       if (!p.responses.c1 || typeof p.responses.c1 !== "object") {
@@ -153,8 +125,8 @@ function migrateDb(db) {
     }
   }
 
-  if (!Array.isArray(db.logs)) {
-    db.logs = [];
+  if (!Array.isArray(db.events)) {
+    db.events = [];
     changed = true;
   }
 
@@ -185,7 +157,9 @@ export function readDb() {
 
 export function writeDb(next) {
   ensureDb();
-  fs.writeFileSync(DB_PATH, JSON.stringify(next, null, 2));
+  const tmp = `${DB_PATH}.tmp`;
+  fs.writeFileSync(tmp, JSON.stringify(next, null, 2));
+  fs.renameSync(tmp, DB_PATH);
 }
 
 export function updateDb(mutator) {

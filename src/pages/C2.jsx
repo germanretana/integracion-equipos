@@ -27,6 +27,8 @@ export default function C2() {
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState("");
 
+  const [missingIds, setMissingIds] = React.useState([]);
+
   React.useEffect(() => {
     let alive = true;
 
@@ -86,8 +88,18 @@ export default function C2() {
 
   useDebouncedEffect(answers, 600, doSave);
 
+  function scrollToFirstMissing(ids) {
+    const first = (ids || [])[0];
+    if (!first) return;
+    setTimeout(() => {
+      const el = document.querySelector(`[data-qid="${CSS.escape(String(first))}"]`);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 0);
+  }
+
   async function onSubmit() {
     setError("");
+    setMissingIds([]);
     try {
       const entry = await auth.fetch(
         `/api/app/${processSlug}/c2/${peerId}/submit`,
@@ -95,6 +107,11 @@ export default function C2() {
       );
       setSubmittedAt(entry?.submittedAt || new Date().toISOString());
     } catch (e) {
+      const ids = e?.data?.missingIds;
+      if (Array.isArray(ids) && ids.length > 0) {
+        setMissingIds(ids);
+        scrollToFirstMissing(ids);
+      }
       setError(e?.message || "No se pudo enviar.");
     }
   }
@@ -138,10 +155,14 @@ export default function C2() {
               <QuestionnaireRenderer
                 questions={questions}
                 answers={answers}
-                onChange={setAnswers}
+                onChange={(next) => {
+                  setMissingIds([]);
+                  setAnswers(next);
+                }}
                 disabled={!!submittedAt}
                 currentPeerId={peerId}
                 currentPeerName={peerName}
+                missingIds={missingIds}
               />
 
               <div className="form-actions">

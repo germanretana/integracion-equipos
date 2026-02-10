@@ -16,9 +16,6 @@ function safeJsonParse(str) {
 }
 
 function getTokenForUrl(url) {
-  // Decide qué token usar en función del endpoint.
-  // /api/admin/* -> admin token
-  // /api/app/*   -> participant token
   if (typeof url === "string" && url.includes("/api/admin/")) {
     return localStorage.getItem(KEYS.adminToken);
   }
@@ -28,33 +25,48 @@ function getTokenForUrl(url) {
 async function fetchJson(url, options = {}) {
   const token = getTokenForUrl(url);
 
-  const res = await fetch(`${API_BASE}${url}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
+  let res;
+  try {
+    res = await fetch(`${API_BASE}${url}`, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers || {}),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+  } catch (e) {
+    const err = new Error(
+      "No se pudo conectar con el servidor. Verifique que el backend esté corriendo.",
+    );
+    err.cause = e;
+    err.status = 0;
+    throw err;
+  }
 
-  // Manejo estándar de errores
   if (!res.ok) {
     let msg = "Error de red.";
+    let data = null;
     try {
-      const data = await res.json();
+      const text = await res.text();
+      data = safeJsonParse(text) ?? null;
       msg = data?.error || msg;
     } catch {
       // ignore
     }
     const err = new Error(msg);
     err.status = res.status;
+    err.data = data; // <-- clave: missingIds, percent, etc.
     throw err;
   }
 
-  // Si no hay body JSON, devolver null
   const text = await res.text();
   if (!text) return null;
   return safeJsonParse(text) ?? text;
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export const auth = {
@@ -77,6 +89,10 @@ export const auth = {
     localStorage.removeItem(KEYS.participantSession);
   },
 
+  logoutParticipant() {
+    this.clearSession();
+  },
+
   /* ========= Admin session ========= */
   getAdminSession() {
     const raw = localStorage.getItem(KEYS.adminSession);
@@ -92,9 +108,11 @@ export const auth = {
     localStorage.removeItem(KEYS.adminSession);
   },
 
-  /* ========= Logins ========= */
+  logoutAdmin() {
+    this.clearAdminSession();
+  },
 
-  // Mantengo auth.login() para no romper Login.jsx existente: esto es PARTICIPANTE.
+  /* ========= Logins ========= */
   async login(email, password) {
     return this.loginParticipant(email, password);
   },
@@ -111,7 +129,6 @@ export const auth = {
     return data;
   },
 
-  // Alias por si ya existe en tu código
   async adminLogin(email, password) {
     return this.loginAdmin(email, password);
   },
@@ -126,6 +143,25 @@ export const auth = {
     this.setAdminSession({ admin: data.admin });
 
     return data;
+  },
+
+  /* ========= Forgot password ========= */
+  async requestPasswordReset(email) {
+    const emailNorm = String(email || "").trim().toLowerCase();
+    if (!emailNorm) throw new Error("Debe ingresar un correo electrónico.");
+
+    const USE_BACKEND_FORGOT =
+      String(import.meta.env.VITE_USE_BACKEND_FORGOT).toLowerCase() === "true";
+
+    if (USE_BACKEND_FORGOT) {
+      return fetchJson("/api/app/request-password-reset", {
+        method: "POST",
+        body: JSON.stringify({ email: emailNorm }),
+      });
+    }
+
+    await sleep(350);
+    return { ok: true };
   },
 
   /* ========= Fetch wrapper ========= */
