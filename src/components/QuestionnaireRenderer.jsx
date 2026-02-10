@@ -44,7 +44,9 @@ function normalizeType(typeRaw) {
 
   // Canon types expected by this renderer:
   // header, input_list, text_area, binary_yes_no, rating_masc_5, rating_fem_5,
-  // value_0_4, evaluation_0_10, pairing_rows, select_peer (legacy display-only)
+  // value_0_4, evaluation_0_10, pairing_rows
+  //
+  // IMPORTANT: select_peer is deprecated and MUST NOT render.
 
   // Legacy / aliases:
   if (t === "pairing_of_peers") return "pairing_rows";
@@ -55,6 +57,9 @@ function normalizeType(typeRaw) {
   if (t === "textarea") return "text_area";
   if (t === "binary") return "binary_yes_no";
   if (t === "input") return "input_list";
+
+  // Deprecated:
+  if (t === "select_peer") return "__skip__";
 
   return t;
 }
@@ -73,6 +78,10 @@ function helpText(minEntries, maxEntries) {
   return "";
 }
 
+/**
+ * Temporary fallback for existing seeds/templates:
+ * C2.q9 is currently detected by ID patterns. We will later migrate this to meta.block/meta.layout.
+ */
 function isC2Q9Id(id) {
   const x = String(id || "");
   return /^c2-9[_-]\d{2}$/i.test(x) || /^c2\.q9\.\d{2}$/i.test(x);
@@ -136,18 +145,30 @@ function BtnChoice({ active, disabled, onClick, children, title }) {
 }
 
 function MissingWrap({ qid, missing, children }) {
+  // If a deprecated/unsupported question returns null, don't render a wrapper box.
+  if (children == null) return null;
+
   return (
     <div
       data-qid={qid}
       style={{
         borderRadius: 14,
         padding: missing ? 10 : 0,
-        border: missing ? "1px solid rgba(255,102,143,0.85)" : "1px solid transparent",
+        border: missing
+          ? "1px solid rgba(255,102,143,0.85)"
+          : "1px solid transparent",
         background: missing ? "rgba(255,102,143,0.10)" : "transparent",
       }}
     >
       {missing ? (
-        <div style={{ fontSize: 12, fontWeight: 800, marginBottom: 6, color: "#ff668f" }}>
+        <div
+          style={{
+            fontSize: 12,
+            fontWeight: 800,
+            marginBottom: 6,
+            color: "#ff668f",
+          }}
+        >
           Falta completar esta pregunta
         </div>
       ) : null}
@@ -163,7 +184,7 @@ export default function QuestionnaireRenderer({
   peers = [],
   disabled = false,
 
-  // para select_peer (C2)
+  // (legacy) kept for compatibility with callers, but select_peer must not render
   currentPeerId = "",
   currentPeerName = "",
 
@@ -217,7 +238,10 @@ export default function QuestionnaireRenderer({
     const min = Number.isFinite(q.minEntries) ? q.minEntries : 0;
 
     const arr = ensureArrayLen(answers?.[q.id], max);
-    const missingCount = Math.max(0, min - arr.filter((x) => isFilledString(x)).length);
+    const missingCount = Math.max(
+      0,
+      min - arr.filter((x) => isFilledString(x)).length,
+    );
 
     return (
       <DefaultFieldWrap
@@ -318,18 +342,18 @@ export default function QuestionnaireRenderer({
         <div className="c2q9-inputRow">
           <input
             className="admin-input"
-            style={{ width: 140 }}
             disabled={disabled}
             inputMode="numeric"
             value={valNum == null ? "" : String(valNum)}
             placeholder="0 a 4"
             onChange={(e) => {
-              const nextVal = e.target.value === "" ? null : clampInt(e.target.value, 0, 4);
+              const nextVal =
+                e.target.value === "" ? null : clampInt(e.target.value, 0, 4);
               // C2.q9: sin suggestion
               setAnswer(q.id, { value: nextVal });
             }}
           />
-          <span style={{ fontSize: 12, opacity: 0.75 }}>0–4</span>
+          <span className="c2q9-scaleNote">0–4</span>
         </div>
 
         {missingSet.has(String(q.id)) ? (
@@ -363,7 +387,14 @@ export default function QuestionnaireRenderer({
         title={<Html html={qText(q)} />}
         requiredHint={helpText(q.minEntries, q.maxEntries)}
       >
-        <div style={{ display: "flex", gap: 12, alignItems: "flex-start", flexWrap: "wrap" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: 12,
+            alignItems: "flex-start",
+            flexWrap: "wrap",
+          }}
+        >
           <div>
             <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 6 }}>
               Valor (0..4)
@@ -376,7 +407,8 @@ export default function QuestionnaireRenderer({
               value={valNum == null ? "" : String(valNum)}
               placeholder="0 a 4"
               onChange={(e) => {
-                const nextVal = e.target.value === "" ? null : clampInt(e.target.value, 0, 4);
+                const nextVal =
+                  e.target.value === "" ? null : clampInt(e.target.value, 0, 4);
                 setValue(nextVal);
               }}
             />
@@ -396,7 +428,9 @@ export default function QuestionnaireRenderer({
                 disabled={disabled}
                 value={sug}
                 placeholder="Sugerencias…"
-                onChange={(e) => setAnswer(q.id, { value: valNum, suggestion: e.target.value })}
+                onChange={(e) =>
+                  setAnswer(q.id, { value: valNum, suggestion: e.target.value })
+                }
               />
             </div>
           ) : null}
@@ -414,7 +448,14 @@ export default function QuestionnaireRenderer({
         title={<Html html={qText(q)} />}
         requiredHint={helpText(q.minEntries, q.maxEntries)}
       >
-        <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: 12,
+            alignItems: "center",
+            flexWrap: "wrap",
+          }}
+        >
           <input
             className="admin-input"
             style={{ width: 160 }}
@@ -423,7 +464,8 @@ export default function QuestionnaireRenderer({
             value={curNum == null ? "" : String(curNum)}
             placeholder="0 a 10"
             onChange={(e) => {
-              const nextVal = e.target.value === "" ? null : clampInt(e.target.value, 0, 10);
+              const nextVal =
+                e.target.value === "" ? null : clampInt(e.target.value, 0, 10);
               setAnswer(q.id, nextVal);
             }}
           />
@@ -435,18 +477,6 @@ export default function QuestionnaireRenderer({
     );
   }
 
-  function renderSelectPeer(q) {
-    const name = currentPeerName || "Compañero";
-    return (
-      <div style={{ marginTop: 10, padding: 10, borderRadius: 12, background: "rgba(255,255,255,0.06)" }}>
-        <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 4 }}>
-          <Html html={qText(q) || "Para:"} />
-        </div>
-        <div style={{ fontWeight: 900 }}>{name}</div>
-      </div>
-    );
-  }
-
   function renderPairingRows(q) {
     const rows = Number.isFinite(q.rows) ? q.rows : 3;
     const cur = ensureArrayLen(answers?.[q.id], rows).map((x) => {
@@ -454,7 +484,9 @@ export default function QuestionnaireRenderer({
       return { leftId: String(o.leftId || ""), rightId: String(o.rightId || "") };
     });
 
-    const options = (peers || []).filter((p) => String(p?.id || "") !== String(currentParticipantId || ""));
+    const options = (peers || []).filter(
+      (p) => String(p?.id || "") !== String(currentParticipantId || ""),
+    );
 
     return (
       <DefaultFieldWrap
@@ -465,7 +497,12 @@ export default function QuestionnaireRenderer({
           {cur.map((row, idx) => (
             <div
               key={idx}
-              style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}
+              style={{
+                display: "flex",
+                gap: 10,
+                alignItems: "center",
+                flexWrap: "wrap",
+              }}
             >
               <select
                 className="admin-input"
@@ -510,14 +547,15 @@ export default function QuestionnaireRenderer({
           ))}
         </div>
 
-        <div style={{ marginTop: 8, fontSize: 12, opacity: 0.7 }}>
-        </div>
+        <div style={{ marginTop: 8, fontSize: 12, opacity: 0.7 }} />
       </DefaultFieldWrap>
     );
   }
 
   function renderQuestion(q) {
     const type = normalizeType(q?.type);
+
+    if (type === "__skip__") return null;
 
     if (type === "header") return renderHeader(q);
     if (type === "text_area") return renderTextArea(q);
@@ -527,11 +565,18 @@ export default function QuestionnaireRenderer({
     if (type === "rating_fem_5") return renderRating5(q, true);
     if (type === "value_0_4" || type === "valor_0_4") return renderValue04(q);
     if (type === "evaluation_0_10") return renderEvaluation010(q);
-    if (type === "select_peer") return renderSelectPeer(q);
-    if (type === "pairing_rows" || type === "pairing_of_peers") return renderPairingRows(q);
+    if (type === "pairing_rows" || type === "pairing_of_peers")
+      return renderPairingRows(q);
 
     return (
-      <div style={{ marginTop: 14, padding: 10, borderRadius: 12, background: "rgba(255,255,255,0.06)" }}>
+      <div
+        style={{
+          marginTop: 14,
+          padding: 10,
+          borderRadius: 12,
+          background: "rgba(255,255,255,0.06)",
+        }}
+      >
         <div style={{ fontWeight: 800 }}>
           Tipo no soportado: <code>{type || "?"}</code>
         </div>
@@ -542,9 +587,11 @@ export default function QuestionnaireRenderer({
     );
   }
 
-  // === Special layout: C2 q9 value_0_4 in 2 columns ===
+  // === Special layout: C2 q9 value_0_4 in 2 columns (TEMP fallback by ID) ===
   const hasC2Q9 = React.useMemo(() => {
-    return (questions || []).some((q) => isC2Q9HeaderId(q?.id) || isC2Q9Id(q?.id));
+    return (questions || []).some(
+      (q) => isC2Q9HeaderId(q?.id) || isC2Q9Id(q?.id),
+    );
   }, [questions]);
 
   const rendered = React.useMemo(() => {
@@ -557,15 +604,14 @@ export default function QuestionnaireRenderer({
     while (i < qs.length) {
       const q = qs[i];
       const id = String(q?.id || q?.key || `${i}`);
-      const type = String(q?.type || "").toLowerCase();
+      const type = normalizeType(q?.type);
 
       // Detect header for c2-9
       if (isC2Q9HeaderId(id) && type === "header") {
-        // render header normally
         out.push(
           <MissingWrap key={id} qid={id} missing={false}>
             {renderHeader({ ...q, id })}
-          </MissingWrap>
+          </MissingWrap>,
         );
 
         // collect subsequent c2-9 items
@@ -583,17 +629,17 @@ export default function QuestionnaireRenderer({
           out.push(
             <div key="c2q9-grid" className="c2q9-grid">
               {items.map((it) => renderValue04Compact(it))}
-            </div>
+            </div>,
           );
         }
         continue;
       }
 
-      // default render
+      const child = renderQuestion({ ...q, id });
       out.push(
         <MissingWrap key={id} qid={id} missing={missingSet.has(id)}>
-          {renderQuestion({ ...q, id })}
-        </MissingWrap>
+          {child}
+        </MissingWrap>,
       );
       i += 1;
     }
@@ -603,16 +649,18 @@ export default function QuestionnaireRenderer({
 
   return (
     <div>
-      {/* C2 q9 grid render */}
-      {rendered ? rendered : questions.map((q, idx) => {
-        const id = String(q?.id || q?.key || `${idx}`);
-        const missing = missingSet.has(id);
-        return (
-          <MissingWrap key={id} qid={id} missing={missing}>
-            {renderQuestion({ ...q, id })}
-          </MissingWrap>
-        );
-      })}
+      {rendered
+        ? rendered
+        : (questions || []).map((q, idx) => {
+            const id = String(q?.id || q?.key || `${idx}`);
+            const missing = missingSet.has(id);
+            const child = renderQuestion({ ...q, id });
+            return (
+              <MissingWrap key={id} qid={id} missing={missing}>
+                {child}
+              </MissingWrap>
+            );
+          })}
     </div>
   );
 }

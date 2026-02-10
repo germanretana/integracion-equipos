@@ -140,7 +140,14 @@ export default function C2() {
   return (
     <div className="page">
       <div className="page-inner">
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: 12,
+            alignItems: "center",
+          }}
+        >
           <button
             className="admin-btn"
             onClick={() => navigate(`/app/${processSlug}/questionnaires`)}
@@ -159,7 +166,7 @@ export default function C2() {
         {justSubmitted ? (
           <div className="section">
             <div className="section-body">
-              <div className="pill ok" style={{ display: "inline-flex" }}>
+              <div className="pill pill-ok" style={{ display: "inline-flex" }}>
                 ¡Enviado! Redirigiendo a la lista…
               </div>
             </div>

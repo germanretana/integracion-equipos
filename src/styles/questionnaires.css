@@ -129,9 +129,7 @@
   background: rgba(255, 255, 255, 0.06);
   color: rgba(255, 255, 255, 0.85);
   white-space: nowrap;
-  /* Normalizar altura entre estados */
   line-height: 18px;
-  padding: 6px 10px;
   box-sizing: border-box;
 }
 
@@ -141,7 +139,7 @@
   color: rgba(210, 255, 240, 0.95);
 }
 
-.pill.warn {
+.pill.pill-warn {
   background: rgba(255, 176, 0, 0.12);
   border-color: rgba(255, 176, 0, 0.26);
   color: rgba(255, 230, 190, 0.95);
@@ -189,142 +187,17 @@
 
 /* ===== Form styles (C1/C2) ===== */
 
-.form-grid {
-  display: grid;
-  gap: 12px;
-}
-
-.form-card {
-  background: rgba(0, 0, 0, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  padding: 14px;
-}
-
-.field-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 14px;
-  margin-bottom: 10px;
-}
-
-.field-title {
-  margin: 0;
-  font-weight: 650;
-  font-size: 16px;
-}
-
-.field-meta {
-  margin: 2px 0 0;
-  color: rgba(255, 255, 255, 0.62);
-  font-size: 13px;
-}
-
-.badge-req {
-  font-size: 12px;
-  padding: 4px 8px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.78);
-  white-space: nowrap;
-}
-
-.input,
-.textarea {
-  width: 100%;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.92);
-  padding: 10px 12px;
-  outline: none;
-}
-
-.textarea {
-  min-height: 110px;
-  resize: vertical;
-}
-
-.input:focus,
-.textarea:focus {
-  border-color: rgba(255, 255, 255, 0.22);
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.options {
-  display: grid;
-  gap: 10px;
-}
-
-.opt {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.04);
-  cursor: pointer;
-}
-
-.opt input {
-  margin: 0;
-}
-
-.rating {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.rate-btn {
-  border-radius: 999px;
-  border: 1px solid rgba(255, 176, 0, 0.26);
-  background: rgba(255, 176, 0, 0.1);
-  color: rgba(255, 242, 210, 0.95);
-  padding: 8px 10px;
-  cursor: pointer;
-  font-size: 13px;
-}
-
-.rate-btn.active {
-  background: rgba(255, 176, 0, 0.22);
-  border-color: rgba(255, 176, 0, 0.42);
-}
-
-.actions {
+.form-actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-top: 14px;
+  gap: 10px;
+  margin-top: 12px;
 }
 
-.btn {
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.9);
-  padding: 10px 12px;
-  cursor: pointer;
-}
-
-.btn.primary {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.22);
-}
-
-.btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.inline-note {
-  color: rgba(255, 255, 255, 0.62);
+.form-note {
   font-size: 13px;
-  margin: 0;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .error {
@@ -335,53 +208,6 @@
   padding: 10px 12px;
   border-radius: 12px;
   font-size: 13px;
-}
-
-/* ===== Header tweaks ===== */
-.brand-logo--lg {
-  height: auto;
-  width: clamp(240px, 28vw, 420px);
-  max-width: 420px;
-}
-
-.nav-label {
-  color: rgba(255, 255, 255, 0.78);
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.nav-label.active {
-  color: rgba(255, 255, 255, 0.95);
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.16);
-}
-
-/* ===== Validation highlight ===== */
-.form-card.missing {
-  border-color: rgba(255, 80, 80, 0.55);
-  background: rgba(255, 60, 60, 0.1);
-}
-
-.form-card.missing .field-title {
-  color: rgba(255, 230, 230, 0.98);
-}
-
-.input.missing,
-.textarea.missing {
-  border-color: rgba(255, 80, 80, 0.65);
-  background: rgba(255, 60, 60, 0.1);
-}
-
-/* Simple ok message */
-.ok {
-  margin: 12px 0;
-  padding: 10px 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(0, 255, 170, 0.28);
-  background: rgba(0, 255, 170, 0.12);
-  color: rgba(210, 255, 240, 0.95);
 }
 
 /* Markdown rendering */
@@ -415,13 +241,16 @@
 }
 
 /* =========================================
-   Global input & textarea style (forms)
+   Participant inputs (SCOPED) — avoid global collisions
    ========================================= */
 
-input[type="text"],
-input[type="email"],
-input[type="password"],
-textarea {
+.page input[type="text"],
+.page input[type="email"],
+.page input[type="password"],
+.page input[type="number"],
+.page textarea,
+.page select,
+.page .admin-input {
   width: 100%;
   box-sizing: border-box;
   border-radius: 14px;
@@ -435,43 +264,27 @@ textarea {
   line-height: 1.4;
 }
 
-input::placeholder,
-textarea::placeholder {
+.page input::placeholder,
+.page textarea::placeholder {
   color: rgba(0, 0, 0, 0.45);
 }
 
-input:focus,
-textarea:focus {
+.page input:focus,
+.page textarea:focus,
+.page select:focus,
+.page .admin-input:focus {
   outline: none;
   border-color: #00165e;
   box-shadow: 0 0 0 2px rgba(0, 22, 94, 0.15);
 }
 
-/* Disabled fields */
-input:disabled,
-textarea:disabled {
+.page input:disabled,
+.page textarea:disabled,
+.page select:disabled,
+.page .admin-input:disabled {
   background: #f2f4f8;
   color: rgba(0, 0, 0, 0.45);
   cursor: not-allowed;
-}
-
-/* Form feedback */
-.field-error {
-  border-color: rgba(255, 176, 0, 0.8) !important;
-  box-shadow: 0 0 0 2px rgba(255, 176, 0, 0.18) !important;
-}
-
-.form-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-top: 12px;
-}
-
-.form-note {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.7);
 }
 
 /* ===== C2 q9: 2-column grid for value_0_4 items ===== */
@@ -494,13 +307,19 @@ textarea:disabled {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 14px;
   padding: 12px;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 14px;
+  row-gap: 8px;
+  align-items: center;
 }
 
 .c2q9-label {
   font-size: 13px;
   line-height: 1.35;
   color: rgba(255, 255, 255, 0.86);
-  margin: 0 0 10px;
+  margin: 0;
   font-weight: 650;
 }
 
@@ -508,109 +327,38 @@ textarea:disabled {
   display: flex;
   align-items: center;
   gap: 10px;
+  justify-self: end;
 }
 
 .c2q9-inputRow .admin-input {
-  width: 140px;
+  width: 96px;
+  max-width: 96px;
+  padding: 10px 10px;
+  text-align: center;
+}
+
+.c2q9-scaleNote {
+  font-size: 12px;
+  opacity: 0.75;
 }
 
 .c2q9-help {
   font-size: 12px;
   opacity: 0.72;
-  margin-top: 8px;
+  margin-top: 6px;
+  grid-column: 1 / -1;
 }
 
-/* ===== Participant forms: force white inputs ===== */
-.page .admin-input,
-.page input[type="text"],
-.page input[type="email"],
-.page input[type="password"],
-.page input[type="number"],
-.page textarea,
-.page select {
-  background: #ffffff !important;
-  color: #0b1b3a !important;
-  border: 1px solid rgba(0, 0, 0, 0.18) !important;
-}
-
-.page .admin-input::placeholder,
-.page input::placeholder,
-.page textarea::placeholder {
-  color: rgba(0, 0, 0, 0.45) !important;
-}
-
-.page .admin-input:focus,
-.page input:focus,
-.page textarea:focus,
-.page select:focus {
-  outline: none;
-  border-color: #00165e !important;
-  box-shadow: 0 0 0 2px rgba(0, 22, 94, 0.15) !important;
-}
-
-.page .admin-input:disabled,
-.page input:disabled,
-.page textarea:disabled,
-.page select:disabled {
-  background: #f2f4f8 !important;
-  color: rgba(0, 0, 0, 0.45) !important;
-}
-
-
-/* ===== Fix: C2 q9 inputs must stay on the right (override global width:100%) ===== */
-
-.c2q9-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  flex-wrap: nowrap;
-}
-
-.c2q9-labelWrap {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
-.c2q9-control {
-  flex: 0 0 auto;
-}
-
-/* Key: override global input width:100% */
-.c2q9-control .admin-input {
-  width: 120px !important;
-  max-width: 120px !important;
-  flex: 0 0 120px !important;
-  display: block;
-}
-
-/* On small screens, allow it to stack nicely */
 @media (max-width: 860px) {
   .c2q9-item {
-    align-items: flex-start;
-    flex-wrap: wrap;
+    grid-template-columns: 1fr;
+    align-items: start;
   }
-  .c2q9-control .admin-input {
-    width: 100% !important;
-    max-width: 100% !important;
-    flex: 1 1 100% !important;
+  .c2q9-inputRow {
+    justify-self: start;
+  }
+  .c2q9-inputRow .admin-input {
+    width: 120px;
+    max-width: 120px;
   }
 }
-
-
-/* ===== Tweak: C2 q9 label typography + narrower numeric input ===== */
-
-.c2q9-label {
-  font-size: 14px;
-  font-weight: 500;
-  color: rgba(255,255,255,0.86);
-}
-
-.c2q9-control .admin-input {
-  width: 96px !important;
-  max-width: 96px !important;
-  flex: 0 0 96px !important;
-  padding: 10px 10px !important;
-  text-align: center;
-}
-

@@ -6,9 +6,7 @@ import { auth } from "../services/auth";
 function StatusPill({ status, percent }) {
   if (status === "done") return <span className="pill pill-ok">Completado</span>;
   if (status === "progress")
-    return (
-      <span className="pill warn">En progreso ({percent || 0}%)</span>
-    );
+    return <span className="pill pill-warn">En progreso ({percent || 0}%)</span>;
   return <span className="pill muted">Sin comenzar</span>;
 }
 
@@ -69,8 +67,17 @@ export default function Questionnaires() {
   return (
     <div className="page">
       <div className="page-inner">
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
-          <h1 className="h1" style={{ margin: 0 }}>Cuestionarios</h1>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: 12,
+            alignItems: "center",
+          }}
+        >
+          <h1 className="h1" style={{ margin: 0 }}>
+            Cuestionarios
+          </h1>
           <button className="admin-btn" type="button" onClick={onLogout}>
             Logout
           </button>
@@ -84,8 +91,7 @@ export default function Questionnaires() {
             <p className="sub">
               Muchas gracias por contestar estos cuestionarios. Su aporte será
               esencial para el éxito del proceso de integración del Equipo
-              Gerencial de{" "}
-              <b>{data.process.companyName}</b>.
+              Gerencial de <b>{data.process.companyName}</b>.
             </p>
 
             <div className="section">
