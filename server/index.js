@@ -8,6 +8,11 @@ import {
   requireParticipant,
   signParticipantToken,
 } from "./lib/auth.js";
+import {
+  hasMeaningfulDraft,
+  computeCompletionFromTemplate,
+  calcStatusFromEntryAndTemplate,
+} from "./lib/questionnaires.js";
 
 const app = express();
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3001;
@@ -68,147 +73,86 @@ function getProcAndMeScoped(db, req) {
 }
 
 /* =========================
-   COMPLETION + PROGRESS
+   DRAFT + SUBMIT HELPERS
 ========================= */
-function getQuestionsFromTemplate(template) {
-  const qs = template?.questions;
-  return Array.isArray(qs) ? qs : [];
+function ensureC1Entry(proc, meId) {
+  proc.responses.c1[meId] =
+    proc.responses.c1[meId] || { draft: { answers: {} }, savedAt: null, submittedAt: null };
+
+  const entry = proc.responses.c1[meId];
+  entry.draft = entry.draft || {};
+  if (!entry.draft.answers || typeof entry.draft.answers !== "object") entry.draft.answers = {};
+  return entry;
 }
 
-function qId(q, idx) {
-  return String(q?.id || q?.key || `${idx}`);
+function ensureC2Entry(proc, meId, peerId) {
+  proc.responses.c2[meId] = proc.responses.c2[meId] || {};
+  proc.responses.c2[meId][peerId] =
+    proc.responses.c2[meId][peerId] || {
+      draft: { answers: {}, freeText: "" },
+      savedAt: null,
+      submittedAt: null,
+    };
+
+  const entry = proc.responses.c2[meId][peerId];
+  entry.draft = entry.draft || {};
+  if (!entry.draft.answers || typeof entry.draft.answers !== "object") entry.draft.answers = {};
+  if (typeof entry.draft.freeText !== "string") entry.draft.freeText = "";
+  return entry;
 }
 
-function qType(q) {
-  return String(q?.type || "").toLowerCase();
+function saveDraftIntoEntry({ entry, incomingDraft, forceLegacyFreeText = false }) {
+  const safeIncoming = incomingDraft && typeof incomingDraft === "object" ? incomingDraft : {};
+  const prev = entry.draft || {};
+
+  const freeText = forceLegacyFreeText ? String(safeIncoming?.freeText || "") : String(safeIncoming?.freeText || prev.freeText || "");
+  const answers =
+    safeIncoming.answers && typeof safeIncoming.answers === "object"
+      ? safeIncoming.answers
+      : prev.answers || {};
+
+  entry.draft = {
+    ...prev,
+    ...safeIncoming,
+    freeText, // legacy
+    answers,
+  };
+
+  entry.savedAt = new Date().toISOString();
 }
 
-function isFilledString(x) {
-  return String(x || "").trim().length > 0;
-}
+function validateBeforeSubmit({ proc, meId, kind, peerId = null }) {
+  const tpl = proc.templates?.[kind] || null;
 
-function clampInt(n, min, max) {
-  const x = Number(n);
-  if (!Number.isFinite(x)) return null;
-  const y = Math.trunc(x);
-  if (y < min || y > max) return null;
-  return y;
-}
-
-function isAnswerableQuestion(q) {
-  const t = qType(q);
-  if (!t) return false;
-  if (t === "header") return false;
-  // select_peer es informativo (legacy), no debe bloquear completitud
-  if (t === "select_peer") return false;
-  return true;
-}
-
-function isQuestionAnswered(q, ans) {
-  const t = qType(q);
-
-  if (t === "text_area") return isFilledString(ans);
-
-  if (t === "binary_yes_no") return ans === "yes" || ans === "no";
-
-  if (t === "rating_masc_5" || t === "rating_fem_5") {
-    return Number.isFinite(ans) && clampInt(ans, 0, 4) !== null;
+  let entry0 = null;
+  if (kind === "c1") {
+    entry0 = proc.responses?.c1?.[meId] || null;
+  } else {
+    entry0 = proc.responses?.c2?.[meId]?.[peerId] || null;
   }
 
-  if (t === "evaluation_0_10") {
-    return Number.isFinite(ans) && clampInt(ans, 0, 10) !== null;
+  if (!hasMeaningfulDraft(entry0?.draft)) {
+    return {
+      ok: false,
+      status: 400,
+      payload: { error: "Debe completar el cuestionario antes de enviarlo." },
+    };
   }
 
-  if (t === "value_0_4" || t === "valor_0_4") {
-    if (!ans || typeof ans !== "object") return false;
-    return Number.isFinite(ans.value) && clampInt(ans.value, 0, 4) !== null;
+  const comp0 = computeCompletionFromTemplate(tpl, entry0?.draft);
+  if (comp0.total > 0 && comp0.missingIds.length > 0) {
+    return {
+      ok: false,
+      status: 400,
+      payload: {
+        error: "Debe completar todas las preguntas antes de enviarlo.",
+        missingIds: comp0.missingIds,
+        percent: comp0.percent,
+      },
+    };
   }
 
-  if (t === "input_list") {
-    const max = Number.isFinite(q.maxEntries) ? q.maxEntries : 1;
-    const min = Number.isFinite(q.minEntries) ? q.minEntries : 1;
-    const arr = Array.isArray(ans) ? ans.slice(0, max) : [];
-    const filled = arr.filter(isFilledString).length;
-    return filled >= min;
-  }
-
-  if (t === "pairing_rows" || t === "pairing_of_peers") {
-    const rows = Number.isFinite(q.rows) ? q.rows : 3;
-    const arr = Array.isArray(ans) ? ans.slice(0, rows) : [];
-    if (arr.length < rows) return false;
-    return arr.every((x) => {
-      if (!x || typeof x !== "object") return false;
-      return isFilledString(x.leftId) && isFilledString(x.rightId);
-    });
-  }
-
-  // fallback: string/number truthy-ish
-  if (typeof ans === "string") return isFilledString(ans);
-  if (typeof ans === "number") return Number.isFinite(ans);
-  if (Array.isArray(ans)) return ans.some((x) => isFilledString(x));
-  if (ans && typeof ans === "object") {
-    if (typeof ans.value === "number" && Number.isFinite(ans.value)) return true;
-    if (typeof ans.value === "string" && isFilledString(ans.value)) return true;
-    if (typeof ans.suggestion === "string" && isFilledString(ans.suggestion)) return true;
-    if (typeof ans.leftId === "string" && isFilledString(ans.leftId)) return true;
-    if (typeof ans.rightId === "string" && isFilledString(ans.rightId)) return true;
-  }
-  return false;
-}
-
-function computeCompletionFromTemplate(template, draft) {
-  const questions = getQuestionsFromTemplate(template).filter(isAnswerableQuestion);
-  const answers = (draft?.answers && typeof draft.answers === "object") ? draft.answers : {};
-
-  const total = questions.length;
-  if (total === 0) return { total: 0, answered: 0, percent: 0, missingIds: [] };
-
-  let answered = 0;
-  const missingIds = [];
-
-  for (let i = 0; i < questions.length; i++) {
-    const q = questions[i];
-    const id = qId(q, i);
-    const a = answers[id];
-
-    if (isQuestionAnswered(q, a)) answered += 1;
-    else missingIds.push(id);
-  }
-
-  const percent = Math.max(0, Math.min(100, Math.round((answered / total) * 100)));
-  return { total, answered, percent, missingIds };
-}
-
-function hasMeaningfulDraft(draft) {
-  if (!draft) return false;
-  const txt = String(draft?.freeText || "").trim();
-  if (txt) return true;
-
-  const answers = draft?.answers;
-  if (!answers || typeof answers !== "object") return false;
-
-  return Object.values(answers).some((v) => {
-    if (v == null) return false;
-    if (typeof v === "string") return isFilledString(v);
-    if (typeof v === "number") return Number.isFinite(v);
-    if (Array.isArray(v)) return v.some((x) => isFilledString(x));
-    if (typeof v === "object") {
-      if (typeof v.value === "number" && Number.isFinite(v.value)) return true;
-      if (typeof v.suggestion === "string" && isFilledString(v.suggestion)) return true;
-      if (typeof v.leftId === "string" && isFilledString(v.leftId)) return true;
-      if (typeof v.rightId === "string" && isFilledString(v.rightId)) return true;
-    }
-    return false;
-  });
-}
-
-function calcStatusFromEntryAndTemplate(entry, template) {
-  if (!entry) return { status: "todo", percent: 0 };
-  if (entry.submittedAt) return { status: "done", percent: 100 };
-  if (!hasMeaningfulDraft(entry.draft)) return { status: "todo", percent: 0 };
-
-  const comp = computeCompletionFromTemplate(template, entry.draft);
-  return { status: "progress", percent: comp.percent };
+  return { ok: true, status: 200, payload: null };
 }
 
 /* =========================
@@ -577,33 +521,19 @@ app.get("/api/app/:processSlug/c1", requireParticipant, (req, res) => {
 app.put("/api/app/:processSlug/c1", requireParticipant, (req, res) => {
   const { draft } = req.body || {};
   const incomingDraft = draft && typeof draft === "object" ? draft : {};
-  const freeText = String(incomingDraft?.freeText || ""); // legacy
 
   const next = updateDb((db2) => {
     const scoped2 = getProcAndMeScoped(db2, req);
     if (scoped2.error) return db2;
 
     const { proc, me } = scoped2;
+    const entry = ensureC1Entry(proc, me.id);
 
-    proc.responses.c1[me.id] =
-      proc.responses.c1[me.id] || { draft: { answers: {} }, savedAt: null, submittedAt: null };
+    if (entry.submittedAt) return db2;
 
-    if (proc.responses.c1[me.id].submittedAt) return db2;
+    saveDraftIntoEntry({ entry, incomingDraft, forceLegacyFreeText: true });
+    proc.responses.c1[me.id] = entry;
 
-    const prev = proc.responses.c1[me.id].draft || {};
-    const answers =
-      incomingDraft.answers && typeof incomingDraft.answers === "object"
-        ? incomingDraft.answers
-        : prev.answers || {};
-
-    proc.responses.c1[me.id].draft = {
-      ...prev,
-      ...incomingDraft,
-      freeText,
-      answers,
-    };
-
-    proc.responses.c1[me.id].savedAt = new Date().toISOString();
     return db2;
   });
 
@@ -621,30 +551,21 @@ app.post("/api/app/:processSlug/c1/submit", requireParticipant, (req, res) => {
   if (scoped0.error) return res.status(scoped0.status).json({ error: scoped0.error });
 
   const { proc: p0, me: me0 } = scoped0;
-  const entry0 = p0.responses?.c1?.[me0.id] || null;
 
-  if (!hasMeaningfulDraft(entry0?.draft)) {
-    return res.status(400).json({ error: "Debe completar el cuestionario antes de enviarlo." });
-  }
+  const validation = validateBeforeSubmit({
+    proc: p0,
+    meId: me0.id,
+    kind: "c1",
+  });
 
-  const tpl = p0.templates?.c1 || null;
-  const comp0 = computeCompletionFromTemplate(tpl, entry0?.draft);
-
-  if (comp0.total > 0 && comp0.missingIds.length > 0) {
-    return res.status(400).json({
-      error: "Debe completar todas las preguntas antes de enviarlo.",
-      missingIds: comp0.missingIds,
-      percent: comp0.percent,
-    });
-  }
+  if (!validation.ok) return res.status(validation.status).json(validation.payload);
 
   const next = updateDb((db2) => {
     const scoped2 = getProcAndMeScoped(db2, req);
     if (scoped2.error) return db2;
 
     const { proc, me } = scoped2;
-    const entry =
-      proc.responses.c1[me.id] || { draft: { answers: {} }, savedAt: null, submittedAt: null };
+    const entry = ensureC1Entry(proc, me.id);
 
     if (entry.submittedAt) return db2;
 
@@ -688,7 +609,6 @@ app.put("/api/app/:processSlug/c2/:peerId", requireParticipant, (req, res) => {
   const peerId = req.params.peerId;
   const { draft } = req.body || {};
   const incomingDraft = draft && typeof draft === "object" ? draft : {};
-  const freeText = String(incomingDraft?.freeText || ""); // legacy
 
   const next = updateDb((db2) => {
     const scoped2 = getProcAndMeScoped(db2, req);
@@ -698,31 +618,10 @@ app.put("/api/app/:processSlug/c2/:peerId", requireParticipant, (req, res) => {
     const exists = (proc.participants || []).some((p) => p.id === peerId && p.id !== me.id);
     if (!exists) return db2;
 
-    proc.responses.c2[me.id] = proc.responses.c2[me.id] || {};
-    proc.responses.c2[me.id][peerId] =
-      proc.responses.c2[me.id][peerId] || {
-        draft: { answers: {}, freeText: "" },
-        savedAt: null,
-        submittedAt: null,
-      };
-
-    const entry = proc.responses.c2[me.id][peerId];
+    const entry = ensureC2Entry(proc, me.id, peerId);
     if (entry.submittedAt) return db2;
 
-    const prev = entry.draft || {};
-    const answers =
-      incomingDraft.answers && typeof incomingDraft.answers === "object"
-        ? incomingDraft.answers
-        : prev.answers || {};
-
-    entry.draft = {
-      ...prev,
-      ...incomingDraft,
-      freeText,
-      answers,
-    };
-
-    entry.savedAt = new Date().toISOString();
+    saveDraftIntoEntry({ entry, incomingDraft, forceLegacyFreeText: true });
     proc.responses.c2[me.id][peerId] = entry;
 
     return db2;
@@ -745,22 +644,14 @@ app.post("/api/app/:processSlug/c2/:peerId/submit", requireParticipant, (req, re
   const exists = (p0.participants || []).some((p) => p.id === peerId && p.id !== me0.id);
   if (!exists) return res.status(404).json({ error: "Participante no encontrado." });
 
-  const entry0 = p0.responses?.c2?.[me0.id]?.[peerId] || null;
+  const validation = validateBeforeSubmit({
+    proc: p0,
+    meId: me0.id,
+    kind: "c2",
+    peerId,
+  });
 
-  if (!hasMeaningfulDraft(entry0?.draft)) {
-    return res.status(400).json({ error: "Debe completar el cuestionario antes de enviarlo." });
-  }
-
-  const tpl = p0.templates?.c2 || null;
-  const comp0 = computeCompletionFromTemplate(tpl, entry0?.draft);
-
-  if (comp0.total > 0 && comp0.missingIds.length > 0) {
-    return res.status(400).json({
-      error: "Debe completar todas las preguntas antes de enviarlo.",
-      missingIds: comp0.missingIds,
-      percent: comp0.percent,
-    });
-  }
+  if (!validation.ok) return res.status(validation.status).json(validation.payload);
 
   const next = updateDb((db2) => {
     const scoped2 = getProcAndMeScoped(db2, req);
@@ -770,14 +661,7 @@ app.post("/api/app/:processSlug/c2/:peerId/submit", requireParticipant, (req, re
     const exists2 = (proc.participants || []).some((p) => p.id === peerId && p.id !== me.id);
     if (!exists2) return db2;
 
-    proc.responses.c2[me.id] = proc.responses.c2[me.id] || {};
-    const entry =
-      proc.responses.c2[me.id][peerId] || {
-        draft: { answers: {}, freeText: "" },
-        savedAt: null,
-        submittedAt: null,
-      };
-
+    const entry = ensureC2Entry(proc, me.id, peerId);
     if (entry.submittedAt) return db2;
 
     entry.submittedAt = new Date().toISOString();
