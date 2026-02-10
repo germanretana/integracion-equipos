@@ -52,6 +52,11 @@ function participantDisplayName(p) {
   return `${fn} ${ln}`.trim() || p.email || "Participante";
 }
 
+
+function normalizeEmail(v) {
+  return String(v || "").trim().toLowerCase();
+}
+
 function getProcAndMeScoped(db, req) {
   const { processSlug } = req.params;
   if (req.participant.processSlug !== processSlug)
@@ -449,7 +454,7 @@ app.get("/api/app/:processSlug/questionnaires", requireParticipant, (req, res) =
   const c1Status = calcStatusFromEntryAndTemplate(c1Entry, c1Tpl);
 
   const peers = (proc.participants || [])
-    .filter((p) => p.id !== me.id)
+    .filter((p) => p.id !== me.id && normalizeEmail(p.email) !== normalizeEmail(me.email))
     .map((p) => {
       const perMap = proc.responses?.c2?.[me.id] || {};
       const entry = perMap?.[p.id] || null;

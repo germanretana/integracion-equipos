@@ -35,6 +35,9 @@ export default function C1() {
   // submit validation feedback
   const [missingIds, setMissingIds] = React.useState([]);
 
+  // UX: confirmación post-submit
+  const [justSubmitted, setJustSubmitted] = React.useState(false);
+
   React.useEffect(() => {
     let alive = true;
 
@@ -53,7 +56,9 @@ export default function C1() {
         setTpl(tplRes || null);
 
         const draft = entryRes?.draft || {};
-        setAnswers(draft?.answers && typeof draft.answers === "object" ? draft.answers : {});
+        setAnswers(
+          draft?.answers && typeof draft.answers === "object" ? draft.answers : {},
+        );
         setSavedAt(entryRes?.savedAt || null);
         setSubmittedAt(entryRes?.submittedAt || null);
 
@@ -99,7 +104,9 @@ export default function C1() {
     const first = (ids || [])[0];
     if (!first) return;
     setTimeout(() => {
-      const el = document.querySelector(`[data-qid="${CSS.escape(String(first))}"]`);
+      const el = document.querySelector(
+        `[data-qid="${CSS.escape(String(first))}"]`,
+      );
       if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 0);
   }
@@ -112,6 +119,12 @@ export default function C1() {
         method: "POST",
       });
       setSubmittedAt(entry?.submittedAt || new Date().toISOString());
+
+      // UX: confirmación + redirect
+      setJustSubmitted(true);
+      setTimeout(() => {
+        navigate(`/app/${processSlug}/questionnaires`, { replace: true });
+      }, 900);
     } catch (e) {
       const ids = e?.data?.missingIds;
       if (Array.isArray(ids) && ids.length > 0) {
@@ -122,20 +135,42 @@ export default function C1() {
     }
   }
 
+  function onLogout() {
+    auth.logoutParticipant();
+    navigate("/", { replace: true });
+  }
+
   const instructions = tpl?.instructionsMd || "";
   const questions = Array.isArray(tpl?.questions) ? tpl.questions : [];
 
   return (
     <div className="page">
       <div className="page-inner">
-        <button
-          className="admin-btn"
-          onClick={() => navigate(`/app/${processSlug}/questionnaires`)}
-        >
-          ← Volver
-        </button>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
+          <button
+            className="admin-btn"
+            onClick={() => navigate(`/app/${processSlug}/questionnaires`)}
+            type="button"
+          >
+            ← Volver
+          </button>
+
+          <button className="admin-btn" type="button" onClick={onLogout}>
+            Logout
+          </button>
+        </div>
 
         <h1 className="h1">Retroalimentación Equipo {companyName}</h1>
+
+        {justSubmitted ? (
+          <div className="section">
+            <div className="section-body">
+              <div className="pill ok" style={{ display: "inline-flex" }}>
+                ¡Enviado! Redirigiendo a la lista…
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         {error ? <div className="error">{error}</div> : null}
 

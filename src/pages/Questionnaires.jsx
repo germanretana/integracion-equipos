@@ -1,11 +1,14 @@
 import React from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import "../styles/questionnaires.css";
 import { auth } from "../services/auth";
 
 function StatusPill({ status, percent }) {
   if (status === "done") return <span className="pill ok">Completado</span>;
-  if (status === "progress") return <span className="pill warn">En progreso ({percent || 0}%)</span>;
+  if (status === "progress")
+    return (
+      <span className="pill warn">En progreso ({percent || 0}%)</span>
+    );
   return <span className="pill muted">Sin comenzar</span>;
 }
 
@@ -27,6 +30,7 @@ function Row({ to, title, status, percent }) {
 }
 
 export default function Questionnaires() {
+  const navigate = useNavigate();
   const { processSlug } = useParams();
 
   const [loading, setLoading] = React.useState(true);
@@ -57,10 +61,20 @@ export default function Questionnaires() {
     };
   }, [processSlug]);
 
+  function onLogout() {
+    auth.logoutParticipant();
+    navigate("/", { replace: true });
+  }
+
   return (
     <div className="page">
       <div className="page-inner">
-        <h1 className="h1">Cuestionarios</h1>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
+          <h1 className="h1" style={{ margin: 0 }}>Cuestionarios</h1>
+          <button className="admin-btn" type="button" onClick={onLogout}>
+            Logout
+          </button>
+        </div>
 
         {loading ? <p className="sub">Cargando…</p> : null}
         {error ? <div className="error">{error}</div> : null}
@@ -68,14 +82,21 @@ export default function Questionnaires() {
         {!loading && data ? (
           <>
             <p className="sub">
-              Muchas gracias por contestar estos cuestionarios. Su aporte será esencial para el éxito del proceso de integración del Equipo Gerencial de{" "}
+              Muchas gracias por contestar estos cuestionarios. Su aporte será
+              esencial para el éxito del proceso de integración del Equipo
+              Gerencial de{" "}
               <b>{data.process.companyName}</b>.
             </p>
 
             <div className="section">
               <h2 className="section-title">Retroalimentación del equipo (C1)</h2>
               <div className="section-body">
-                <Row to={data.c1.to} title={data.c1.title} status={data.c1.status} percent={data.c1.percent} />
+                <Row
+                  to={data.c1.to}
+                  title={data.c1.title}
+                  status={data.c1.status}
+                  percent={data.c1.percent}
+                />
               </div>
             </div>
 
@@ -83,14 +104,22 @@ export default function Questionnaires() {
               <h2 className="section-title">Retroalimentación a compañeros (C2)</h2>
               <div className="section-body">
                 {data.c2.map((p) => (
-                  <Row key={p.to} to={p.to} title={p.title} status={p.status} percent={p.percent} />
+                  <Row
+                    key={p.to}
+                    to={p.to}
+                    title={p.title}
+                    status={p.status}
+                    percent={p.percent}
+                  />
                 ))}
               </div>
             </div>
 
             <p className="footer-help">
               Si tiene alguna duda o consulta, escriba a{" "}
-              <a href="mailto:integracion@germanretana.com">integracion@germanretana.com</a>
+              <a href="mailto:integracion@germanretana.com">
+                integracion@germanretana.com
+              </a>
             </p>
           </>
         ) : null}
