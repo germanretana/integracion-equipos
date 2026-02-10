@@ -294,11 +294,21 @@ export default function QuestionnaireRenderer({
   }
 
   function renderValue04(q) {
-    const cur = answers?.[q.id] || {};
+    const meta = q?.meta && typeof q.meta === "object" ? q.meta : {};
+    const noSuggestion = meta.noSuggestion === true;
+    const hideLegend = meta.hideLegend === true;
+
+    const curRaw = answers?.[q.id];
+    const cur = curRaw && typeof curRaw === "object" ? curRaw : {};
     const val = cur && typeof cur === "object" ? cur.value : null;
     const sug = cur && typeof cur === "object" ? String(cur.suggestion || "") : "";
 
     const valNum = Number.isFinite(val) ? val : null;
+
+    function setValue(nextVal) {
+      if (noSuggestion) return setAnswer(q.id, { value: nextVal });
+      return setAnswer(q.id, { value: nextVal, suggestion: sug });
+    }
 
     return (
       <DefaultFieldWrap
@@ -319,27 +329,29 @@ export default function QuestionnaireRenderer({
               placeholder="0 a 4"
               onChange={(e) => {
                 const nextVal = e.target.value === "" ? null : clampInt(e.target.value, 0, 4);
-                setAnswer(q.id, { value: nextVal, suggestion: sug });
+                setValue(nextVal);
               }}
             />
-            <div style={{ marginTop: 6, fontSize: 12, opacity: 0.75 }}>
-              0 Insatisfactorio · 1 Regular · 2 Bueno · 3 Muy Bueno · 4 Excelente
-            </div>
+            {!hideLegend ? (
+              <div style={{ marginTop: 6, fontSize: 12, opacity: 0.75 }}>
+                0 Insatisfactorio · 1 Regular · 2 Bueno · 3 Muy Bueno · 4 Excelente
+              </div>
+            ) : null}
           </div>
 
-          <div style={{ flex: 1, minWidth: 260 }}>
-            <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 6 }}>
-              {q.explanationLabel || "Sugerencias para mejorar (opcional)"}
+          {!noSuggestion ? (
+            <div style={{ flex: 1, minWidth: 260 }}>
+              <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 6 }}>
+                {q.explanationLabel || "Sugerencias para mejorar (opcional)"}
+              </div>
+              <textarea
+                disabled={disabled}
+                value={sug}
+                placeholder="Sugerencias…"
+                onChange={(e) => setAnswer(q.id, { value: valNum, suggestion: e.target.value })}
+              />
             </div>
-            <textarea
-              disabled={disabled}
-              value={sug}
-              placeholder="Sugerencias…"
-              onChange={(e) =>
-                setAnswer(q.id, { value: valNum, suggestion: e.target.value })
-              }
-            />
-          </div>
+          ) : null}
         </div>
       </DefaultFieldWrap>
     );

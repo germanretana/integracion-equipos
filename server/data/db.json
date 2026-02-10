@@ -205,7 +205,7 @@
           "schemaVersion": 1,
           "id": "c1.q8",
           "order": 8,
-          "item": "Utilice la siguiente escala para evaluar el desempeño del Equipo Gerencial:",
+          "item": "Utilice la siguiente escala para evaluar el desempeño del Equipo Gerencial:<br/>0 Insatisfactorio · 1 Regular · 2 Bueno · 3 Muy Bueno · 4 Excelente",
           "type": "header",
           "minEntries": null,
           "maxEntries": null,
@@ -243,7 +243,8 @@
               "Excelente"
             ],
             "report": "avg",
-            "withSuggestion": true
+            "withSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -274,7 +275,8 @@
               "Excelente"
             ],
             "report": "avg",
-            "withSuggestion": true
+            "withSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -305,7 +307,8 @@
               "Excelente"
             ],
             "report": "avg",
-            "withSuggestion": true
+            "withSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -336,7 +339,8 @@
               "Excelente"
             ],
             "report": "avg",
-            "withSuggestion": true
+            "withSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -367,7 +371,8 @@
               "Excelente"
             ],
             "report": "avg",
-            "withSuggestion": true
+            "withSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -398,7 +403,8 @@
               "Excelente"
             ],
             "report": "avg",
-            "withSuggestion": true
+            "withSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -429,7 +435,8 @@
               "Excelente"
             ],
             "report": "avg",
-            "withSuggestion": true
+            "withSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -460,7 +467,8 @@
               "Excelente"
             ],
             "report": "avg",
-            "withSuggestion": true
+            "withSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -491,7 +499,8 @@
               "Excelente"
             ],
             "report": "avg",
-            "withSuggestion": true
+            "withSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -522,7 +531,8 @@
               "Excelente"
             ],
             "report": "avg",
-            "withSuggestion": true
+            "withSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -553,7 +563,8 @@
               "Excelente"
             ],
             "report": "avg",
-            "withSuggestion": true
+            "withSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -584,7 +595,8 @@
               "Excelente"
             ],
             "report": "avg",
-            "withSuggestion": true
+            "withSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -615,7 +627,8 @@
               "Excelente"
             ],
             "report": "avg",
-            "withSuggestion": true
+            "withSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -646,7 +659,8 @@
               "Excelente"
             ],
             "report": "avg",
-            "withSuggestion": true
+            "withSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -677,7 +691,8 @@
               "Excelente"
             ],
             "report": "avg",
-            "withSuggestion": true
+            "withSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -708,7 +723,8 @@
               "Excelente"
             ],
             "report": "avg",
-            "withSuggestion": true
+            "withSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -739,7 +755,8 @@
               "Excelente"
             ],
             "report": "avg",
-            "withSuggestion": true
+            "withSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -770,7 +787,8 @@
               "Excelente"
             ],
             "report": "avg",
-            "withSuggestion": true
+            "withSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -801,7 +819,8 @@
               "Excelente"
             ],
             "report": "avg",
-            "withSuggestion": true
+            "withSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -832,7 +851,8 @@
               "Excelente"
             ],
             "report": "avg",
-            "withSuggestion": true
+            "withSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -863,7 +883,8 @@
               "Excelente"
             ],
             "report": "avg",
-            "withSuggestion": true
+            "withSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -894,7 +915,8 @@
               "Excelente"
             ],
             "report": "avg",
-            "withSuggestion": true
+            "withSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -925,7 +947,8 @@
               "Excelente"
             ],
             "report": "avg",
-            "withSuggestion": true
+            "withSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -956,7 +979,8 @@
               "Excelente"
             ],
             "report": "avg",
-            "withSuggestion": true
+            "withSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -1213,7 +1237,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -1243,7 +1269,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -1273,7 +1301,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -1303,7 +1333,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -1333,7 +1365,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -1363,7 +1397,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -1393,7 +1429,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -1423,7 +1461,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -1453,7 +1493,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -1483,7 +1525,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -1513,7 +1557,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -1543,7 +1589,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -1573,7 +1621,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -1603,7 +1653,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -1633,7 +1685,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -1663,7 +1717,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -1693,7 +1749,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -1723,7 +1781,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -1753,7 +1813,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -1783,7 +1845,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -1813,7 +1877,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -1843,7 +1909,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -1873,7 +1941,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -1903,7 +1973,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -1933,7 +2005,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -1963,7 +2037,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -1993,7 +2069,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -2023,7 +2101,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -2053,7 +2133,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -2083,7 +2165,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -2113,7 +2197,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -2143,7 +2229,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -2173,7 +2261,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -2203,7 +2293,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -2233,7 +2325,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -2263,7 +2357,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -2293,7 +2389,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -2323,7 +2421,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -2353,7 +2453,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -2383,7 +2485,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -2413,7 +2517,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -2443,7 +2549,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -2473,7 +2581,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -2503,7 +2613,9 @@
               "Muy Bueno",
               "Excelente"
             ],
-            "report": "avg"
+            "report": "avg",
+            "noSuggestion": true,
+            "hideLegend": true
           }
         },
         {
@@ -2763,7 +2875,7 @@
               "schemaVersion": 1,
               "id": "c1.q8",
               "order": 8,
-              "item": "Utilice la siguiente escala para evaluar el desempeño del Equipo Gerencial:",
+              "item": "Utilice la siguiente escala para evaluar el desempeño del Equipo Gerencial:<br/>0 Insatisfactorio · 1 Regular · 2 Bueno · 3 Muy Bueno · 4 Excelente",
               "type": "header",
               "minEntries": null,
               "maxEntries": null,
@@ -2801,7 +2913,8 @@
                   "Excelente"
                 ],
                 "report": "avg",
-                "withSuggestion": true
+                "withSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -2832,7 +2945,8 @@
                   "Excelente"
                 ],
                 "report": "avg",
-                "withSuggestion": true
+                "withSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -2863,7 +2977,8 @@
                   "Excelente"
                 ],
                 "report": "avg",
-                "withSuggestion": true
+                "withSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -2894,7 +3009,8 @@
                   "Excelente"
                 ],
                 "report": "avg",
-                "withSuggestion": true
+                "withSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -2925,7 +3041,8 @@
                   "Excelente"
                 ],
                 "report": "avg",
-                "withSuggestion": true
+                "withSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -2956,7 +3073,8 @@
                   "Excelente"
                 ],
                 "report": "avg",
-                "withSuggestion": true
+                "withSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -2987,7 +3105,8 @@
                   "Excelente"
                 ],
                 "report": "avg",
-                "withSuggestion": true
+                "withSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -3018,7 +3137,8 @@
                   "Excelente"
                 ],
                 "report": "avg",
-                "withSuggestion": true
+                "withSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -3049,7 +3169,8 @@
                   "Excelente"
                 ],
                 "report": "avg",
-                "withSuggestion": true
+                "withSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -3080,7 +3201,8 @@
                   "Excelente"
                 ],
                 "report": "avg",
-                "withSuggestion": true
+                "withSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -3111,7 +3233,8 @@
                   "Excelente"
                 ],
                 "report": "avg",
-                "withSuggestion": true
+                "withSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -3142,7 +3265,8 @@
                   "Excelente"
                 ],
                 "report": "avg",
-                "withSuggestion": true
+                "withSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -3173,7 +3297,8 @@
                   "Excelente"
                 ],
                 "report": "avg",
-                "withSuggestion": true
+                "withSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -3204,7 +3329,8 @@
                   "Excelente"
                 ],
                 "report": "avg",
-                "withSuggestion": true
+                "withSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -3235,7 +3361,8 @@
                   "Excelente"
                 ],
                 "report": "avg",
-                "withSuggestion": true
+                "withSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -3266,7 +3393,8 @@
                   "Excelente"
                 ],
                 "report": "avg",
-                "withSuggestion": true
+                "withSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -3297,7 +3425,8 @@
                   "Excelente"
                 ],
                 "report": "avg",
-                "withSuggestion": true
+                "withSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -3328,7 +3457,8 @@
                   "Excelente"
                 ],
                 "report": "avg",
-                "withSuggestion": true
+                "withSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -3359,7 +3489,8 @@
                   "Excelente"
                 ],
                 "report": "avg",
-                "withSuggestion": true
+                "withSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -3390,7 +3521,8 @@
                   "Excelente"
                 ],
                 "report": "avg",
-                "withSuggestion": true
+                "withSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -3421,7 +3553,8 @@
                   "Excelente"
                 ],
                 "report": "avg",
-                "withSuggestion": true
+                "withSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -3452,7 +3585,8 @@
                   "Excelente"
                 ],
                 "report": "avg",
-                "withSuggestion": true
+                "withSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -3483,7 +3617,8 @@
                   "Excelente"
                 ],
                 "report": "avg",
-                "withSuggestion": true
+                "withSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -3514,7 +3649,8 @@
                   "Excelente"
                 ],
                 "report": "avg",
-                "withSuggestion": true
+                "withSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -3771,7 +3907,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -3801,7 +3939,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -3831,7 +3971,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -3861,7 +4003,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -3891,7 +4035,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -3921,7 +4067,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -3951,7 +4099,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -3981,7 +4131,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4011,7 +4163,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4041,7 +4195,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4071,7 +4227,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4101,7 +4259,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4131,7 +4291,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4161,7 +4323,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4191,7 +4355,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4221,7 +4387,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4251,7 +4419,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4281,7 +4451,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4311,7 +4483,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4341,7 +4515,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4371,7 +4547,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4401,7 +4579,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4431,7 +4611,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4461,7 +4643,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4491,7 +4675,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4521,7 +4707,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4551,7 +4739,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4581,7 +4771,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4611,7 +4803,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4641,7 +4835,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4671,7 +4867,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4701,7 +4899,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4731,7 +4931,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4761,7 +4963,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4791,7 +4995,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4821,7 +5027,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4851,7 +5059,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4881,7 +5091,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4911,7 +5123,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4941,7 +5155,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -4971,7 +5187,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -5001,7 +5219,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -5031,7 +5251,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -5061,7 +5283,9 @@
                   "Muy Bueno",
                   "Excelente"
                 ],
-                "report": "avg"
+                "report": "avg",
+                "noSuggestion": true,
+                "hideLegend": true
               }
             },
             {
@@ -5400,180 +5624,136 @@
                   ],
                   "c2-8": 1,
                   "c2-9_01": {
-                    "value": 3,
-                    "suggestion": ""
+                    "value": 3
                   },
                   "c2-9_02": {
-                    "value": 2,
-                    "suggestion": ""
+                    "value": 2
                   },
                   "c2-9_03": {
-                    "value": 4,
-                    "suggestion": ""
+                    "value": 4
                   },
                   "c2-9_04": {
-                    "value": 4,
-                    "suggestion": ""
+                    "value": 4
                   },
                   "c2-9_05": {
-                    "value": 3,
-                    "suggestion": ""
+                    "value": 3
                   },
                   "c2-9_06": {
-                    "value": 3,
-                    "suggestion": ""
+                    "value": 3
                   },
                   "c2-9_07": {
-                    "value": 3,
-                    "suggestion": ""
+                    "value": 3
                   },
                   "c2-9_08": {
-                    "value": 2,
-                    "suggestion": ""
+                    "value": 2
                   },
                   "c2-9_09": {
-                    "value": 2,
-                    "suggestion": ""
+                    "value": 2
                   },
                   "c2-9_10": {
-                    "value": 3,
-                    "suggestion": ""
+                    "value": 3
                   },
                   "c2-9_11": {
-                    "value": 2,
-                    "suggestion": ""
+                    "value": 2
                   },
                   "c2-9_12": {
-                    "value": 4,
-                    "suggestion": ""
+                    "value": 4
                   },
                   "c2-9_13": {
-                    "value": 3,
-                    "suggestion": ""
+                    "value": 3
                   },
                   "c2-9_14": {
-                    "value": 2,
-                    "suggestion": ""
+                    "value": 2
                   },
                   "c2-9_15": {
-                    "value": 2,
-                    "suggestion": ""
+                    "value": 2
                   },
                   "c2-9_16": {
-                    "value": 4,
-                    "suggestion": ""
+                    "value": 4
                   },
                   "c2-9_17": {
-                    "value": 4,
-                    "suggestion": ""
+                    "value": 4
                   },
                   "c2-9_18": {
-                    "value": 3,
-                    "suggestion": ""
+                    "value": 3
                   },
                   "c2-9_19": {
-                    "value": 2,
-                    "suggestion": ""
+                    "value": 2
                   },
                   "c2-9_20": {
-                    "value": 3,
-                    "suggestion": ""
+                    "value": 3
                   },
                   "c2-9_21": {
-                    "value": 4,
-                    "suggestion": ""
+                    "value": 4
                   },
                   "c2-9_22": {
-                    "value": 3,
-                    "suggestion": ""
+                    "value": 3
                   },
                   "c2-9_23": {
-                    "value": 2,
-                    "suggestion": ""
+                    "value": 2
                   },
                   "c2-9_24": {
-                    "value": 2,
-                    "suggestion": ""
+                    "value": 2
                   },
                   "c2-9_25": {
-                    "value": 3,
-                    "suggestion": ""
+                    "value": 3
                   },
                   "c2-9_26": {
-                    "value": 3,
-                    "suggestion": ""
+                    "value": 3
                   },
                   "c2-9_27": {
-                    "value": 4,
-                    "suggestion": ""
+                    "value": 4
                   },
                   "c2-9_28": {
-                    "value": 3,
-                    "suggestion": ""
+                    "value": 3
                   },
                   "c2-9_29": {
-                    "value": 2,
-                    "suggestion": ""
+                    "value": 2
                   },
                   "c2-9_30": {
-                    "value": 1,
-                    "suggestion": ""
+                    "value": 1
                   },
                   "c2-9_31": {
-                    "value": 2,
-                    "suggestion": ""
+                    "value": 2
                   },
                   "c2-9_32": {
-                    "value": 3,
-                    "suggestion": ""
+                    "value": 3
                   },
                   "c2-9_33": {
-                    "value": 3,
-                    "suggestion": ""
+                    "value": 3
                   },
                   "c2-9_34": {
-                    "value": 2,
-                    "suggestion": ""
+                    "value": 2
                   },
                   "c2-9_35": {
-                    "value": 1,
-                    "suggestion": ""
+                    "value": 1
                   },
                   "c2-9_36": {
-                    "value": 3,
-                    "suggestion": ""
+                    "value": 3
                   },
                   "c2-9_37": {
-                    "value": 3,
-                    "suggestion": ""
+                    "value": 3
                   },
                   "c2-9_38": {
-                    "value": 3,
-                    "suggestion": ""
+                    "value": 3
                   },
                   "c2-9_39": {
-                    "value": 3,
-                    "suggestion": ""
+                    "value": 3
                   },
                   "c2-9_40": {
-                    "value": 3,
-                    "suggestion": ""
+                    "value": 3
                   },
                   "c2-9_41": {
-                    "value": 3,
-                    "suggestion": ""
+                    "value": 3
                   },
                   "c2-9_42": {
-                    "value": 3,
-                    "suggestion": ""
+                    "value": 3
                   },
                   "c2-9_43": {
-                    "value": 3,
-                    "suggestion": ""
+                    "value": 3
                   },
                   "c2-9_44": {
-                    "value": 3,
-                    "suggestion": ""
+                    "value": 3
                   },
                   "c2-10": [
                     "asdf",
@@ -5595,7 +5775,7 @@
                 "answers": {},
                 "freeText": ""
               },
-              "savedAt": "2026-02-10T17:04:11.776Z",
+              "savedAt": "2026-02-10T17:44:15.638Z",
               "submittedAt": null
             },
             "p3": {
@@ -5611,7 +5791,7 @@
                 "answers": {},
                 "freeText": ""
               },
-              "savedAt": "2026-02-10T17:11:07.417Z",
+              "savedAt": "2026-02-10T17:46:42.935Z",
               "submittedAt": null
             },
             "p4": {
