@@ -5236,7 +5236,7 @@
           "firstName": "Ana",
           "lastName": "López",
           "email": "ana@example.com",
-          "passwordHash": "$2a$10$PuUEf088q2i6QEI0yCeh1.fGY61GECCQPyYZz7FoYXzw/fCsU7PsC"
+          "passwordHash": "$2a$10$gqshy0hSvEES.eCPvd9SAO1wUTFa93Na1vLPzgbygPkk29t5DrNji"
         },
         {
           "id": "p3",
@@ -5283,6 +5283,16 @@
               "freeText": ""
             },
             "savedAt": "2026-02-10T15:17:17.276Z",
+            "submittedAt": null
+          },
+          "p2": {
+            "draft": {
+              "answers": {
+                "c1.q1": "test"
+              },
+              "freeText": ""
+            },
+            "savedAt": "2026-02-10T16:22:57.237Z",
             "submittedAt": null
           }
         },
@@ -5551,6 +5561,24 @@
               "savedAt": "2026-02-10T13:44:16.394Z",
               "submittedAt": null
             }
+          },
+          "p2": {
+            "p1": {
+              "draft": {
+                "answers": {},
+                "freeText": ""
+              },
+              "savedAt": "2026-02-10T16:24:33.129Z",
+              "submittedAt": null
+            },
+            "p3": {
+              "draft": {
+                "answers": {},
+                "freeText": ""
+              },
+              "savedAt": "2026-02-10T16:24:40.790Z",
+              "submittedAt": null
+            }
           }
         }
       }
@@ -5661,6 +5689,16 @@
     {
       "id": "evt-1770695734760-904767466.7575933",
       "ts": "2026-02-10T03:55:34.758Z",
+      "type": "ADMIN_ACCESS_RESET",
+      "processSlug": "acme-integracion-2026",
+      "participantId": "p2",
+      "participantEmail": "ana@example.com",
+      "participantName": "Ana López",
+      "adminEmail": "german.retana@gmail.com"
+    },
+    {
+      "id": "evt-1770740360679-127fb090a9fe4",
+      "ts": "2026-02-10T16:19:20.676Z",
       "type": "ADMIN_ACCESS_RESET",
       "processSlug": "acme-integracion-2026",
       "participantId": "p2",
