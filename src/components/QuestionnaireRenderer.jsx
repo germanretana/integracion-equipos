@@ -94,7 +94,6 @@ function isC2Q9HeaderId(id) {
   return /^c2-9$/i.test(x) || /^c2\.q9$/i.test(x);
 }
 
-
 function qText(q) {
   return q?.text ?? q?.item ?? q?.Item ?? q?.title ?? q?.label ?? "";
 }
@@ -385,7 +384,6 @@ export default function QuestionnaireRenderer({
     );
   }
 
-
   // Generic value_0_4 grid (declarative block)
   function renderValue04Grid(q) {
     const items = Array.isArray(q.items) ? q.items : [];
@@ -410,7 +408,11 @@ export default function QuestionnaireRenderer({
           </div>
         ) : null}
 
-        <div className="q-grid">
+        <div
+          className={
+            "q-grid " + (hasSuggestion ? "q-grid--stack" : "q-grid--cards")
+          }
+        >
           {items.map((it) => {
             const id = String(it.id);
             const curRaw = answers?.[id];
@@ -472,7 +474,10 @@ export default function QuestionnaireRenderer({
                 ) : null}
 
                 {missing ? (
-                  <div className="q-grid-help" style={{ color: "#ff668f", opacity: 1 }}>
+                  <div
+                    className="q-grid-help"
+                    style={{ color: "#ff668f", opacity: 1 }}
+                  >
                     Falta completar esta pregunta
                   </div>
                 ) : null}
@@ -483,8 +488,6 @@ export default function QuestionnaireRenderer({
       </div>
     );
   }
-
-
 
   function renderValue04(q) {
     const meta = q?.meta && typeof q.meta === "object" ? q.meta : {};
