@@ -598,8 +598,27 @@
 
 /* Stack rows; each row is its own 2/3-col grid */
 .q-grid {
-  /* base container; layout is chosen by modifier */
+  gap: 12px;
 }
+
+/* default: stack */
+.q-grid--stack {
+  display: flex;
+  flex-direction: column;
+}
+
+/* cards: 2 columns */
+.q-grid--cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 860px) {
+  .q-grid--cards {
+    grid-template-columns: 1fr;
+  }
+}
+
 
 /* default: stack rows (good for grids WITH suggestion column) */
 .q-grid--stack {

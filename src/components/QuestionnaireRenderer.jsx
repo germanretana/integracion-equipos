@@ -79,21 +79,6 @@ function helpText(minEntries, maxEntries) {
   return "";
 }
 
-/**
- * TEMP fallback for existing seeds/templates:
- * We currently detect special blocks by ID patterns.
- * Later we should migrate to meta.block/meta.layout.
- */
-function isC2Q9Id(id) {
-  const x = String(id || "");
-  return /^c2-9[_-]\d{2}$/i.test(x) || /^c2\.q9\.\d{2}$/i.test(x);
-}
-
-function isC2Q9HeaderId(id) {
-  const x = String(id || "");
-  return /^c2-9$/i.test(x) || /^c2\.q9$/i.test(x);
-}
-
 function qText(q) {
   return q?.text ?? q?.item ?? q?.Item ?? q?.title ?? q?.label ?? "";
 }
@@ -347,43 +332,6 @@ export default function QuestionnaireRenderer({
     );
   }
 
-  // C2.q9 item: compact (no suggestion, no "0–4" note)
-  function renderValue04Compact(q) {
-    const curRaw = answers?.[q.id];
-    const cur = curRaw && typeof curRaw === "object" ? curRaw : {};
-    const val = cur && typeof cur === "object" ? cur.value : null;
-    const valNum = Number.isFinite(val) ? val : null;
-
-    return (
-      <div className="c2q9-item" data-qid={q.id}>
-        <p className="c2q9-label">
-          <Html html={qText(q)} />
-        </p>
-
-        <div className="c2q9-inputRow">
-          <input
-            className="admin-input"
-            disabled={disabled}
-            inputMode="numeric"
-            value={valNum == null ? "" : String(valNum)}
-            placeholder="0 a 4"
-            onChange={(e) => {
-              const nextVal =
-                e.target.value === "" ? null : clampInt(e.target.value, 0, 4);
-              setAnswer(q.id, { value: nextVal });
-            }}
-          />
-        </div>
-
-        {missingSet.has(String(q.id)) ? (
-          <div className="c2q9-help" style={{ color: "#ff668f", opacity: 1 }}>
-            Falta completar esta pregunta
-          </div>
-        ) : null}
-      </div>
-    );
-  }
-
   // Generic value_0_4 grid (declarative block)
   function renderValue04Grid(q) {
     const items = Array.isArray(q.items) ? q.items : [];
@@ -393,6 +341,9 @@ export default function QuestionnaireRenderer({
       : ["label", "value", "suggestion"];
 
     const hasSuggestion = columns.includes("suggestion");
+    const layout =
+      String(meta.layout || "").toLowerCase() ||
+      (hasSuggestion ? "stack" : "cards");
 
     function autoGrow(el) {
       if (!el) return;
@@ -715,77 +666,18 @@ export default function QuestionnaireRenderer({
     );
   }
 
-  const hasC2Q9 = React.useMemo(() => {
-    return (questions || []).some(
-      (q) => isC2Q9HeaderId(q?.id) || isC2Q9Id(q?.id),
-    );
-  }, [questions]);
-  const rendered = React.useMemo(() => {
-    if (!hasC2Q9) return null;
-
-    const out = [];
-    const qs = questions || [];
-    let i = 0;
-
-    while (i < qs.length) {
-      const q = qs[i];
-      const id = String(q?.id || q?.key || `${i}`);
-      const type = normalizeType(q?.type);
-      // C2.q9: header + items (2 columns)
-      if (hasC2Q9 && isC2Q9HeaderId(id) && type === "header") {
-        out.push(
-          <MissingWrap key={id} qid={id} missing={false}>
-            {renderHeader({ ...q, id })}
-          </MissingWrap>,
-        );
-
-        const items = [];
-        i += 1;
-        while (i < qs.length) {
-          const q2 = qs[i];
-          const id2 = String(q2?.id || q2?.key || `${i}`);
-          if (!isC2Q9Id(id2)) break;
-          items.push({ ...q2, id: id2 });
-          i += 1;
-        }
-
-        if (items.length) {
-          out.push(
-            <div key="c2q9-grid" className="c2q9-grid">
-              {items.map((it) => renderValue04Compact(it))}
-            </div>,
-          );
-        }
-        continue;
-      }
-
-      // default
-      const child = renderQuestion({ ...q, id });
-      out.push(
-        <MissingWrap key={id} qid={id} missing={missingSet.has(id)}>
-          {child}
-        </MissingWrap>,
-      );
-      i += 1;
-    }
-
-    return out;
-  }, [hasC2Q9, questions, missingSet, disabled, answers]);
-
   return (
     <div>
-      {rendered
-        ? rendered
-        : (questions || []).map((q, idx) => {
-            const id = String(q?.id || q?.key || `${idx}`);
-            const missing = missingSet.has(id);
-            const child = renderQuestion({ ...q, id });
-            return (
-              <MissingWrap key={id} qid={id} missing={missing}>
-                {child}
-              </MissingWrap>
-            );
-          })}
+      {(questions || []).map((q, idx) => {
+        const id = String(q?.id || q?.key || `${idx}`);
+        const missing = missingSet.has(id);
+        const child = renderQuestion({ ...q, id });
+        return (
+          <MissingWrap key={id} qid={id} missing={missing}>
+            {child}
+          </MissingWrap>
+        );
+      })}
     </div>
   );
 }
