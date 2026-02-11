@@ -472,6 +472,14 @@ export default function QuestionnaireRenderer({
       ? meta.columns
       : ["label", "value", "suggestion"];
 
+    const hasSuggestion = columns.includes("suggestion");
+
+    function autoGrow(el) {
+      if (!el) return;
+      el.style.height = "auto";
+      el.style.height = `${el.scrollHeight}px`;
+    }
+
     return (
       <div className="q-grid-wrap">
         {qText(q) ? (
@@ -480,11 +488,7 @@ export default function QuestionnaireRenderer({
           </div>
         ) : null}
 
-        <div
-          className={
-            "q-grid " + (columns.length === 3 ? "q-grid--3" : "q-grid--2")
-          }
-        >
+        <div className="q-grid">
           {items.map((it) => {
             const id = String(it.id);
             const curRaw = answers?.[id];
@@ -497,7 +501,9 @@ export default function QuestionnaireRenderer({
               <div
                 key={id}
                 className={
-                  "q-grid-item" + (missing ? " q-grid-item--missing" : "")
+                  "q-grid-row " +
+                  (hasSuggestion ? "q-grid-row--3" : "q-grid-row--2") +
+                  (missing ? " q-grid-row--missing" : "")
                 }
                 data-qid={id}
               >
@@ -522,20 +528,30 @@ export default function QuestionnaireRenderer({
                   />
                 </div>
 
-                {columns.includes("suggestion") ? (
+                {hasSuggestion ? (
                   <div className="q-grid-suggestion">
                     <textarea
                       disabled={disabled}
                       value={sug}
                       rows={1}
-                      placeholder="Sugerencias (opcional)"
+                      placeholder="Sugerencias para mejorar (opcional)"
+                      onInput={(e) => autoGrow(e.currentTarget)}
                       onChange={(e) =>
                         setAnswer(id, {
                           value: valNum,
                           suggestion: e.target.value,
                         })
                       }
+                      ref={(el) => {
+                        if (el) autoGrow(el);
+                      }}
                     />
+                  </div>
+                ) : null}
+
+                {missing ? (
+                  <div className="q-grid-help" style={{ color: "#ff668f", opacity: 1 }}>
+                    Falta completar esta pregunta
                   </div>
                 ) : null}
               </div>
@@ -545,6 +561,8 @@ export default function QuestionnaireRenderer({
       </div>
     );
   }
+
+
 
   function renderValue04(q) {
     const meta = q?.meta && typeof q.meta === "object" ? q.meta : {};

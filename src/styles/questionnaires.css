@@ -579,3 +579,103 @@
   cursor: not-allowed;
 }
 
+/* =========================
+   Generic value_0_4 grid
+   (value_0_4_grid)
+========================= */
+
+.q-grid-wrap {
+  margin-top: 12px;
+}
+
+.q-grid-header {
+  font-weight: 900;
+  font-size: 14px;
+  line-height: 1.35;
+  margin-bottom: 10px;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* Stack rows; each row is its own 2/3-col grid */
+.q-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.q-grid-row {
+  background: rgba(0, 0, 0, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 12px;
+
+  display: grid;
+  column-gap: 14px;
+  row-gap: 10px;
+  align-items: start;
+}
+
+.q-grid-row--3 {
+  grid-template-columns: minmax(0, 1fr) 96px minmax(0, 1fr);
+}
+
+.q-grid-row--2 {
+  grid-template-columns: minmax(0, 1fr) 96px;
+}
+
+@media (max-width: 860px) {
+  .q-grid-row--3,
+  .q-grid-row--2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.q-grid-row--missing {
+  border-color: rgba(255, 102, 143, 0.55);
+  background: rgba(255, 102, 143, 0.08);
+}
+
+.q-grid-label {
+  font-size: 13px; /* align with c2q9 label */
+  line-height: 1.35;
+  font-weight: 650;
+  color: rgba(255, 255, 255, 0.86);
+  margin: 0;
+}
+
+.q-grid-control {
+  justify-self: end;
+}
+
+@media (max-width: 860px) {
+  .q-grid-control {
+    justify-self: start;
+  }
+}
+
+.q-grid-control .admin-input {
+  width: 96px;
+  max-width: 96px;
+  padding: 10px 10px;
+  text-align: center;
+}
+
+@media (max-width: 860px) {
+  .q-grid-control .admin-input {
+    width: 120px;
+    max-width: 120px;
+  }
+}
+
+.q-grid-suggestion textarea {
+  width: 100%;
+  resize: vertical;
+}
+
+.q-grid-help {
+  grid-column: 1 / -1;
+  font-size: 12px;
+  margin-top: 2px;
+  opacity: 0.72;
+}
+
