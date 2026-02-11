@@ -2876,782 +2876,118 @@
               "id": "c1.q8",
               "order": 8,
               "item": "Utilice la siguiente escala para evaluar el desempeño del Equipo Gerencial:<br/>0 Insatisfactorio · 1 Regular · 2 Bueno · 3 Muy Bueno · 4 Excelente",
-              "type": "header",
+              "type": "value_0_4_grid",
               "minEntries": null,
               "maxEntries": null,
               "explanation": null,
               "condition": null,
               "groupId": null,
               "dependsOn": null,
-              "meta": null
-            },
-            {
-              "schemaVersion": 1,
-              "id": "c1.q8.01",
-              "order": 8.01,
-              "item": "Participación, fluidez y compromiso en formulación y ejecución de la estrategia:",
-              "type": "value_0_4",
-              "minEntries": 1,
-              "maxEntries": 1,
-              "explanation": "Sugerencias para mejorar:",
-              "condition": null,
-              "groupId": null,
-              "dependsOn": null,
               "meta": {
-                "scale": [
-                  0,
-                  1,
-                  2,
-                  3,
-                  4
-                ],
-                "labels": [
-                  "Insatisfactorio",
-                  "Regular",
-                  "Bueno",
-                  "Muy Bueno",
-                  "Excelente"
-                ],
-                "report": "avg",
-                "withSuggestion": true,
-                "hideLegend": true
-              }
-            },
-            {
-              "schemaVersion": 1,
-              "id": "c1.q8.02",
-              "order": 8.02,
-              "item": "Periodicidad de reuniones como equipo líder.",
-              "type": "value_0_4",
-              "minEntries": 1,
-              "maxEntries": 1,
-              "explanation": "Sugerencias para mejorar:",
-              "condition": null,
-              "groupId": null,
-              "dependsOn": null,
-              "meta": {
-                "scale": [
-                  0,
-                  1,
-                  2,
-                  3,
-                  4
-                ],
-                "labels": [
-                  "Insatisfactorio",
-                  "Regular",
-                  "Bueno",
-                  "Muy Bueno",
-                  "Excelente"
-                ],
-                "report": "avg",
-                "withSuggestion": true,
-                "hideLegend": true
-              }
-            },
-            {
-              "schemaVersion": 1,
-              "id": "c1.q8.03",
-              "order": 8.03,
-              "item": "Conducción, involucramiento y eficiencia en cada reunión:",
-              "type": "value_0_4",
-              "minEntries": 1,
-              "maxEntries": 1,
-              "explanation": "Sugerencias para mejorar:",
-              "condition": null,
-              "groupId": null,
-              "dependsOn": null,
-              "meta": {
-                "scale": [
-                  0,
-                  1,
-                  2,
-                  3,
-                  4
-                ],
-                "labels": [
-                  "Insatisfactorio",
-                  "Regular",
-                  "Bueno",
-                  "Muy Bueno",
-                  "Excelente"
-                ],
-                "report": "avg",
-                "withSuggestion": true,
-                "hideLegend": true
-              }
-            },
-            {
-              "schemaVersion": 1,
-              "id": "c1.q8.04",
-              "order": 8.04,
-              "item": "Calidad de información disponible entre nosotros para análisis y toma de decisiones:",
-              "type": "value_0_4",
-              "minEntries": 1,
-              "maxEntries": 1,
-              "explanation": "Sugerencias para mejorar:",
-              "condition": null,
-              "groupId": null,
-              "dependsOn": null,
-              "meta": {
-                "scale": [
-                  0,
-                  1,
-                  2,
-                  3,
-                  4
-                ],
-                "labels": [
-                  "Insatisfactorio",
-                  "Regular",
-                  "Bueno",
-                  "Muy Bueno",
-                  "Excelente"
-                ],
-                "report": "avg",
-                "withSuggestion": true,
-                "hideLegend": true
-              }
-            },
-            {
-              "schemaVersion": 1,
-              "id": "c1.q8.05",
-              "order": 8.05,
-              "item": "Seguimiento a cumplimiento de nuestros acuerdos como Equipo Gerencial.",
-              "type": "value_0_4",
-              "minEntries": 1,
-              "maxEntries": 1,
-              "explanation": "Sugerencias para mejorar:",
-              "condition": null,
-              "groupId": null,
-              "dependsOn": null,
-              "meta": {
-                "scale": [
-                  0,
-                  1,
-                  2,
-                  3,
-                  4
-                ],
-                "labels": [
-                  "Insatisfactorio",
-                  "Regular",
-                  "Bueno",
-                  "Muy Bueno",
-                  "Excelente"
-                ],
-                "report": "avg",
-                "withSuggestion": true,
-                "hideLegend": true
-              }
-            },
-            {
-              "schemaVersion": 1,
-              "id": "c1.q8.06",
-              "order": 8.06,
-              "item": "Juego limpio en nuestra comunicación formal y no formal (no chismes).",
-              "type": "value_0_4",
-              "minEntries": 1,
-              "maxEntries": 1,
-              "explanation": "Sugerencias para mejorar:",
-              "condition": null,
-              "groupId": null,
-              "dependsOn": null,
-              "meta": {
-                "scale": [
-                  0,
-                  1,
-                  2,
-                  3,
-                  4
-                ],
-                "labels": [
-                  "Insatisfactorio",
-                  "Regular",
-                  "Bueno",
-                  "Muy Bueno",
-                  "Excelente"
-                ],
-                "report": "avg",
-                "withSuggestion": true,
-                "hideLegend": true
-              }
-            },
-            {
-              "schemaVersion": 1,
-              "id": "c1.q8.07",
-              "order": 8.07,
-              "item": "Objetividad y neutralidad de decisiones (sin intereses o agendas personales de por medio):",
-              "type": "value_0_4",
-              "minEntries": 1,
-              "maxEntries": 1,
-              "explanation": "Sugerencias para mejorar:",
-              "condition": null,
-              "groupId": null,
-              "dependsOn": null,
-              "meta": {
-                "scale": [
-                  0,
-                  1,
-                  2,
-                  3,
-                  4
-                ],
-                "labels": [
-                  "Insatisfactorio",
-                  "Regular",
-                  "Bueno",
-                  "Muy Bueno",
-                  "Excelente"
-                ],
-                "report": "avg",
-                "withSuggestion": true,
-                "hideLegend": true
-              }
-            },
-            {
-              "schemaVersion": 1,
-              "id": "c1.q8.08",
-              "order": 8.08,
-              "item": "Ambiente de equipo, cooperación, solidaridad,  confidencialidad y respeto entre nosotros:",
-              "type": "value_0_4",
-              "minEntries": 1,
-              "maxEntries": 1,
-              "explanation": "Sugerencias para mejorar:",
-              "condition": null,
-              "groupId": null,
-              "dependsOn": null,
-              "meta": {
-                "scale": [
-                  0,
-                  1,
-                  2,
-                  3,
-                  4
-                ],
-                "labels": [
-                  "Insatisfactorio",
-                  "Regular",
-                  "Bueno",
-                  "Muy Bueno",
-                  "Excelente"
-                ],
-                "report": "avg",
-                "withSuggestion": true,
-                "hideLegend": true
-              }
-            },
-            {
-              "schemaVersion": 1,
-              "id": "c1.q8.09",
-              "order": 8.09,
-              "item": "Relaciones de miembros de equipo gerencial con siguiente nivel de gestión en la organización:",
-              "type": "value_0_4",
-              "minEntries": 1,
-              "maxEntries": 1,
-              "explanation": "Sugerencias para mejorar:",
-              "condition": null,
-              "groupId": null,
-              "dependsOn": null,
-              "meta": {
-                "scale": [
-                  0,
-                  1,
-                  2,
-                  3,
-                  4
-                ],
-                "labels": [
-                  "Insatisfactorio",
-                  "Regular",
-                  "Bueno",
-                  "Muy Bueno",
-                  "Excelente"
-                ],
-                "report": "avg",
-                "withSuggestion": true,
-                "hideLegend": true
-              }
-            },
-            {
-              "schemaVersion": 1,
-              "id": "c1.q8.10",
-              "order": 8.1,
-              "item": "Calidad de las relaciones interpersonales (formales y no formales) entre nosotros:",
-              "type": "value_0_4",
-              "minEntries": 1,
-              "maxEntries": 1,
-              "explanation": "Sugerencias para mejorar:",
-              "condition": null,
-              "groupId": null,
-              "dependsOn": null,
-              "meta": {
-                "scale": [
-                  0,
-                  1,
-                  2,
-                  3,
-                  4
-                ],
-                "labels": [
-                  "Insatisfactorio",
-                  "Regular",
-                  "Bueno",
-                  "Muy Bueno",
-                  "Excelente"
-                ],
-                "report": "avg",
-                "withSuggestion": true,
-                "hideLegend": true
-              }
-            },
-            {
-              "schemaVersion": 1,
-              "id": "c1.q8.11",
-              "order": 8.11,
-              "item": "Apertura para ejecutar proyectos conjuntos entre diversas áreas a nuestro cargo:",
-              "type": "value_0_4",
-              "minEntries": 1,
-              "maxEntries": 1,
-              "explanation": "Sugerencias para mejorar:",
-              "condition": null,
-              "groupId": null,
-              "dependsOn": null,
-              "meta": {
-                "scale": [
-                  0,
-                  1,
-                  2,
-                  3,
-                  4
-                ],
-                "labels": [
-                  "Insatisfactorio",
-                  "Regular",
-                  "Bueno",
-                  "Muy Bueno",
-                  "Excelente"
-                ],
-                "report": "avg",
-                "withSuggestion": true,
-                "hideLegend": true
-              }
-            },
-            {
-              "schemaVersion": 1,
-              "id": "c1.q8.12",
-              "order": 8.12,
-              "item": "Compromiso con metas de la organización y responsabilidades individuales para alcanzarlas:",
-              "type": "value_0_4",
-              "minEntries": 1,
-              "maxEntries": 1,
-              "explanation": "Sugerencias para mejorar:",
-              "condition": null,
-              "groupId": null,
-              "dependsOn": null,
-              "meta": {
-                "scale": [
-                  0,
-                  1,
-                  2,
-                  3,
-                  4
-                ],
-                "labels": [
-                  "Insatisfactorio",
-                  "Regular",
-                  "Bueno",
-                  "Muy Bueno",
-                  "Excelente"
-                ],
-                "report": "avg",
-                "withSuggestion": true,
-                "hideLegend": true
-              }
-            },
-            {
-              "schemaVersion": 1,
-              "id": "c1.q8.13",
-              "order": 8.13,
-              "item": "Sabemos y respetamos quién puede decidir qué y cuándo:",
-              "type": "value_0_4",
-              "minEntries": 1,
-              "maxEntries": 1,
-              "explanation": "Sugerencias para mejorar:",
-              "condition": null,
-              "groupId": null,
-              "dependsOn": null,
-              "meta": {
-                "scale": [
-                  0,
-                  1,
-                  2,
-                  3,
-                  4
-                ],
-                "labels": [
-                  "Insatisfactorio",
-                  "Regular",
-                  "Bueno",
-                  "Muy Bueno",
-                  "Excelente"
-                ],
-                "report": "avg",
-                "withSuggestion": true,
-                "hideLegend": true
-              }
-            },
-            {
-              "schemaVersion": 1,
-              "id": "c1.q8.14",
-              "order": 8.14,
-              "item": "Proactividad para resolver conflictos y diferencias de criterio en el equipo:",
-              "type": "value_0_4",
-              "minEntries": 1,
-              "maxEntries": 1,
-              "explanation": "Sugerencias para mejorar:",
-              "condition": null,
-              "groupId": null,
-              "dependsOn": null,
-              "meta": {
-                "scale": [
-                  0,
-                  1,
-                  2,
-                  3,
-                  4
-                ],
-                "labels": [
-                  "Insatisfactorio",
-                  "Regular",
-                  "Bueno",
-                  "Muy Bueno",
-                  "Excelente"
-                ],
-                "report": "avg",
-                "withSuggestion": true,
-                "hideLegend": true
-              }
-            },
-            {
-              "schemaVersion": 1,
-              "id": "c1.q8.15",
-              "order": 8.15,
-              "item": "Apertura y cultura de retroalimentación mutua, directa y adecuada (asertividad):",
-              "type": "value_0_4",
-              "minEntries": 1,
-              "maxEntries": 1,
-              "explanation": "Sugerencias para mejorar:",
-              "condition": null,
-              "groupId": null,
-              "dependsOn": null,
-              "meta": {
-                "scale": [
-                  0,
-                  1,
-                  2,
-                  3,
-                  4
-                ],
-                "labels": [
-                  "Insatisfactorio",
-                  "Regular",
-                  "Bueno",
-                  "Muy Bueno",
-                  "Excelente"
-                ],
-                "report": "avg",
-                "withSuggestion": true,
-                "hideLegend": true
-              }
-            },
-            {
-              "schemaVersion": 1,
-              "id": "c1.q8.16",
-              "order": 8.16,
-              "item": "Actitud de aprendizaje, mejoramiento, creatividad e innovación en equipo:",
-              "type": "value_0_4",
-              "minEntries": 1,
-              "maxEntries": 1,
-              "explanation": "Sugerencias para mejorar:",
-              "condition": null,
-              "groupId": null,
-              "dependsOn": null,
-              "meta": {
-                "scale": [
-                  0,
-                  1,
-                  2,
-                  3,
-                  4
-                ],
-                "labels": [
-                  "Insatisfactorio",
-                  "Regular",
-                  "Bueno",
-                  "Muy Bueno",
-                  "Excelente"
-                ],
-                "report": "avg",
-                "withSuggestion": true,
-                "hideLegend": true
-              }
-            },
-            {
-              "schemaVersion": 1,
-              "id": "c1.q8.17",
-              "order": 8.17,
-              "item": "Desempeño como un solo equipo ante el resto de la organización; consistencia en el trato del personal:",
-              "type": "value_0_4",
-              "minEntries": 1,
-              "maxEntries": 1,
-              "explanation": "Sugerencias para mejorar:",
-              "condition": null,
-              "groupId": null,
-              "dependsOn": null,
-              "meta": {
-                "scale": [
-                  0,
-                  1,
-                  2,
-                  3,
-                  4
-                ],
-                "labels": [
-                  "Insatisfactorio",
-                  "Regular",
-                  "Bueno",
-                  "Muy Bueno",
-                  "Excelente"
-                ],
-                "report": "avg",
-                "withSuggestion": true,
-                "hideLegend": true
-              }
-            },
-            {
-              "schemaVersion": 1,
-              "id": "c1.q8.18",
-              "order": 8.18,
-              "item": "Escucha activa, receptividad y respeto en la comunicación entre colegas o pares:",
-              "type": "value_0_4",
-              "minEntries": 1,
-              "maxEntries": 1,
-              "explanation": "Sugerencias para mejorar:",
-              "condition": null,
-              "groupId": null,
-              "dependsOn": null,
-              "meta": {
-                "scale": [
-                  0,
-                  1,
-                  2,
-                  3,
-                  4
-                ],
-                "labels": [
-                  "Insatisfactorio",
-                  "Regular",
-                  "Bueno",
-                  "Muy Bueno",
-                  "Excelente"
-                ],
-                "report": "avg",
-                "withSuggestion": true,
-                "hideLegend": true
-              }
-            },
-            {
-              "schemaVersion": 1,
-              "id": "c1.q8.19",
-              "order": 8.19,
-              "item": "Percepción de equidad en nuestros beneficios e incentivos:",
-              "type": "value_0_4",
-              "minEntries": 1,
-              "maxEntries": 1,
-              "explanation": "Sugerencias para mejorar:",
-              "condition": null,
-              "groupId": null,
-              "dependsOn": null,
-              "meta": {
-                "scale": [
-                  0,
-                  1,
-                  2,
-                  3,
-                  4
-                ],
-                "labels": [
-                  "Insatisfactorio",
-                  "Regular",
-                  "Bueno",
-                  "Muy Bueno",
-                  "Excelente"
-                ],
-                "report": "avg",
-                "withSuggestion": true,
-                "hideLegend": true
-              }
-            },
-            {
-              "schemaVersion": 1,
-              "id": "c1.q8.20",
-              "order": 8.2,
-              "item": "Somos ejemplo de práctica de valores y cultura deseada para la organización:",
-              "type": "value_0_4",
-              "minEntries": 1,
-              "maxEntries": 1,
-              "explanation": "Sugerencias para mejorar:",
-              "condition": null,
-              "groupId": null,
-              "dependsOn": null,
-              "meta": {
-                "scale": [
-                  0,
-                  1,
-                  2,
-                  3,
-                  4
-                ],
-                "labels": [
-                  "Insatisfactorio",
-                  "Regular",
-                  "Bueno",
-                  "Muy Bueno",
-                  "Excelente"
-                ],
-                "report": "avg",
-                "withSuggestion": true,
-                "hideLegend": true
-              }
-            },
-            {
-              "schemaVersion": 1,
-              "id": "c1.q8.21",
-              "order": 8.21,
-              "item": "Cooperación, servicio y compromiso entre gerencias:",
-              "type": "value_0_4",
-              "minEntries": 1,
-              "maxEntries": 1,
-              "explanation": "Sugerencias para mejorar:",
-              "condition": null,
-              "groupId": null,
-              "dependsOn": null,
-              "meta": {
-                "scale": [
-                  0,
-                  1,
-                  2,
-                  3,
-                  4
-                ],
-                "labels": [
-                  "Insatisfactorio",
-                  "Regular",
-                  "Bueno",
-                  "Muy Bueno",
-                  "Excelente"
-                ],
-                "report": "avg",
-                "withSuggestion": true,
-                "hideLegend": true
-              }
-            },
-            {
-              "schemaVersion": 1,
-              "id": "c1.q8.22",
-              "order": 8.22,
-              "item": "Cultura de reconocimiento y aprecio por logros individuales y de los departamentos:",
-              "type": "value_0_4",
-              "minEntries": 1,
-              "maxEntries": 1,
-              "explanation": "Sugerencias para mejorar:",
-              "condition": null,
-              "groupId": null,
-              "dependsOn": null,
-              "meta": {
-                "scale": [
-                  0,
-                  1,
-                  2,
-                  3,
-                  4
-                ],
-                "labels": [
-                  "Insatisfactorio",
-                  "Regular",
-                  "Bueno",
-                  "Muy Bueno",
-                  "Excelente"
-                ],
-                "report": "avg",
-                "withSuggestion": true,
-                "hideLegend": true
-              }
-            },
-            {
-              "schemaVersion": 1,
-              "id": "c1.q8.23",
-              "order": 8.23,
-              "item": "Empoderamiento y auto-empoderamiento adecuado según nivel de responsabilidad:",
-              "type": "value_0_4",
-              "minEntries": 1,
-              "maxEntries": 1,
-              "explanation": "Sugerencias para mejorar:",
-              "condition": null,
-              "groupId": null,
-              "dependsOn": null,
-              "meta": {
-                "scale": [
-                  0,
-                  1,
-                  2,
-                  3,
-                  4
-                ],
-                "labels": [
-                  "Insatisfactorio",
-                  "Regular",
-                  "Bueno",
-                  "Muy Bueno",
-                  "Excelente"
-                ],
-                "report": "avg",
-                "withSuggestion": true,
-                "hideLegend": true
-              }
-            },
-            {
-              "schemaVersion": 1,
-              "id": "c1.q8.24",
-              "order": 8.24,
-              "item": "Cumplimiento excelente y constante de responsabilidades individuales con el equipo:",
-              "type": "value_0_4",
-              "minEntries": 1,
-              "maxEntries": 1,
-              "explanation": "Sugerencias para mejorar:",
-              "condition": null,
-              "groupId": null,
-              "dependsOn": null,
-              "meta": {
-                "scale": [
-                  0,
-                  1,
-                  2,
-                  3,
-                  4
-                ],
-                "labels": [
-                  "Insatisfactorio",
-                  "Regular",
-                  "Bueno",
-                  "Muy Bueno",
-                  "Excelente"
-                ],
-                "report": "avg",
-                "withSuggestion": true,
-                "hideLegend": true
-              }
+                "columns": [
+                  "label",
+                  "value",
+                  "suggestion"
+                ]
+              },
+              "items": [
+                {
+                  "id": "c1.q8.01",
+                  "text": "Participación, fluidez y compromiso en formulación y ejecución de la estrategia:"
+                },
+                {
+                  "id": "c1.q8.02",
+                  "text": "Periodicidad de reuniones como equipo líder."
+                },
+                {
+                  "id": "c1.q8.03",
+                  "text": "Conducción, involucramiento y eficiencia en cada reunión:"
+                },
+                {
+                  "id": "c1.q8.04",
+                  "text": "Calidad de información disponible entre nosotros para análisis y toma de decisiones:"
+                },
+                {
+                  "id": "c1.q8.05",
+                  "text": "Seguimiento a cumplimiento de nuestros acuerdos como Equipo Gerencial."
+                },
+                {
+                  "id": "c1.q8.06",
+                  "text": "Juego limpio en nuestra comunicación formal y no formal (no chismes)."
+                },
+                {
+                  "id": "c1.q8.07",
+                  "text": "Objetividad y neutralidad de decisiones (sin intereses o agendas personales de por medio):"
+                },
+                {
+                  "id": "c1.q8.08",
+                  "text": "Ambiente de equipo, cooperación, solidaridad,  confidencialidad y respeto entre nosotros:"
+                },
+                {
+                  "id": "c1.q8.09",
+                  "text": "Relaciones de miembros de equipo gerencial con siguiente nivel de gestión en la organización:"
+                },
+                {
+                  "id": "c1.q8.10",
+                  "text": "Calidad de las relaciones interpersonales (formales y no formales) entre nosotros:"
+                },
+                {
+                  "id": "c1.q8.11",
+                  "text": "Apertura para ejecutar proyectos conjuntos entre diversas áreas a nuestro cargo:"
+                },
+                {
+                  "id": "c1.q8.12",
+                  "text": "Compromiso con metas de la organización y responsabilidades individuales para alcanzarlas:"
+                },
+                {
+                  "id": "c1.q8.13",
+                  "text": "Sabemos y respetamos quién puede decidir qué y cuándo:"
+                },
+                {
+                  "id": "c1.q8.14",
+                  "text": "Proactividad para resolver conflictos y diferencias de criterio en el equipo:"
+                },
+                {
+                  "id": "c1.q8.15",
+                  "text": "Apertura y cultura de retroalimentación mutua, directa y adecuada (asertividad):"
+                },
+                {
+                  "id": "c1.q8.16",
+                  "text": "Actitud de aprendizaje, mejoramiento, creatividad e innovación en equipo:"
+                },
+                {
+                  "id": "c1.q8.17",
+                  "text": "Desempeño como un solo equipo ante el resto de la organización; consistencia en el trato del personal:"
+                },
+                {
+                  "id": "c1.q8.18",
+                  "text": "Escucha activa, receptividad y respeto en la comunicación entre colegas o pares:"
+                },
+                {
+                  "id": "c1.q8.19",
+                  "text": "Percepción de equidad en nuestros beneficios e incentivos:"
+                },
+                {
+                  "id": "c1.q8.20",
+                  "text": "Somos ejemplo de práctica de valores y cultura deseada para la organización:"
+                },
+                {
+                  "id": "c1.q8.21",
+                  "text": "Cooperación, servicio y compromiso entre gerencias:"
+                },
+                {
+                  "id": "c1.q8.22",
+                  "text": "Cultura de reconocimiento y aprecio por logros individuales y de los departamentos:"
+                },
+                {
+                  "id": "c1.q8.23",
+                  "text": "Empoderamiento y auto-empoderamiento adecuado según nivel de responsabilidad:"
+                },
+                {
+                  "id": "c1.q8.24",
+                  "text": "Cumplimiento excelente y constante de responsabilidades individuales con el equipo:"
+                }
+              ]
             },
             {
               "schemaVersion": 1,
@@ -5779,7 +5115,7 @@
                 },
                 "freeText": ""
               },
-              "savedAt": "2026-02-10T23:52:50.969Z",
+              "savedAt": "2026-02-11T00:29:45.422Z",
               "submittedAt": null
             },
             "p3": {
