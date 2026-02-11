@@ -36,8 +36,7 @@ function isAnswerableQuestion(q) {
   const t = qType(q);
   if (!t) return false;
   if (t === "header") return false;
-  // select_peer es informativo (legacy), no debe bloquear completitud
-  if (t === "select_peer") return false;
+  if (t === "value_0_4_grid") return false;
   return true;
 }
 
@@ -84,20 +83,34 @@ function isQuestionAnswered(q, ans) {
   if (typeof ans === "number") return Number.isFinite(ans);
   if (Array.isArray(ans)) return ans.some((x) => isFilledString(x));
   if (ans && typeof ans === "object") {
-    if (typeof ans.value === "number" && Number.isFinite(ans.value)) return true;
+    if (typeof ans.value === "number" && Number.isFinite(ans.value))
+      return true;
     if (typeof ans.value === "string" && isFilledString(ans.value)) return true;
-    if (typeof ans.suggestion === "string" && isFilledString(ans.suggestion)) return true;
-    if (typeof ans.leftId === "string" && isFilledString(ans.leftId)) return true;
-    if (typeof ans.rightId === "string" && isFilledString(ans.rightId)) return true;
+    if (typeof ans.suggestion === "string" && isFilledString(ans.suggestion))
+      return true;
+    if (typeof ans.leftId === "string" && isFilledString(ans.leftId))
+      return true;
+    if (typeof ans.rightId === "string" && isFilledString(ans.rightId))
+      return true;
   }
   return false;
 }
 
 export function computeCompletionFromTemplate(template, draft) {
-  const questions = getQuestionsFromTemplate(template).filter(isAnswerableQuestion);
-  const answers = (draft?.answers && typeof draft.answers === "object") ? draft.answers : {};
+  const questions =
+    getQuestionsFromTemplate(template).filter(isAnswerableQuestion);
+  const answers =
+    draft?.answers && typeof draft.answers === "object" ? draft.answers : {};
 
-  const total = questions.length;
+  // Compute total number of questions
+  let total = 0;
+  for (const q of questions) {
+    if (qType(q) === "value_0_4_grid") {
+      total += Array.isArray(q.items) ? q.items.length : 0;
+    } else {
+      total += 1;
+    }
+  }
   if (total === 0) return { total: 0, answered: 0, percent: 0, missingIds: [] };
 
   let answered = 0;
@@ -105,6 +118,24 @@ export function computeCompletionFromTemplate(template, draft) {
 
   for (let i = 0; i < questions.length; i++) {
     const q = questions[i];
+    const t = qType(q);
+
+    // value_0_4_grid: expand items
+    if (t === "value_0_4_grid") {
+      const items = Array.isArray(q.items) ? q.items : [];
+      for (let j = 0; j < items.length; j++) {
+        const it = items[j];
+        const id = String(it.id);
+        const a = answers[id];
+        if (isQuestionAnswered({ type: "value_0_4" }, a)) {
+          answered += 1;
+        } else {
+          missingIds.push(id);
+        }
+      }
+      continue;
+    }
+
     const id = qId(q, i);
     const a = answers[id];
 
@@ -112,7 +143,10 @@ export function computeCompletionFromTemplate(template, draft) {
     else missingIds.push(id);
   }
 
-  const percent = Math.max(0, Math.min(100, Math.round((answered / total) * 100)));
+  const percent = Math.max(
+    0,
+    Math.min(100, Math.round((answered / total) * 100)),
+  );
   return { total, answered, percent, missingIds };
 }
 
@@ -131,9 +165,11 @@ export function hasMeaningfulDraft(draft) {
     if (Array.isArray(v)) return v.some((x) => isFilledString(x));
     if (typeof v === "object") {
       if (typeof v.value === "number" && Number.isFinite(v.value)) return true;
-      if (typeof v.suggestion === "string" && isFilledString(v.suggestion)) return true;
+      if (typeof v.suggestion === "string" && isFilledString(v.suggestion))
+        return true;
       if (typeof v.leftId === "string" && isFilledString(v.leftId)) return true;
-      if (typeof v.rightId === "string" && isFilledString(v.rightId)) return true;
+      if (typeof v.rightId === "string" && isFilledString(v.rightId))
+        return true;
     }
     return false;
   });
