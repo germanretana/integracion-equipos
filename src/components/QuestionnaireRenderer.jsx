@@ -94,16 +94,6 @@ function isC2Q9HeaderId(id) {
   return /^c2-9$/i.test(x) || /^c2\.q9$/i.test(x);
 }
 
-function isC1Q8HeaderId(id) {
-  const x = String(id || "");
-  return /^c1-8$/i.test(x) || /^c1\.q8$/i.test(x);
-}
-
-function isC1Q8ValueId(id) {
-  const x = String(id || "");
-  // c1-8a ... c1-8z (una letra) o c1.q8.a
-  return /^c1-8[a-z]$/i.test(x) || /^c1\.q8\.[a-z]$/i.test(x);
-}
 
 function qText(q) {
   return q?.text ?? q?.item ?? q?.Item ?? q?.title ?? q?.label ?? "";
