@@ -40,7 +40,9 @@ function isFilledString(s) {
 }
 
 function normalizeType(typeRaw) {
-  const t = String(typeRaw || "").toLowerCase().trim();
+  const t = String(typeRaw || "")
+    .toLowerCase()
+    .trim();
 
   // Canon types expected by this renderer:
   // header, input_list, text_area, binary_yes_no, rating_masc_5, rating_fem_5,
@@ -58,8 +60,7 @@ function normalizeType(typeRaw) {
   if (t === "binary") return "binary_yes_no";
   if (t === "input") return "input_list";
 
-  // Deprecated:
-  if (t === "select_peer") return "__skip__";
+  if (t === "value_0_4_grid") return "value_0_4_grid";
 
   return t;
 }
@@ -197,11 +198,10 @@ function ratingActiveStyle(value) {
     3: { bg: "rgba(120, 220, 120, 0.22)", bd: "rgba(120, 220, 120, 0.50)" },
     4: { bg: "rgba(0, 230, 160, 0.24)", bd: "rgba(0, 230, 160, 0.55)" },
   };
-  const p =
-    palette[value] || {
-      bg: "rgba(255,255,255,0.14)",
-      bd: "rgba(255,255,255,0.40)",
-    };
+  const p = palette[value] || {
+    bg: "rgba(255,255,255,0.14)",
+    bd: "rgba(255,255,255,0.40)",
+  };
   return { background: p.bg, border: `1px solid ${p.bd}` };
 }
 
@@ -266,7 +266,10 @@ export default function QuestionnaireRenderer({
     const min = Number.isFinite(q.minEntries) ? q.minEntries : 0;
 
     const arr = ensureArrayLen(answers?.[q.id], max);
-    const missingCount = Math.max(0, min - arr.filter((x) => isFilledString(x)).length);
+    const missingCount = Math.max(
+      0,
+      min - arr.filter((x) => isFilledString(x)).length,
+    );
 
     return (
       <DefaultFieldWrap
@@ -343,7 +346,9 @@ export default function QuestionnaireRenderer({
               active={curNum === o.value}
               onClick={() => setAnswer(q.id, o.value)}
               title={`Valor: ${o.value}`}
-              style={curNum === o.value ? ratingActiveStyle(o.value) : undefined}
+              style={
+                curNum === o.value ? ratingActiveStyle(o.value) : undefined
+              }
             >
               {feminine ? o.labelF : o.labelM}
             </BtnChoice>
@@ -374,7 +379,8 @@ export default function QuestionnaireRenderer({
             value={valNum == null ? "" : String(valNum)}
             placeholder="0 a 4"
             onChange={(e) => {
-              const nextVal = e.target.value === "" ? null : clampInt(e.target.value, 0, 4);
+              const nextVal =
+                e.target.value === "" ? null : clampInt(e.target.value, 0, 4);
               setAnswer(q.id, { value: nextVal });
             }}
           />
@@ -394,7 +400,8 @@ export default function QuestionnaireRenderer({
     const curRaw = answers?.[q.id];
     const cur = curRaw && typeof curRaw === "object" ? curRaw : {};
     const val = cur && typeof cur === "object" ? cur.value : null;
-    const sug = cur && typeof cur === "object" ? String(cur.suggestion || "") : "";
+    const sug =
+      cur && typeof cur === "object" ? String(cur.suggestion || "") : "";
     const valNum = Number.isFinite(val) ? val : null;
     const missing = missingSet.has(String(q.id));
 
@@ -405,7 +412,10 @@ export default function QuestionnaireRenderer({
     }
 
     return (
-      <div className={"c1q8-item" + (missing ? " c1q8-missing" : "")} data-qid={q.id}>
+      <div
+        className={"c1q8-item" + (missing ? " c1q8-missing" : "")}
+        data-qid={q.id}
+      >
         <div className="c1q8-labelWrap">
           <p className="c1q8-label">
             <Html html={qText(q)} />
@@ -420,7 +430,8 @@ export default function QuestionnaireRenderer({
             value={valNum == null ? "" : String(valNum)}
             placeholder="0 a 4"
             onChange={(e) => {
-              const nextVal = e.target.value === "" ? null : clampInt(e.target.value, 0, 4);
+              const nextVal =
+                e.target.value === "" ? null : clampInt(e.target.value, 0, 4);
               setAnswer(q.id, { value: nextVal, suggestion: sug });
             }}
           />
@@ -431,10 +442,14 @@ export default function QuestionnaireRenderer({
             disabled={disabled}
             value={sug}
             rows={1}
-            placeholder={q.explanationLabel || "Sugerencias para mejorar (opcional)"}
+            placeholder={
+              q.explanationLabel || "Sugerencias para mejorar (opcional)"
+            }
             className="c1q8-textarea"
             onInput={(e) => autoGrow(e.currentTarget)}
-            onChange={(e) => setAnswer(q.id, { value: valNum, suggestion: e.target.value })}
+            onChange={(e) =>
+              setAnswer(q.id, { value: valNum, suggestion: e.target.value })
+            }
             ref={(el) => {
               if (el) autoGrow(el);
             }}
@@ -449,6 +464,88 @@ export default function QuestionnaireRenderer({
     );
   }
 
+  // Generic value_0_4 grid (declarative block)
+  function renderValue04Grid(q) {
+    const items = Array.isArray(q.items) ? q.items : [];
+    const meta = q?.meta && typeof q.meta === "object" ? q.meta : {};
+    const columns = Array.isArray(meta.columns)
+      ? meta.columns
+      : ["label", "value", "suggestion"];
+
+    return (
+      <div className="q-grid-wrap">
+        {qText(q) ? (
+          <div className="q-grid-header">
+            <Html html={qText(q)} />
+          </div>
+        ) : null}
+
+        <div
+          className={
+            "q-grid " + (columns.length === 3 ? "q-grid--3" : "q-grid--2")
+          }
+        >
+          {items.map((it) => {
+            const id = String(it.id);
+            const curRaw = answers?.[id];
+            const cur = curRaw && typeof curRaw === "object" ? curRaw : {};
+            const valNum = Number.isFinite(cur.value) ? cur.value : null;
+            const sug = String(cur.suggestion || "");
+            const missing = missingSet.has(id);
+
+            return (
+              <div
+                key={id}
+                className={
+                  "q-grid-item" + (missing ? " q-grid-item--missing" : "")
+                }
+                data-qid={id}
+              >
+                <div className="q-grid-label">
+                  <Html html={it.text || it.item || ""} />
+                </div>
+
+                <div className="q-grid-control">
+                  <input
+                    className="admin-input"
+                    disabled={disabled}
+                    inputMode="numeric"
+                    value={valNum == null ? "" : String(valNum)}
+                    placeholder="0 a 4"
+                    onChange={(e) => {
+                      const nextVal =
+                        e.target.value === ""
+                          ? null
+                          : clampInt(e.target.value, 0, 4);
+                      setAnswer(id, { value: nextVal, suggestion: sug });
+                    }}
+                  />
+                </div>
+
+                {columns.includes("suggestion") ? (
+                  <div className="q-grid-suggestion">
+                    <textarea
+                      disabled={disabled}
+                      value={sug}
+                      rows={1}
+                      placeholder="Sugerencias (opcional)"
+                      onChange={(e) =>
+                        setAnswer(id, {
+                          value: valNum,
+                          suggestion: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
   function renderValue04(q) {
     const meta = q?.meta && typeof q.meta === "object" ? q.meta : {};
     const noSuggestion = meta.noSuggestion === true;
@@ -457,7 +554,8 @@ export default function QuestionnaireRenderer({
     const curRaw = answers?.[q.id];
     const cur = curRaw && typeof curRaw === "object" ? curRaw : {};
     const val = cur && typeof cur === "object" ? cur.value : null;
-    const sug = cur && typeof cur === "object" ? String(cur.suggestion || "") : "";
+    const sug =
+      cur && typeof cur === "object" ? String(cur.suggestion || "") : "";
 
     const valNum = Number.isFinite(val) ? val : null;
 
@@ -471,9 +569,18 @@ export default function QuestionnaireRenderer({
         title={<Html html={qText(q)} />}
         requiredHint={helpText(q.minEntries, q.maxEntries)}
       >
-        <div style={{ display: "flex", gap: 12, alignItems: "flex-start", flexWrap: "wrap" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: 12,
+            alignItems: "flex-start",
+            flexWrap: "wrap",
+          }}
+        >
           <div>
-            <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 6 }}>Valor</div>
+            <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 6 }}>
+              Valor
+            </div>
             <input
               className="admin-input"
               style={{ width: 160 }}
@@ -482,13 +589,15 @@ export default function QuestionnaireRenderer({
               value={valNum == null ? "" : String(valNum)}
               placeholder="0 a 4"
               onChange={(e) => {
-                const nextVal = e.target.value === "" ? null : clampInt(e.target.value, 0, 4);
+                const nextVal =
+                  e.target.value === "" ? null : clampInt(e.target.value, 0, 4);
                 setValue(nextVal);
               }}
             />
             {!hideLegend ? (
               <div style={{ marginTop: 6, fontSize: 12, opacity: 0.75 }}>
-                0 Insatisfactorio · 1 Regular · 2 Bueno · 3 Muy Bueno · 4 Excelente
+                0 Insatisfactorio · 1 Regular · 2 Bueno · 3 Muy Bueno · 4
+                Excelente
               </div>
             ) : null}
           </div>
@@ -502,7 +611,9 @@ export default function QuestionnaireRenderer({
                 disabled={disabled}
                 value={sug}
                 placeholder="Sugerencias…"
-                onChange={(e) => setAnswer(q.id, { value: valNum, suggestion: e.target.value })}
+                onChange={(e) =>
+                  setAnswer(q.id, { value: valNum, suggestion: e.target.value })
+                }
               />
             </div>
           ) : null}
@@ -520,7 +631,14 @@ export default function QuestionnaireRenderer({
         title={<Html html={qText(q)} />}
         requiredHint={helpText(q.minEntries, q.maxEntries)}
       >
-        <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: 12,
+            alignItems: "center",
+            flexWrap: "wrap",
+          }}
+        >
           <input
             className="admin-input"
             style={{ width: 160 }}
@@ -529,7 +647,8 @@ export default function QuestionnaireRenderer({
             value={curNum == null ? "" : String(curNum)}
             placeholder="0 a 10"
             onChange={(e) => {
-              const nextVal = e.target.value === "" ? null : clampInt(e.target.value, 0, 10);
+              const nextVal =
+                e.target.value === "" ? null : clampInt(e.target.value, 0, 10);
               setAnswer(q.id, nextVal);
             }}
           />
@@ -543,7 +662,10 @@ export default function QuestionnaireRenderer({
     const rows = Number.isFinite(q.rows) ? q.rows : 3;
     const cur = ensureArrayLen(answers?.[q.id], rows).map((x) => {
       const o = x && typeof x === "object" ? x : {};
-      return { leftId: String(o.leftId || ""), rightId: String(o.rightId || "") };
+      return {
+        leftId: String(o.leftId || ""),
+        rightId: String(o.rightId || ""),
+      };
     });
 
     const options = (peers || []).filter(
@@ -559,7 +681,12 @@ export default function QuestionnaireRenderer({
           {cur.map((row, idx) => (
             <div
               key={idx}
-              style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}
+              style={{
+                display: "flex",
+                gap: 10,
+                alignItems: "center",
+                flexWrap: "wrap",
+              }}
             >
               <select
                 className="admin-input"
@@ -620,12 +747,21 @@ export default function QuestionnaireRenderer({
     if (type === "binary_yes_no") return renderBinaryYesNo(q);
     if (type === "rating_masc_5") return renderRating5(q, false);
     if (type === "rating_fem_5") return renderRating5(q, true);
+    if (type === "value_0_4_grid") return renderValue04Grid(q);
     if (type === "value_0_4" || type === "valor_0_4") return renderValue04(q);
     if (type === "evaluation_0_10") return renderEvaluation010(q);
-    if (type === "pairing_rows" || type === "pairing_of_peers") return renderPairingRows(q);
+    if (type === "pairing_rows" || type === "pairing_of_peers")
+      return renderPairingRows(q);
 
     return (
-      <div style={{ marginTop: 14, padding: 10, borderRadius: 12, background: "rgba(255,255,255,0.06)" }}>
+      <div
+        style={{
+          marginTop: 14,
+          padding: 10,
+          borderRadius: 12,
+          background: "rgba(255,255,255,0.06)",
+        }}
+      >
         <div style={{ fontWeight: 800 }}>
           Tipo no soportado: <code>{type || "?"}</code>
         </div>
@@ -637,11 +773,15 @@ export default function QuestionnaireRenderer({
   }
 
   const hasC2Q9 = React.useMemo(() => {
-    return (questions || []).some((q) => isC2Q9HeaderId(q?.id) || isC2Q9Id(q?.id));
+    return (questions || []).some(
+      (q) => isC2Q9HeaderId(q?.id) || isC2Q9Id(q?.id),
+    );
   }, [questions]);
 
   const hasC1Q8 = React.useMemo(() => {
-    return (questions || []).some((q) => isC1Q8HeaderId(q?.id) || isC1Q8ValueId(q?.id));
+    return (questions || []).some(
+      (q) => isC1Q8HeaderId(q?.id) || isC1Q8ValueId(q?.id),
+    );
   }, [questions]);
 
   const rendered = React.useMemo(() => {
