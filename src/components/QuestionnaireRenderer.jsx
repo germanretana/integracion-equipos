@@ -795,15 +795,8 @@ export default function QuestionnaireRenderer({
       (q) => isC2Q9HeaderId(q?.id) || isC2Q9Id(q?.id),
     );
   }, [questions]);
-
-  const hasC1Q8 = React.useMemo(() => {
-    return (questions || []).some(
-      (q) => isC1Q8HeaderId(q?.id) || isC1Q8ValueId(q?.id),
-    );
-  }, [questions]);
-
   const rendered = React.useMemo(() => {
-    if (!hasC2Q9 && !hasC1Q8) return null;
+    if (!hasC2Q9) return null;
 
     const out = [];
     const qs = questions || [];
@@ -813,37 +806,6 @@ export default function QuestionnaireRenderer({
       const q = qs[i];
       const id = String(q?.id || q?.key || `${i}`);
       const type = normalizeType(q?.type);
-
-      // C1.q8: header + items (3 columns)
-      if (hasC1Q8 && isC1Q8HeaderId(id) && type === "header") {
-        out.push(
-          <MissingWrap key={id} qid={id} missing={false}>
-            {renderHeader({ ...q, id })}
-          </MissingWrap>,
-        );
-
-        const items = [];
-        i += 1;
-        while (i < qs.length) {
-          const q2 = qs[i];
-          const id2 = String(q2?.id || q2?.key || `${i}`);
-          const t2 = normalizeType(q2?.type);
-          if (!isC1Q8ValueId(id2)) break;
-          if (t2 !== "value_0_4") break;
-          items.push({ ...q2, id: id2 });
-          i += 1;
-        }
-
-        if (items.length) {
-          out.push(
-            <div key="c1q8-grid" className="c1q8-grid">
-              {items.map((it) => renderValue04C1Q8Row(it))}
-            </div>,
-          );
-        }
-        continue;
-      }
-
       // C2.q9: header + items (2 columns)
       if (hasC2Q9 && isC2Q9HeaderId(id) && type === "header") {
         out.push(
@@ -883,7 +845,7 @@ export default function QuestionnaireRenderer({
     }
 
     return out;
-  }, [hasC2Q9, hasC1Q8, questions, missingSet, disabled, answers]);
+  }, [hasC2Q9, questions, missingSet, disabled, answers]);
 
   return (
     <div>
