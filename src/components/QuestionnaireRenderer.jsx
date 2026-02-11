@@ -361,7 +361,7 @@ export default function QuestionnaireRenderer({
 
         <div
           className={
-            "q-grid " + (hasSuggestion ? "q-grid--stack" : "q-grid--cards")
+            "q-grid " + (layout === "cards" ? "q-grid--cards" : "q-grid--stack")
           }
         >
           {items.map((it) => {
@@ -398,7 +398,12 @@ export default function QuestionnaireRenderer({
                         e.target.value === ""
                           ? null
                           : clampInt(e.target.value, 0, 4);
-                      setAnswer(id, { value: nextVal, suggestion: sug });
+                      setAnswer(
+                        id,
+                        hasSuggestion
+                          ? { value: nextVal, suggestion: sug }
+                          : { value: nextVal },
+                      );
                     }}
                   />
                 </div>
