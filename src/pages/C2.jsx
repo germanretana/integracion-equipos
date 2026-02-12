@@ -56,7 +56,9 @@ export default function C2() {
 
         const draft = entryRes?.draft || {};
         setAnswers(
-          draft?.answers && typeof draft.answers === "object" ? draft.answers : {},
+          draft?.answers && typeof draft.answers === "object"
+            ? draft.answers
+            : {},
         );
         setSavedAt(entryRes?.savedAt || null);
         setSubmittedAt(entryRes?.submittedAt || null);
@@ -155,6 +157,12 @@ export default function C2() {
           >
             ← Volver
           </button>
+          <span style={{ fontSize: 12, opacity: 0.8 }}>
+            Participante:{" "}
+            <strong>
+              {auth?.participantName || auth?.participant?.name || "—"}
+            </strong>
+          </span>
 
           <button className="admin-btn" type="button" onClick={onLogout}>
             Logout

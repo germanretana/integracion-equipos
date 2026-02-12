@@ -126,7 +126,7 @@
 }
 
 .admin-label {
-  font-size: 13px;
+  font-size: 14px;
   color: rgba(255, 255, 255, 0.7);
   margin: 12px 0 6px;
 }
@@ -184,7 +184,7 @@
   border-radius: 999px;
   border: 1px solid rgba(0, 0, 0, 0.12);
 
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 800;
   line-height: 1;
   white-space: nowrap;
@@ -393,7 +393,7 @@
 
 .md {
   color: rgba(255, 255, 255, 0.8);
-  font-size: 15px;
+  font-size: 13px;
   line-height: 1.55;
 }
 
@@ -493,7 +493,7 @@
 
   /* KEY: inherit typography from the page; buttons forced to 14px */
   font: inherit;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.2;
 }
 

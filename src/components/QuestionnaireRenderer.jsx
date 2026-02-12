@@ -66,17 +66,13 @@ function normalizeType(typeRaw) {
 }
 
 function helpText(minEntries, maxEntries) {
-  if (minEntries == null && maxEntries == null) return "";
-  if (minEntries === maxEntries && Number.isFinite(minEntries)) {
-    if (minEntries === 1) return "Requerido.";
-    return `Requerido: ${minEntries}.`;
-  }
-  if (Number.isFinite(minEntries) && Number.isFinite(maxEntries)) {
-    return `Requerido: ${minEntries}. Máximo: ${maxEntries}.`;
-  }
-  if (Number.isFinite(minEntries)) return `Requerido: ${minEntries}.`;
-  if (Number.isFinite(maxEntries)) return `Máximo: ${maxEntries}.`;
-  return "";
+  const min = Number.isFinite(minEntries) ? minEntries : null;
+
+  // Si no hay mínimo requerido, no mostramos hint.
+  if (min == null || min <= 0) return "";
+
+  if (min === 1) return "Requerido.";
+  return `Requerido: ${min}.`;
 }
 
 function qText(q) {
@@ -186,10 +182,6 @@ export default function QuestionnaireRenderer({
   peers = [],
   disabled = false,
 
-  // (legacy) kept for compatibility with callers, but select_peer must not render
-  currentPeerId = "",
-  currentPeerName = "",
-
   // para excluirme de listas (C1 pairings)
   currentParticipantId = "",
 
@@ -288,13 +280,16 @@ export default function QuestionnaireRenderer({
             disabled={disabled}
             active={val === "yes"}
             onClick={() => setAnswer(q.id, "yes")}
+            style={val === "yes" ? ratingActiveStyle(4) : undefined}
           >
             Sí
           </BtnChoice>
+
           <BtnChoice
             disabled={disabled}
             active={val === "no"}
             onClick={() => setAnswer(q.id, "no")}
+            style={val === "no" ? ratingActiveStyle(0) : undefined}
           >
             No
           </BtnChoice>
@@ -590,7 +585,10 @@ export default function QuestionnaireRenderer({
               <select
                 className="admin-input"
                 disabled={disabled}
-                style={{ width: 260 }}
+                style={{
+                  width: 260,
+                  color: row.leftId ? "rgba(0,0,0,0.92)" : "rgba(0,0,0,0.45)",
+                }}
                 value={row.leftId}
                 onChange={(e) => {
                   const next = cur.slice();
@@ -611,7 +609,10 @@ export default function QuestionnaireRenderer({
               <select
                 className="admin-input"
                 disabled={disabled}
-                style={{ width: 260 }}
+                style={{
+                  width: 260,
+                  color: row.rightId ? "rgba(0,0,0,0.92)" : "rgba(0,0,0,0.45)",
+                }}
                 value={row.rightId}
                 onChange={(e) => {
                   const next = cur.slice();
@@ -619,7 +620,7 @@ export default function QuestionnaireRenderer({
                   setAnswer(q.id, next);
                 }}
               >
-                <option value="">Con…</option>
+                <option value="">Persona…</option>
                 {options.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name}
