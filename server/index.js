@@ -272,7 +272,6 @@ app.put("/api/admin/base-templates/:kind", requireAdmin, (req, res) => {
   res.json(next.baseTemplates[kind]);
 });
 
-
 /* =========================
    PROCESSES (ADMIN)
 ========================= */
@@ -349,51 +348,6 @@ app.get(
       );
     }
 
-    // C2 completion for value_0_4_grid (count per item.id)
-    function calcC2GridStatus(entry, gridQ) {
-      if (!entry) return { status: "todo", percent: 0 };
-      if (entry.submittedAt) return { status: "done", percent: 100 };
-
-      const draft = entry.draft || null;
-      if (!hasMeaningfulDraft(draft)) return { status: "todo", percent: 0 };
-
-      const answers =
-        draft?.answers && typeof draft.answers === "object"
-          ? draft.answers
-          : {};
-      const items = Array.isArray(gridQ?.items) ? gridQ.items : [];
-
-      if (!items.length) return { status: "progress", percent: 0 };
-
-      let answered = 0;
-      for (const it of items) {
-        const id = String(it?.id || "");
-        const a = answers[id];
-        if (
-          a &&
-          typeof a === "object" &&
-          Number.isFinite(a.value) &&
-          clampInt(a.value, 0, 4) !== null
-        ) {
-          answered += 1;
-        }
-      }
-
-      const percent = Math.max(
-        0,
-        Math.min(100, Math.round((answered / items.length) * 100)),
-      );
-      return { status: "progress", percent };
-    }
-
-    // Detect if C2 template is the new grid style (c2-9 as value_0_4_grid)
-    const c2GridQ =
-      (Array.isArray(tplC2?.questions) ? tplC2.questions : []).find(
-        (q) =>
-          String(q?.id || "") === "c2-9" &&
-          String(q?.type || "").toLowerCase() === "value_0_4_grid",
-      ) || null;
-
     const outParticipants = participants.map((pp) => {
       const participantId = String(pp?.id || "");
       const name = String(
@@ -422,14 +376,7 @@ app.get(
 
         const entry = getResponseEntry(p, "c2", participantId, peerId);
 
-        let st;
-        if (c2GridQ) {
-          // new grid: compute progress based on items answered
-          st = calcC2GridStatus(entry, c2GridQ);
-        } else {
-          // legacy: template is flat
-          st = calcStatusFromEntryAndTemplate(entry, tplC2);
-        }
+        const st = calcStatusFromEntryAndTemplate(entry, tplC2);
 
         questionnaires.push({
           kind: "c2",
