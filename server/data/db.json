@@ -4020,11 +4020,14 @@
                 "answers": {
                   "c2-9_01": {
                     "value": null
+                  },
+                  "c2-9_09": {
+                    "value": null
                   }
                 },
                 "freeText": ""
               },
-              "savedAt": "2026-02-11T14:12:44.926Z",
+              "savedAt": "2026-02-13T11:56:22.288Z",
               "submittedAt": null
             },
             "p3": {

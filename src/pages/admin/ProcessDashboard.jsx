@@ -71,7 +71,6 @@ function eventLabel(evt) {
   return t || "Evento";
 }
 
-
 function eventPillStyle(evt) {
   const t = String(evt?.type || "");
 
@@ -122,6 +121,12 @@ export default function ProcessDashboard() {
   const [error, setError] = React.useState("");
   const [data, setData] = React.useState(null);
 
+  // --- Progress (deep view)
+  const [progressLoading, setProgressLoading] = React.useState(false);
+  const [progressError, setProgressError] = React.useState("");
+  const [progressData, setProgressData] = React.useState(null); // { participants: [...] }
+  const [openParticipantId, setOpenParticipantId] = React.useState(""); // expand/collapse
+
   const [rowBusy, setRowBusy] = React.useState({});
   const [flash, setFlash] = React.useState("");
   const [resetModal, setResetModal] = React.useState(null); // { name, email, tempPassword, ts }
@@ -145,6 +150,21 @@ export default function ProcessDashboard() {
       setError(e?.message || "No se pudo cargar el proceso.");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function loadProgress() {
+    setProgressLoading(true);
+    setProgressError("");
+    try {
+      const payload = await auth.fetch(
+        `/api/admin/processes/${processSlug}/progress`,
+      );
+      setProgressData(payload);
+    } catch (e) {
+      setProgressError(e?.message || "No se pudo cargar el progreso.");
+    } finally {
+      setProgressLoading(false);
     }
   }
 
@@ -180,6 +200,8 @@ export default function ProcessDashboard() {
         );
         if (!alive) return;
         setData(payload);
+        // Load deep progress view in parallel (non-blocking)
+        loadProgress();
       } catch (e) {
         if (!alive) return;
         setError(e?.message || "No se pudo cargar el proceso.");
@@ -272,6 +294,39 @@ export default function ProcessDashboard() {
       setError(e?.message || "No se pudo resetear el acceso.");
     } finally {
       setRowBusy((x) => ({ ...x, [p.id]: "" }));
+    }
+  }
+
+  async function reopenQuestionnaire({ participantId, kind, peerId, label }) {
+    const ok = window.confirm(
+      `¿Reabrir (des-enviar) ${label}?\n\nEsto quitará el estado "enviado" y permitirá editar de nuevo.`,
+    );
+    if (!ok) return;
+
+    setError("");
+    const key = `${participantId}__reopen__${kind}__${peerId || ""}`;
+    setRowBusy((x) => ({ ...x, [key]: "reopen" }));
+
+    try {
+      await auth.fetch(
+        `/api/admin/processes/${processSlug}/participants/${participantId}/reopen`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            kind,
+            peerId: kind === "c2" ? peerId : undefined,
+          }),
+        },
+      );
+
+      setFlash(`Reabierto: ${label}.`);
+      await load(); // refresh main dashboard
+      await loadProgress(); // refresh deep progress
+      loadLogs(); // audit trail
+    } catch (e) {
+      setError(e?.message || "No se pudo reabrir el cuestionario.");
+    } finally {
+      setRowBusy((x) => ({ ...x, [key]: "" }));
     }
   }
 
@@ -492,101 +547,171 @@ export default function ProcessDashboard() {
                           const disableActions = processClosed || !!busy;
 
                           return (
-                            <tr key={p.id}>
-                              <td
-                                style={{
-                                  padding: "10px 8px",
-                                  borderBottom: "1px solid rgba(0,0,0,0.06)",
-                                }}
-                              >
-                                <div style={{ fontWeight: 600 }}>{p.name}</div>
-                                <div style={{ fontSize: 13, opacity: 0.8 }}>
-                                  {p.email}
-                                </div>
-                              </td>
-
-                              <td
-                                style={{
-                                  padding: "10px 8px",
-                                  borderBottom: "1px solid rgba(0,0,0,0.06)",
-                                }}
-                              >
-                                <span
-                                  className={`status-pill status-${c1Tone}`}
-                                  title={`C1: ${c1Label(p.c1)}`}
-                                >
-                                  {c1Label(p.c1)}
-                                </span>
-                              </td>
-
-                              <td
-                                style={{
-                                  padding: "10px 8px",
-                                  borderBottom: "1px solid rgba(0,0,0,0.06)",
-                                }}
-                              >
-                                <div
+                            <React.Fragment key={p.id}>
+                              <tr>
+                                <td
                                   style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: 10,
+                                    padding: "10px 8px",
+                                    borderBottom: "1px solid rgba(0,0,0,0.06)",
                                   }}
                                 >
-                                  <ProgressBar value={ratio} tone={c2Tone} />
+                                  <div style={{ fontWeight: 600 }}>
+                                    {p.name}
+                                  </div>
+                                  <div style={{ fontSize: 13, opacity: 0.8 }}>
+                                    {p.email}
+                                  </div>
+                                </td>
+
+                                <td
+                                  style={{
+                                    padding: "10px 8px",
+                                    borderBottom: "1px solid rgba(0,0,0,0.06)",
+                                  }}
+                                >
                                   <span
-                                    className={`status-pill status-${c2Tone}`}
-                                    title={`C2: ${completed}/${total}`}
+                                    className={`status-pill status-${c1Tone}`}
+                                    title={`C1: ${c1Label(p.c1)}`}
                                   >
-                                    {completed}/{total}
+                                    {c1Label(p.c1)}
                                   </span>
-                                </div>
-                              </td>
+                                </td>
 
-                              <td
-                                style={{
-                                  padding: "10px 8px",
-                                  borderBottom: "1px solid rgba(0,0,0,0.06)",
-                                }}
-                              >
-                                <div
+                                <td
                                   style={{
-                                    display: "flex",
-                                    gap: 8,
-                                    flexWrap: "nowrap",
+                                    padding: "10px 8px",
+                                    borderBottom: "1px solid rgba(0,0,0,0.06)",
                                   }}
                                 >
-                                  <button
-                                    className="btn"
-                                    disabled={disableActions}
-                                    onClick={() => remindParticipant(p)}
-                                    title={
-                                      processClosed
-                                        ? "Proceso cerrado"
-                                        : "Registrar recordatorio (mock)"
-                                    }
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 10,
+                                    }}
                                   >
-                                    {busy === "remind"
-                                      ? "Enviando…"
-                                      : "Recordatorio"}
-                                  </button>
+                                    <ProgressBar value={ratio} tone={c2Tone} />
+                                    <span
+                                      className={`status-pill status-${c2Tone}`}
+                                      title={`C2: ${completed}/${total}`}
+                                    >
+                                      {completed}/{total}
+                                    </span>
+                                  </div>
+                                </td>
 
-                                  <button
-                                    className="btn"
-                                    disabled={disableActions}
-                                    onClick={() => resetAccess(p)}
-                                    title={
-                                      processClosed
-                                        ? "Proceso cerrado"
-                                        : "Reset de acceso (mock)"
-                                    }
+                                <td
+                                  style={{
+                                    padding: "10px 8px",
+                                    borderBottom: "1px solid rgba(0,0,0,0.06)",
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      gap: 8,
+                                      flexWrap: "nowrap",
+                                    }}
                                   >
-                                    {busy === "reset"
-                                      ? "Reseteando…"
-                                      : "Reset acceso"}
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
+                                    {/* View Progress button */}
+                                    <button
+                                      className="btn"
+                                      disabled={processClosed}
+                                      onClick={() => {
+                                        const next =
+                                          openParticipantId === p.id
+                                            ? ""
+                                            : p.id;
+                                        setOpenParticipantId(next);
+                                        if (next) loadProgress();
+                                      }}
+                                      title="Ver detalle por cuestionario (C1 y C2 por peer)"
+                                    >
+                                      {openParticipantId === p.id
+                                        ? "Ocultar progreso"
+                                        : "Ver progreso"}
+                                    </button>
+                                    {/* Send reminder button */}
+                                    <button
+                                      className="btn"
+                                      disabled={disableActions}
+                                      onClick={() => remindParticipant(p)}
+                                      title={
+                                        processClosed
+                                          ? "Proceso cerrado"
+                                          : "Registrar recordatorio (mock)"
+                                      }
+                                    >
+                                      {busy === "remind"
+                                        ? "Enviando…"
+                                        : "Recordatorio"}
+                                    </button>
+                                    {/* Reset Password button */}
+                                    <button
+                                      className="btn"
+                                      disabled={disableActions}
+                                      onClick={() => resetAccess(p)}
+                                      title={
+                                        processClosed
+                                          ? "Proceso cerrado"
+                                          : "Reset de acceso (mock)"
+                                      }
+                                    >
+                                      {busy === "reset"
+                                        ? "Reseteando…"
+                                        : "Reset acceso"}
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                              {/* Expanded progress view */}
+                              {openParticipantId === p.id && (
+                                <tr>
+                                  <td
+                                    colSpan={4}
+                                    style={{ padding: "12px 8px" }}
+                                  >
+                                    <div
+                                      style={{
+                                        border: "1px solid rgba(0,0,0,0.10)",
+                                        borderRadius: 12,
+                                        padding: 12,
+                                        background: "rgba(0,0,0,0.03)",
+                                      }}
+                                    >
+                                      {progressLoading && (
+                                        <div className="sub">
+                                          Cargando progreso…
+                                        </div>
+                                      )}
+                                      {progressError && (
+                                        <div className="error">
+                                          {progressError}
+                                        </div>
+                                      )}
+
+                                      {!progressLoading && !progressError && (
+                                        <ProgressPanel
+                                          participantId={p.id}
+                                          progressData={progressData}
+                                          processSlug={processSlug}
+                                          processClosed={processClosed}
+                                          onReloadAll={async () => {
+                                            await load();
+                                            await loadProgress();
+                                            await loadLogs();
+                                          }}
+                                          setFlash={setFlash}
+                                          setError={setError}
+                                          setRowBusy={setRowBusy}
+                                          rowBusy={rowBusy}
+                                        />
+                                      )}
+                                    </div>
+                                  </td>
+                                </tr>
+                              )}{" "}
+                            </React.Fragment>
                           );
                         })}
                       </tbody>
@@ -640,7 +765,9 @@ export default function ProcessDashboard() {
                     </p>
                   </div>
 
-                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <div
+                    style={{ display: "flex", gap: 8, alignItems: "center" }}
+                  >
                     <label style={{ fontSize: 13, opacity: 0.85 }}>
                       Participante{" "}
                       <select
@@ -689,7 +816,13 @@ export default function ProcessDashboard() {
                 )}
 
                 {(logsLoading || logs.length > 0) && (
-                  <div style={{ overflowX: "auto", maxHeight: 320, overflowY: "auto" }}>
+                  <div
+                    style={{
+                      overflowX: "auto",
+                      maxHeight: 320,
+                      overflowY: "auto",
+                    }}
+                  >
                     <table
                       style={{
                         width: "100%",
@@ -792,8 +925,7 @@ export default function ProcessDashboard() {
                                 <td
                                   style={{
                                     padding: "10px 8px",
-                                    borderBottom:
-                                      "1px solid rgba(0,0,0,0.06)",
+                                    borderBottom: "1px solid rgba(0,0,0,0.06)",
                                     fontSize: 13,
                                     whiteSpace: "nowrap",
                                   }}
@@ -803,8 +935,7 @@ export default function ProcessDashboard() {
                                 <td
                                   style={{
                                     padding: "10px 8px",
-                                    borderBottom:
-                                      "1px solid rgba(0,0,0,0.06)",
+                                    borderBottom: "1px solid rgba(0,0,0,0.06)",
                                   }}
                                 >
                                   <span style={eventPillStyle(evt)}>
@@ -814,8 +945,7 @@ export default function ProcessDashboard() {
                                 <td
                                   style={{
                                     padding: "10px 8px",
-                                    borderBottom:
-                                      "1px solid rgba(0,0,0,0.06)",
+                                    borderBottom: "1px solid rgba(0,0,0,0.06)",
                                     fontSize: 13,
                                     opacity: 0.9,
                                   }}
@@ -974,6 +1104,212 @@ export default function ProcessDashboard() {
               </div>
             )}
           </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ProgressPanel({
+  participantId,
+  progressData,
+  processSlug,
+  processClosed,
+  onReloadAll,
+  setFlash,
+  setError,
+  setRowBusy,
+  rowBusy,
+}) {
+  const p = (progressData?.participants || []).find(
+    (x) => String(x?.id) === String(participantId),
+  );
+
+  if (!p)
+    return (
+      <div className="sub">
+        No hay datos de progreso para este participante.
+      </div>
+    );
+
+  async function reopen(kind, peerId) {
+    if (processClosed) return;
+
+    const label = kind === "c1" ? "C1" : `C2 (${peerId})`;
+    const ok = window.confirm(
+      `¿Reabrir ${label} para este participante?\n\nEsto elimina submittedAt y lo deja editable.`,
+    );
+    if (!ok) return;
+
+    setError("");
+    setRowBusy((x) => ({
+      ...x,
+      [`reopen:${participantId}:${kind}:${peerId || ""}`]: "1",
+    }));
+    try {
+      await auth.fetch(
+        `/api/admin/processes/${processSlug}/participants/${participantId}/reopen`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            kind,
+            ...(kind === "c2" ? { peerId } : null),
+          }),
+        },
+      );
+      setFlash("Cuestionario reabierto.");
+      await onReloadAll?.();
+    } catch (e) {
+      setError(e?.message || "No se pudo reabrir.");
+    } finally {
+      setRowBusy((x) => {
+        const next = { ...x };
+        delete next[`reopen:${participantId}:${kind}:${peerId || ""}`];
+        return next;
+      });
+    }
+  }
+
+  function pill(status) {
+    const tone =
+      status === "done" ? "done" : status === "progress" ? "progress" : "todo";
+    const label =
+      status === "done"
+        ? "Completado"
+        : status === "progress"
+          ? "En progreso"
+          : "Pendiente";
+    return <span className={`status-pill status-${tone}`}>{label}</span>;
+  }
+
+  const qs = Array.isArray(p.questionnaires) ? p.questionnaires : [];
+
+  const c1 = qs.find((q) => q.kind === "c1") || null;
+  const c2s = qs.filter((q) => q.kind === "c2");
+
+  return (
+    <div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          gap: 12,
+          alignItems: "baseline",
+        }}
+      >
+        <div style={{ fontWeight: 800 }}>Progreso de: {p.name}</div>
+        <button className="btn" onClick={onReloadAll} disabled={false}>
+          Actualizar
+        </button>
+      </div>
+
+      {/* C1 */}
+      {c1 && (
+        <div
+          style={{
+            marginTop: 10,
+            paddingTop: 10,
+            borderTop: "1px solid rgba(0,0,0,0.08)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 10,
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ fontWeight: 700 }}>C1</div>
+              {pill(c1.status)}
+              <div style={{ fontSize: 13, opacity: 0.8 }}>
+                {Number.isFinite(c1.percent) ? `${c1.percent}%` : ""}
+              </div>
+            </div>
+
+            <button
+              className="btn"
+              disabled={processClosed || rowBusy[`reopen:${participantId}:c1:`]}
+              onClick={() => reopen("c1")}
+              title={processClosed ? "Proceso cerrado" : "Reabrir (unsubmit)"}
+            >
+              Reabrir
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* C2 list */}
+      <div
+        style={{
+          marginTop: 10,
+          paddingTop: 10,
+          borderTop: "1px solid rgba(0,0,0,0.08)",
+        }}
+      >
+        <div style={{ fontWeight: 700, marginBottom: 8 }}>C2</div>
+
+        {c2s.length === 0 ? (
+          <div className="sub">No hay C2 esperados para este participante.</div>
+        ) : (
+          <div style={{ display: "grid", gap: 8 }}>
+            {c2s.map((q) => (
+              <div
+                key={`${q.kind}:${q.peerId || ""}`}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 10,
+                  padding: "8px 10px",
+                  borderRadius: 10,
+                  border: "1px solid rgba(0,0,0,0.08)",
+                  background: "#fff",
+                }}
+              >
+                <div style={{ minWidth: 0 }}>
+                  <div
+                    style={{
+                      fontWeight: 650,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {q.title}
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 10,
+                      alignItems: "center",
+                      marginTop: 4,
+                    }}
+                  >
+                    {pill(q.status)}
+                    <div style={{ fontSize: 13, opacity: 0.8 }}>
+                      {Number.isFinite(q.percent) ? `${q.percent}%` : ""}
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  className="btn"
+                  disabled={
+                    processClosed ||
+                    rowBusy[`reopen:${participantId}:c2:${q.peerId || ""}`]
+                  }
+                  onClick={() => reopen("c2", q.peerId)}
+                  title={
+                    processClosed ? "Proceso cerrado" : "Reabrir (unsubmit)"
+                  }
+                >
+                  Reabrir
+                </button>
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>

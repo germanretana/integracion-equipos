@@ -76,6 +76,66 @@ function ensureMockParticipantsForProcess(proc) {
   ];
 }
 
+// ===== Response entry helpers (pure accessors over process.responses) =====
+
+function ensureResponsesShape(p) {
+  if (!p.responses || typeof p.responses !== "object")
+    p.responses = { c1: {}, c2: {} };
+  if (!p.responses.c1 || typeof p.responses.c1 !== "object")
+    p.responses.c1 = {};
+  if (!p.responses.c2 || typeof p.responses.c2 !== "object")
+    p.responses.c2 = {};
+  return p.responses;
+}
+
+// Read a response entry
+// - kind=c1: p.responses.c1[participantId]
+// - kind=c2: p.responses.c2[participantId][peerId]
+function getResponseEntry(p, kind, participantId, peerId) {
+  const k = String(kind || "").toLowerCase();
+  const pid = String(participantId || "");
+  const peer = peerId == null ? null : String(peerId);
+
+  if (!p || typeof p !== "object") return null;
+  const responses = ensureResponsesShape(p);
+
+  if (k === "c1") {
+    const entry = responses.c1?.[pid];
+    return entry && typeof entry === "object" ? entry : null;
+  }
+
+  if (k === "c2") {
+    const byPid = responses.c2?.[pid];
+    if (!byPid || typeof byPid !== "object") return null;
+    const entry = byPid?.[peer || ""];
+    return entry && typeof entry === "object" ? entry : null;
+  }
+
+  return null;
+}
+
+// Write a response entry (creates intermediate objects as needed)
+function setResponseEntry(p, kind, participantId, peerId, entry) {
+  const k = String(kind || "").toLowerCase();
+  const pid = String(participantId || "");
+  const peer = peerId == null ? null : String(peerId);
+
+  if (!p || typeof p !== "object") return;
+  const responses = ensureResponsesShape(p);
+
+  if (k === "c1") {
+    responses.c1[pid] = entry;
+    return;
+  }
+
+  if (k === "c2") {
+    if (!responses.c2[pid] || typeof responses.c2[pid] !== "object")
+      responses.c2[pid] = {};
+    responses.c2[pid][peer || ""] = entry;
+    return;
+  }
+}
+
 function participantDisplayName(p) {
   const fn = p.firstName || "";
   const ln = p.lastName || "";
