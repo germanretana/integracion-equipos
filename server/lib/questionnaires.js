@@ -36,7 +36,6 @@ function isAnswerableQuestion(q) {
   const t = qType(q);
   if (!t) return false;
   if (t === "header") return false;
-  if (t === "value_0_4_grid") return false;
   return true;
 }
 
