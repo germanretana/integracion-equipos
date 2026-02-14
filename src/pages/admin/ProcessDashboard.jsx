@@ -669,23 +669,44 @@ export default function ProcessDashboard() {
                                 <tr>
                                   <td
                                     colSpan={4}
-                                    style={{ padding: "12px 8px" }}
+                                    style={{
+                                      padding: "12px 8px",
+                                      borderBottom:
+                                        "1px solid rgba(255,255,255,0.10)",
+                                    }}
                                   >
                                     <div
                                       style={{
-                                        border: "1px solid rgba(0,0,0,0.10)",
-                                        borderRadius: 12,
-                                        padding: 12,
-                                        background: "rgba(0,0,0,0.03)",
+                                        border:
+                                          "1px solid rgba(255,255,255,0.14)",
+                                        borderRadius: 14,
+                                        padding: 14,
+                                        background: "rgba(255,255,255,0.06)",
+                                        color: "rgba(255,255,255,0.92)",
                                       }}
                                     >
                                       {progressLoading && (
-                                        <div className="sub">
+                                        <div
+                                          className="sub"
+                                          style={{
+                                            color: "rgba(255,255,255,0.78)",
+                                          }}
+                                        >
                                           Cargando progreso…
                                         </div>
                                       )}
+
                                       {progressError && (
-                                        <div className="error">
+                                        <div
+                                          className="error"
+                                          style={{
+                                            borderColor:
+                                              "rgba(255,102,143,0.45)",
+                                            background:
+                                              "rgba(255,102,143,0.12)",
+                                            color: "rgba(255,255,255,0.92)",
+                                          }}
+                                        >
                                           {progressError}
                                         </div>
                                       )}
@@ -1262,10 +1283,11 @@ function ProgressPanel({
                   alignItems: "center",
                   justifyContent: "space-between",
                   gap: 10,
-                  padding: "8px 10px",
-                  borderRadius: 10,
-                  border: "1px solid rgba(0,0,0,0.08)",
-                  background: "#fff",
+                  padding: "10px 12px",
+                  borderRadius: 12,
+                  border: "1px solid rgba(255,255,255,0.14)",
+                  background: "rgba(0,0,0,0.14)", // <-- antes "#fff"
+                  color: "rgba(255,255,255,0.92)", // <-- asegura contraste
                 }}
               >
                 <div style={{ minWidth: 0 }}>
