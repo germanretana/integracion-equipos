@@ -1208,8 +1208,61 @@ function ProgressPanel({
   const c1 = qs.find((q) => q.kind === "c1") || null;
   const c2s = qs.filter((q) => q.kind === "c2");
 
+  const participantsIndex = React.useMemo(() => {
+    const m = new Map();
+    for (const pp of progressData?.participants || []) {
+      m.set(String(pp?.id || ""), String(pp?.name || pp?.id || ""));
+    }
+    return m;
+  }, [progressData]);
+
+  function peerName(peerId) {
+    return participantsIndex.get(String(peerId || "")) || String(peerId || "");
+  }
+
+  const cardStyle = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+    padding: "10px 12px",
+    borderRadius: 12,
+    border: "1px solid rgba(255,255,255,0.14)",
+    background: "rgba(0,0,0,0.14)",
+    color: "rgba(255,255,255,0.92)",
+  };
+
+  const cardLeftStyle = {
+    minWidth: 0,
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    flexWrap: "wrap",
+  };
+
+  const cardTitleStyle = {
+    fontWeight: 650,
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    maxWidth: 260,
+  };
+
+  const pillRowStyle = {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+  };
+
+  const percentStyle = {
+    fontSize: 13,
+    color: "rgba(255,255,255,0.78)",
+    whiteSpace: "nowrap",
+  };
+
   return (
     <div>
+      {/* Header row */}
       <div
         style={{
           display: "flex",
@@ -1224,28 +1277,25 @@ function ProgressPanel({
         </button>
       </div>
 
-      {/* C1 */}
-      {c1 && (
-        <div
-          style={{
-            marginTop: 10,
-            paddingTop: 10,
-            borderTop: "1px solid rgba(0,0,0,0.08)",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 10,
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ fontWeight: 700 }}>C1</div>
-              {pill(c1.status)}
-              <div style={{ fontSize: 13, opacity: 0.8 }}>
-                {Number.isFinite(c1.percent) ? `${c1.percent}%` : ""}
+      {/* Cards list */}
+      <div
+        style={{
+          marginTop: 12,
+          display: "grid",
+          gap: 10,
+        }}
+      >
+        {/* C1 as a card (same visual as C2 cards) */}
+        {c1 && (
+          <div style={cardStyle}>
+            <div style={cardLeftStyle}>
+              <div style={cardTitleStyle}>C1</div>
+
+              <div style={pillRowStyle}>
+                {pill(c1.status)}
+                <div style={percentStyle}>
+                  {Number.isFinite(c1.percent) ? `${c1.percent}%` : ""}
+                </div>
               </div>
             </div>
 
@@ -1258,59 +1308,28 @@ function ProgressPanel({
               Reabrir
             </button>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* C2 list */}
-      <div
-        style={{
-          marginTop: 10,
-          paddingTop: 10,
-          borderTop: "1px solid rgba(0,0,0,0.08)",
-        }}
-      >
-        <div style={{ fontWeight: 700, marginBottom: 8 }}>C2</div>
-
+        {/* C2 cards */}
         {c2s.length === 0 ? (
-          <div className="sub">No hay C2 esperados para este participante.</div>
+          <div className="sub" style={{ color: "rgba(255,255,255,0.78)" }}>
+            No hay C2 esperados para este participante.
+          </div>
         ) : (
-          <div style={{ display: "grid", gap: 8 }}>
-            {c2s.map((q) => (
-              <div
-                key={`${q.kind}:${q.peerId || ""}`}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: 10,
-                  padding: "10px 12px",
-                  borderRadius: 12,
-                  border: "1px solid rgba(255,255,255,0.14)",
-                  background: "rgba(0,0,0,0.14)", // <-- antes "#fff"
-                  color: "rgba(255,255,255,0.92)", // <-- asegura contraste
-                }}
-              >
-                <div style={{ minWidth: 0 }}>
-                  <div
-                    style={{
-                      fontWeight: 650,
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
-                    {q.title}
+          c2s.map((q) => {
+            const peerLabel = q.peerId ? peerName(q.peerId) : "—";
+            const title = `C2 → ${peerLabel}`;
+
+            return (
+              <div key={`${q.kind}:${q.peerId || ""}`} style={cardStyle}>
+                <div style={cardLeftStyle}>
+                  <div style={cardTitleStyle} title={title}>
+                    {title}
                   </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: 10,
-                      alignItems: "center",
-                      marginTop: 4,
-                    }}
-                  >
+
+                  <div style={pillRowStyle}>
                     {pill(q.status)}
-                    <div style={{ fontSize: 13, opacity: 0.8 }}>
+                    <div style={percentStyle}>
                       {Number.isFinite(q.percent) ? `${q.percent}%` : ""}
                     </div>
                   </div>
@@ -1330,8 +1349,8 @@ function ProgressPanel({
                   Reabrir
                 </button>
               </div>
-            ))}
-          </div>
+            );
+          })
         )}
       </div>
     </div>
