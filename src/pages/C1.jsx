@@ -57,13 +57,17 @@ export default function C1() {
 
         const draft = entryRes?.draft || {};
         setAnswers(
-          draft?.answers && typeof draft.answers === "object" ? draft.answers : {},
+          draft?.answers && typeof draft.answers === "object"
+            ? draft.answers
+            : {},
         );
         setSavedAt(entryRes?.savedAt || null);
         setSubmittedAt(entryRes?.submittedAt || null);
 
         const peerList = (qs?.c2 || []).map((x) => {
-          const id = String(x.to || "").split("/").pop();
+          const id = String(x.to || "")
+            .split("/")
+            .pop();
           return { id, name: x.title || "Compañero" };
         });
         setPeers(peerList);
@@ -114,6 +118,59 @@ export default function C1() {
   async function onSubmit() {
     setError("");
     setMissingIds([]);
+
+    // ===== Validate pairing_rows before submit (duplicates + self-pair) =====
+    const pairingQuestions = (tpl?.questions || []).filter((q) => {
+      const t = String(q?.type || "")
+        .toLowerCase()
+        .trim();
+      return t === "pairing_rows" || t === "pairing_of_peers";
+    });
+
+    function normalizePair(a, b) {
+      if (!a || !b) return null; // incompleto => no bloqueamos aquí (required lo maneja backend/template)
+      const aa = String(a);
+      const bb = String(b);
+      if (aa === bb) return "__SELF__";
+      return [aa, bb].sort().join("__");
+    }
+
+    for (const q of pairingQuestions) {
+      const qid = String(q?.id || "");
+      if (!qid) continue;
+
+      const rows = Array.isArray(answers?.[qid]) ? answers[qid] : [];
+
+      const keys = rows
+        .map((r) => normalizePair(r?.leftId, r?.rightId))
+        .filter(Boolean);
+
+      if (keys.includes("__SELF__")) {
+        setError(
+          "Hay una sugerencia inválida: no se permite una persona con sí misma.",
+        );
+        return;
+      }
+
+      const onlyPairs = keys.filter((k) => k !== "__SELF__");
+      const seen = new Set();
+      let hasDup = false;
+      for (const k of onlyPairs) {
+        if (seen.has(k)) {
+          hasDup = true;
+          break;
+        }
+        seen.add(k);
+      }
+      if (hasDup) {
+        setError(
+          "Hay pares duplicados en las sugerencias (persona A con B cuenta igual que B con A). Corríjalos antes de enviar.",
+        );
+        return;
+      }
+    }
+    // =====================================================================
+
     try {
       const entry = await auth.fetch(`/api/app/${processSlug}/c1/submit`, {
         method: "POST",

@@ -566,69 +566,132 @@ export default function QuestionnaireRenderer({
       (p) => String(p?.id || "") !== String(currentParticipantId || ""),
     );
 
+    // ===== DUPLICATE + SELF-PAIR DETECTION (order-independent) =====
+    function normalizePair(a, b) {
+      if (!a || !b) return null;
+      const aa = String(a);
+      const bb = String(b);
+      // self-pair => invalid (we'll flag separately; don't include in duplicate keys)
+      if (aa && bb && aa === bb) return "__SELF__";
+      return [aa, bb].sort().join("__");
+    }
+
+    const pairKeys = cur
+      .map((r) => normalizePair(r.leftId, r.rightId))
+      .filter((k) => k && k !== "__SELF__");
+
+    const duplicates = new Set(
+      pairKeys.filter((key, idx) => pairKeys.indexOf(key) !== idx),
+    );
+    // =============================================================
+
     return (
       <DefaultFieldWrap
         title={qText(q) ? <Html html={qText(q)} /> : null}
         requiredHint={helpText(q.minEntries, q.maxEntries)}
       >
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {cur.map((row, idx) => (
-            <div
-              key={idx}
-              style={{
-                display: "flex",
-                gap: 10,
-                alignItems: "center",
-                flexWrap: "wrap",
-              }}
-            >
-              <select
-                className="admin-input"
-                disabled={disabled}
+          {cur.map((row, idx) => {
+            const left = String(row.leftId || "");
+            const right = String(row.rightId || "");
+
+            const pairKey = normalizePair(left, right);
+            const isSelfPair = left && right && left === right;
+            const isDuplicate =
+              !isSelfPair && pairKey && duplicates.has(pairKey);
+
+            const showWarning = isSelfPair || isDuplicate;
+
+            return (
+              <div
+                key={idx}
                 style={{
-                  width: 260,
-                  color: row.leftId ? "rgba(0,0,0,0.92)" : "rgba(0,0,0,0.45)",
-                }}
-                value={row.leftId}
-                onChange={(e) => {
-                  const next = cur.slice();
-                  next[idx] = { ...next[idx], leftId: e.target.value };
-                  setAnswer(q.id, next);
+                  display: "flex",
+                  gap: 10,
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                  borderRadius: 10,
+                  padding: showWarning ? 6 : 0,
+                  border: showWarning
+                    ? "1px solid rgba(255,102,143,0.85)"
+                    : "1px solid transparent",
+                  background: showWarning
+                    ? "rgba(255,102,143,0.10)"
+                    : "transparent",
                 }}
               >
-                <option value="">Persona…</option>
-                {options.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
+                <select
+                  className="admin-input"
+                  disabled={disabled}
+                  style={{
+                    width: 260,
+                    color: left ? "rgba(0,0,0,0.92)" : "rgba(0,0,0,0.45)",
+                  }}
+                  value={left}
+                  onChange={(e) => {
+                    const next = cur.slice();
+                    next[idx] = { ...next[idx], leftId: e.target.value };
+                    setAnswer(q.id, next);
+                  }}
+                >
+                  <option value="">Persona…</option>
+                  {options.map((p) => (
+                    <option
+                      key={p.id}
+                      value={p.id}
+                      // No permitir A-A desde UI
+                      disabled={right && String(p.id) === String(right)}
+                    >
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
 
-              <span style={{ opacity: 0.75 }}>con</span>
+                <span style={{ opacity: 0.75 }}>con</span>
 
-              <select
-                className="admin-input"
-                disabled={disabled}
-                style={{
-                  width: 260,
-                  color: row.rightId ? "rgba(0,0,0,0.92)" : "rgba(0,0,0,0.45)",
-                }}
-                value={row.rightId}
-                onChange={(e) => {
-                  const next = cur.slice();
-                  next[idx] = { ...next[idx], rightId: e.target.value };
-                  setAnswer(q.id, next);
-                }}
-              >
-                <option value="">Persona…</option>
-                {options.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          ))}
+                <select
+                  className="admin-input"
+                  disabled={disabled}
+                  style={{
+                    width: 260,
+                    color: right ? "rgba(0,0,0,0.92)" : "rgba(0,0,0,0.45)",
+                  }}
+                  value={right}
+                  onChange={(e) => {
+                    const next = cur.slice();
+                    next[idx] = { ...next[idx], rightId: e.target.value };
+                    setAnswer(q.id, next);
+                  }}
+                >
+                  <option value="">Persona…</option>
+                  {options.map((p) => (
+                    <option
+                      key={p.id}
+                      value={p.id}
+                      // No permitir A-A desde UI
+                      disabled={left && String(p.id) === String(left)}
+                    >
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+
+                {isSelfPair ? (
+                  <div
+                    style={{ fontSize: 12, color: "#ff668f", width: "100%" }}
+                  >
+                    No se permite seleccionar la misma persona con sí misma.
+                  </div>
+                ) : isDuplicate ? (
+                  <div
+                    style={{ fontSize: 12, color: "#ff668f", width: "100%" }}
+                  >
+                    Este par ya fue seleccionado (el orden no importa).
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
         </div>
 
         <div style={{ marginTop: 8, fontSize: 12, opacity: 0.7 }} />
