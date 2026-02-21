@@ -3636,18 +3636,18 @@
                   },
                   {
                     "leftId": "p3",
-                    "rightId": "p4"
+                    "rightId": ""
                   },
                   {
                     "leftId": "p3",
-                    "rightId": "p4"
+                    "rightId": "p5"
                   }
                 ]
               },
               "freeText": ""
             },
-            "savedAt": "2026-02-10T20:37:36.421Z",
-            "submittedAt": "2026-02-10T20:37:42.101Z"
+            "savedAt": "2026-02-21T15:33:17.335Z",
+            "submittedAt": null
           },
           "p3": {
             "draft": {
@@ -4027,7 +4027,7 @@
                 },
                 "freeText": ""
               },
-              "savedAt": "2026-02-13T11:56:22.288Z",
+              "savedAt": "2026-02-21T15:11:35.864Z",
               "submittedAt": null
             },
             "p3": {
@@ -4224,10 +4224,22 @@
             },
             "p4": {
               "draft": {
-                "answers": {},
+                "answers": {
+                  "c2-1": [
+                    "asdf",
+                    "asdf",
+                    "asdf",
+                    ""
+                  ],
+                  "c2-2": [
+                    "sadf",
+                    "sadf",
+                    ""
+                  ]
+                },
                 "freeText": ""
               },
-              "savedAt": "2026-02-10T17:11:11.933Z",
+              "savedAt": "2026-02-21T15:11:19.471Z",
               "submittedAt": null
             }
           },
@@ -4392,6 +4404,22 @@
       "participantEmail": "carlos@example.com",
       "participantName": "Carlos Méndez",
       "adminEmail": "german.retana@gmail.com"
+    },
+    {
+      "at": "2026-02-21T15:31:15.857Z",
+      "type": "admin.reopen",
+      "processSlug": "acme-integracion-2026",
+      "participantId": "p2",
+      "kind": "c1",
+      "peerId": null
+    },
+    {
+      "at": "2026-02-21T15:32:56.844Z",
+      "type": "admin.reopen",
+      "processSlug": "acme-integracion-2026",
+      "participantId": "p2",
+      "kind": "c1",
+      "peerId": null
     }
   ]
 }
