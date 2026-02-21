@@ -234,6 +234,39 @@
   padding: 28px 22px 60px;
 }
 
+/* =========================
+   Participant topbar (3-column grid)
+   Left: title/back
+   Center: participant name (true centered)
+   Right: logout
+   Scoped to participant pages only.
+========================= */
+
+.page .p-topbar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px; /* <-- espacio vertical antes del contenido */
+}
+
+.page .p-topbar-left {
+  justify-self: start;
+  min-width: 0;
+}
+
+.page .p-topbar-center {
+  justify-self: center;
+  font-size: 12px;
+  opacity: 0.8;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.page .p-topbar-right {
+  justify-self: end;
+}
+
 .h1 {
   font-size: 44px;
   line-height: 1.08;

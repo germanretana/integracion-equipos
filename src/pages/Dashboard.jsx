@@ -13,7 +13,10 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="auth-container" style={{ backgroundImage: `url(/backgrounds/E.jpg)` }}>
+    <div
+      className="auth-container"
+      style={{ backgroundImage: `url(/backgrounds/E.jpg)` }}
+    >
       <div className="auth-overlay" />
 
       <div className="auth-content">
@@ -23,15 +26,17 @@ export default function Dashboard() {
           <div className="auth-card">
             <h2 style={{ margin: "0 0 8px 0" }}>Acceso confirmado</h2>
             <p className="auth-instructions" style={{ marginTop: 0 }}>
-              {auth.isMock ? "Modo MOCK activo (sin backend)." : "Conectado al backend."}
+              {auth.isMock
+                ? "Modo MOCK activo (sin backend)."
+                : "Conectado al backend."}
             </p>
 
             <div style={{ textAlign: "left" }}>
               <p style={{ margin: "8px 0" }}>
-                <strong>Usuario:</strong> {session?.user?.name || "—"}
+                <strong>Usuario:</strong> {session?.participant?.name || "—"}
               </p>
               <p style={{ margin: "8px 0" }}>
-                <strong>Correo:</strong> {session?.user?.email || "—"}
+                <strong>Correo:</strong> {session?.participant?.email || "—"}
               </p>
             </div>
 
@@ -41,7 +46,9 @@ export default function Dashboard() {
 
             <p className="auth-help">
               Si necesita ayuda, escriba a{" "}
-              <a href="mailto:integracion@germanretana.com">integracion@germanretana.com</a>
+              <a href="mailto:integracion@germanretana.com">
+                integracion@germanretana.com
+              </a>
             </p>
           </div>
         </div>

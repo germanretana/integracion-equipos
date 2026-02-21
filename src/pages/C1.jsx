@@ -17,6 +17,7 @@ export default function C1() {
   const { processSlug } = useParams();
 
   const session = auth.getSession();
+  const participantName = session?.participant?.name || "—";
   const companyName = session?.process?.companyName || "";
   const myId = session?.participant?.id || "";
 
@@ -203,25 +204,26 @@ export default function C1() {
   return (
     <div className="page">
       <div className="page-inner">
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            gap: 12,
-            alignItems: "center",
-          }}
-        >
-          <button
-            className="admin-btn"
-            onClick={() => navigate(`/app/${processSlug}/questionnaires`)}
-            type="button"
-          >
-            ← Volver
-          </button>
+        <div className="p-topbar">
+          <div className="p-topbar-left">
+            <button
+              className="admin-btn"
+              onClick={() => navigate(`/app/${processSlug}/questionnaires`)}
+              type="button"
+            >
+              ← Volver
+            </button>
+          </div>
 
-          <button className="admin-btn" type="button" onClick={onLogout}>
-            Logout
-          </button>
+          <div className="p-topbar-center">
+            Participante: <strong>{participantName}</strong>
+          </div>
+
+          <div className="p-topbar-right">
+            <button className="admin-btn" type="button" onClick={onLogout}>
+              Logout
+            </button>
+          </div>
         </div>
 
         <h1 className="h1">Retroalimentación Equipo {companyName}</h1>

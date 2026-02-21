@@ -4,9 +4,12 @@ import "../styles/questionnaires.css";
 import { auth } from "../services/auth";
 
 function StatusPill({ status, percent }) {
-  if (status === "done") return <span className="pill pill-ok">Completado</span>;
+  if (status === "done")
+    return <span className="pill pill-ok">Completado</span>;
   if (status === "progress")
-    return <span className="pill pill-warn">En progreso ({percent || 0}%)</span>;
+    return (
+      <span className="pill pill-warn">En progreso ({percent || 0}%)</span>
+    );
   return <span className="pill muted">Sin comenzar</span>;
 }
 
@@ -30,7 +33,8 @@ function Row({ to, title, status, percent }) {
 export default function Questionnaires() {
   const navigate = useNavigate();
   const { processSlug } = useParams();
-
+  const session = auth.getSession();
+  const participantName = session?.participant?.name || "—";
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState("");
   const [data, setData] = React.useState(null);
@@ -67,20 +71,20 @@ export default function Questionnaires() {
   return (
     <div className="page">
       <div className="page-inner">
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            gap: 12,
-            alignItems: "center",
-          }}
-        >
-          <h1 className="h1" style={{ margin: 0 }}>
+        <div className="p-topbar">
+          <h1 className="h1 p-topbar-left" style={{ margin: 0 }}>
             Cuestionarios
           </h1>
-          <button className="admin-btn" type="button" onClick={onLogout}>
-            Logout
-          </button>
+
+          <div className="p-topbar-center">
+            Participante: <strong>{participantName}</strong>
+          </div>
+
+          <div className="p-topbar-right">
+            <button className="admin-btn" type="button" onClick={onLogout}>
+              Logout
+            </button>
+          </div>
         </div>
 
         {loading ? <p className="sub">Cargando…</p> : null}
@@ -95,7 +99,9 @@ export default function Questionnaires() {
             </p>
 
             <div className="section">
-              <h2 className="section-title">Retroalimentación del equipo (C1)</h2>
+              <h2 className="section-title">
+                Retroalimentación del equipo (C1)
+              </h2>
               <div className="section-body">
                 <Row
                   to={data.c1.to}
@@ -107,7 +113,9 @@ export default function Questionnaires() {
             </div>
 
             <div className="section">
-              <h2 className="section-title">Retroalimentación a compañeros (C2)</h2>
+              <h2 className="section-title">
+                Retroalimentación a compañeros (C2)
+              </h2>
               <div className="section-body">
                 {data.c2.map((p) => (
                   <Row
