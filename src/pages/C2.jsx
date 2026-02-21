@@ -16,6 +16,9 @@ export default function C2() {
   const navigate = useNavigate();
   const { processSlug, peerId } = useParams();
 
+  const session = auth.getSession();
+  const participantName = session?.participant?.name || "—";
+
   const [tpl, setTpl] = React.useState(null);
   const [peerName, setPeerName] = React.useState("Compañero");
   const [loading, setLoading] = React.useState(true);
@@ -28,8 +31,6 @@ export default function C2() {
   const [error, setError] = React.useState("");
 
   const [missingIds, setMissingIds] = React.useState([]);
-
-  // UX: confirmación post-submit
   const [justSubmitted, setJustSubmitted] = React.useState(false);
 
   React.useEffect(() => {
@@ -116,7 +117,6 @@ export default function C2() {
       );
       setSubmittedAt(entry?.submittedAt || new Date().toISOString());
 
-      // UX: confirmación + redirect
       setJustSubmitted(true);
       setTimeout(() => {
         navigate(`/app/${processSlug}/questionnaires`, { replace: true });
@@ -157,11 +157,9 @@ export default function C2() {
           >
             ← Volver
           </button>
+
           <span style={{ fontSize: 12, opacity: 0.8 }}>
-            Participante:{" "}
-            <strong>
-              {auth?.participantName || auth?.participant?.name || "—"}
-            </strong>
+            Participante: <strong>{participantName}</strong>
           </span>
 
           <button className="admin-btn" type="button" onClick={onLogout}>
@@ -187,14 +185,6 @@ export default function C2() {
           <div className="section">
             <div className="section-body">
               <Markdown text={instructions} />
-            </div>
-          </div>
-        ) : null}
-
-        {!loading && questions.length === 0 ? (
-          <div className="section">
-            <div className="section-body">
-              <p className="sub">No hay preguntas configuradas.</p>
             </div>
           </div>
         ) : null}
