@@ -714,6 +714,8 @@ export default function ProcessDashboard() {
                                       {!progressLoading && !progressError && (
                                         <ProgressPanel
                                           participantId={p.id}
+                                          participantName={p.name}
+                                          dashboardParticipants={rows}
                                           progressData={progressData}
                                           processSlug={processSlug}
                                           processClosed={processClosed}
@@ -1133,6 +1135,8 @@ export default function ProcessDashboard() {
 
 function ProgressPanel({
   participantId,
+  participantName,
+  dashboardParticipants,
   progressData,
   processSlug,
   processClosed,
@@ -1156,7 +1160,7 @@ function ProgressPanel({
   async function reopen(kind, peerId) {
     if (processClosed) return;
 
-    const label = kind === "c1" ? "C1" : `C2 (${peerId})`;
+    const label = kind === "c1" ? "C1" : `C2 → ${peerName(peerId)}`;
     const ok = window.confirm(
       `¿Reabrir ${label} para este participante?\n\nEsto elimina submittedAt y lo deja editable.`,
     );
@@ -1210,11 +1214,20 @@ function ProgressPanel({
 
   const participantsIndex = React.useMemo(() => {
     const m = new Map();
-    for (const pp of progressData?.participants || []) {
+
+    // Prefer: dashboard (tiene nombres reales)
+    for (const pp of dashboardParticipants || []) {
       m.set(String(pp?.id || ""), String(pp?.name || pp?.id || ""));
     }
+
+    // Fallback: progress payload (por si falta dashboardParticipants)
+    for (const pp of progressData?.participants || []) {
+      const id = String(pp?.id || "");
+      if (!m.has(id)) m.set(id, String(pp?.name || pp?.id || ""));
+    }
+
     return m;
-  }, [progressData]);
+  }, [dashboardParticipants, progressData]);
 
   function peerName(peerId) {
     return participantsIndex.get(String(peerId || "")) || String(peerId || "");
@@ -1271,7 +1284,13 @@ function ProgressPanel({
           alignItems: "baseline",
         }}
       >
-        <div style={{ fontWeight: 800 }}>Progreso de: {p.name}</div>
+        <div style={{ fontWeight: 800 }}>
+          Progreso de:{" "}
+          {participantName ||
+            participantsIndex.get(String(participantId)) ||
+            p.name}
+        </div>
+
         <button className="btn" onClick={onReloadAll} disabled={false}>
           Actualizar
         </button>
@@ -1285,13 +1304,31 @@ function ProgressPanel({
           gap: 10,
         }}
       >
-        {/* C1 as a card (same visual as C2 cards) */}
+        {/* C1 card */}
         {c1 && (
           <div style={cardStyle}>
-            <div style={cardLeftStyle}>
+            {/* Left + Mid grouped so button stays at far right */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                minWidth: 0,
+                flex: 1,
+              }}
+            >
+              {/* LEFT: title */}
               <div style={cardTitleStyle}>C1</div>
 
-              <div style={pillRowStyle}>
+              {/* MID: pill + % pushed right */}
+              <div
+                style={{
+                  marginLeft: "auto",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                }}
+              >
                 {pill(c1.status)}
                 <div style={percentStyle}>
                   {Number.isFinite(c1.percent) ? `${c1.percent}%` : ""}
@@ -1299,6 +1336,7 @@ function ProgressPanel({
               </div>
             </div>
 
+            {/* RIGHT: button */}
             <button
               className="btn"
               disabled={processClosed || rowBusy[`reopen:${participantId}:c1:`]}
@@ -1322,12 +1360,29 @@ function ProgressPanel({
 
             return (
               <div key={`${q.kind}:${q.peerId || ""}`} style={cardStyle}>
-                <div style={cardLeftStyle}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                    minWidth: 0,
+                    flex: 1,
+                  }}
+                >
+                  {/* LEFT: title */}
                   <div style={cardTitleStyle} title={title}>
                     {title}
                   </div>
 
-                  <div style={pillRowStyle}>
+                  {/* MID: pill + % pushed right */}
+                  <div
+                    style={{
+                      marginLeft: "auto",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                    }}
+                  >
                     {pill(q.status)}
                     <div style={percentStyle}>
                       {Number.isFinite(q.percent) ? `${q.percent}%` : ""}
@@ -1335,6 +1390,7 @@ function ProgressPanel({
                   </div>
                 </div>
 
+                {/* RIGHT: button */}
                 <button
                   className="btn"
                   disabled={
