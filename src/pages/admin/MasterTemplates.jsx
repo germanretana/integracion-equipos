@@ -760,6 +760,12 @@ export default function MasterTemplates() {
   const [instructionsMd, setInstructionsMd] = React.useState("");
   const [questions, setQuestions] = React.useState([]);
 
+  function updateQuestionField(id, field, value) {
+    setQuestions((prev) =>
+      prev.map((q) => (q.id === id ? { ...q, [field]: value } : q)),
+    );
+  }
+
   function handleLogout() {
     auth.clearAdminSession();
     navigate("/admin/login", { replace: true });
@@ -1035,60 +1041,128 @@ export default function MasterTemplates() {
                           )
                           .map((q) => (
                             <tr key={q.id}>
-                              <td
-                                style={{
-                                  padding: "10px 8px",
-                                  borderBottom: "1px solid rgba(0,0,0,0.06)",
-                                }}
-                              >
-                                <code>{q.order}</code>
+                              {/* ORDER */}
+                              <td style={{ padding: "8px" }}>
+                                <input
+                                  className="admin-input"
+                                  style={{ width: 80 }}
+                                  value={q.order ?? ""}
+                                  onChange={(e) =>
+                                    updateQuestionField(
+                                      q.id,
+                                      "order",
+                                      Number(e.target.value),
+                                    )
+                                  }
+                                />
                               </td>
-                              <td
-                                style={{
-                                  padding: "10px 8px",
-                                  borderBottom: "1px solid rgba(0,0,0,0.06)",
-                                }}
-                              >
-                                <code>{q.type}</code>
-                                {q.dependsOn ? (
-                                  <div
-                                    style={{
-                                      fontSize: 12,
-                                      opacity: 0.75,
-                                      marginTop: 4,
-                                    }}
-                                  >
-                                    cond: {q.dependsOn.id} ={" "}
-                                    {q.dependsOn.equals}
-                                  </div>
-                                ) : null}
+
+                              {/* TYPE */}
+                              <td style={{ padding: "8px" }}>
+                                <select
+                                  className="admin-input"
+                                  value={q.type || ""}
+                                  onChange={(e) =>
+                                    updateQuestionField(
+                                      q.id,
+                                      "type",
+                                      e.target.value,
+                                    )
+                                  }
+                                >
+                                  <option value="header">header</option>
+                                  <option value="input_list">input_list</option>
+                                  <option value="text_area">text_area</option>
+                                  <option value="binary_yes_no">
+                                    binary_yes_no
+                                  </option>
+                                  <option value="rating_masc_5">
+                                    rating_masc_5
+                                  </option>
+                                  <option value="rating_fem_5">
+                                    rating_fem_5
+                                  </option>
+                                  <option value="value_0_4">value_0_4</option>
+                                  <option value="evaluation_0_10">
+                                    evaluation_0_10
+                                  </option>
+                                  <option value="pairing_rows">
+                                    pairing_rows
+                                  </option>
+                                  <option value="value_0_4_grid">
+                                    value_0_4_grid
+                                  </option>
+                                </select>
                               </td>
-                              <td
-                                style={{
-                                  padding: "10px 8px",
-                                  borderBottom: "1px solid rgba(0,0,0,0.06)",
-                                }}
-                              >
-                                <div style={{ fontWeight: 700 }}>
-                                  {truncate(
-                                    q.item ||
-                                      (q.type === "pairing_of_peers"
-                                        ? "(pairing)"
-                                        : ""),
-                                    120,
-                                  )}
+
+                              {/* ITEM */}
+                              <td style={{ padding: "8px" }}>
+                                <textarea
+                                  className="admin-textarea"
+                                  style={{ minHeight: 60 }}
+                                  value={q.item || ""}
+                                  onChange={(e) =>
+                                    updateQuestionField(
+                                      q.id,
+                                      "item",
+                                      e.target.value,
+                                    )
+                                  }
+                                />
+
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    gap: 8,
+                                    marginTop: 6,
+                                  }}
+                                >
+                                  <input
+                                    className="admin-input"
+                                    style={{ width: 110 }}
+                                    placeholder="minEntries"
+                                    value={q.minEntries ?? ""}
+                                    onChange={(e) =>
+                                      updateQuestionField(
+                                        q.id,
+                                        "minEntries",
+                                        e.target.value === ""
+                                          ? null
+                                          : Number(e.target.value),
+                                      )
+                                    }
+                                  />
+
+                                  <input
+                                    className="admin-input"
+                                    style={{ width: 110 }}
+                                    placeholder="maxEntries"
+                                    value={q.maxEntries ?? ""}
+                                    onChange={(e) =>
+                                      updateQuestionField(
+                                        q.id,
+                                        "maxEntries",
+                                        e.target.value === ""
+                                          ? null
+                                          : Number(e.target.value),
+                                      )
+                                    }
+                                  />
+
+                                  <input
+                                    className="admin-input"
+                                    style={{ width: 140 }}
+                                    placeholder="groupId"
+                                    value={q.groupId || ""}
+                                    onChange={(e) =>
+                                      updateQuestionField(
+                                        q.id,
+                                        "groupId",
+                                        e.target.value || null,
+                                      )
+                                    }
+                                  />
                                 </div>
-                                {q.explanation ? (
-                                  <div
-                                    style={{
-                                      fontSize: 12,
-                                      opacity: 0.75,
-                                      marginTop: 4,
-                                    }}
-                                  >
-                                    {truncate(q.explanation, 140)}
-                                  </div>
-                                ) : null}
                               </td>
                             </tr>
                           ))}
