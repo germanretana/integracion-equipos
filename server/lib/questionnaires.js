@@ -39,6 +39,88 @@ function isAnswerableQuestion(q) {
   return true;
 }
 
+function normalizePairKey(a, b) {
+  const x = String(a || "");
+  const y = String(b || "");
+  return x < y ? `${x}::${y}` : `${y}::${x}`;
+}
+
+/**
+ * Valida pairing_rows/pairing_of_peers.
+ *
+ * Reglas:
+ * - Si minEntries <= 0 (default), el bloque es OPCIONAL:
+ *    - si el usuario no llena nada => OK (answered=true)
+ *    - si llena algo => se valida cada par completo y reglas de negocio
+ * - Si minEntries > 0:
+ *    - requiere al menos minEntries pares completos y válidos
+ *
+ * Validez de un par:
+ * - leftId y rightId no vacíos
+ * - leftId !== rightId  (no A-A)
+ * - no duplicados ignorando orden (A-B == B-A)
+ */
+function validatePairingAnswer(q, ans) {
+  const rows = Number.isFinite(q.rows) ? q.rows : 3;
+  const min = Number.isFinite(q.minEntries) ? q.minEntries : 0;
+
+  const arrRaw = Array.isArray(ans) ? ans.slice(0, rows) : [];
+
+  // Normalizamos filas
+  const arr = arrRaw.map((x) => {
+    const o = x && typeof x === "object" ? x : {};
+    return {
+      leftId: String(o.leftId || "").trim(),
+      rightId: String(o.rightId || "").trim(),
+    };
+  });
+
+  // ¿El usuario intentó llenar algo?
+  const anyTouched = arr.some((r) => isFilledString(r.leftId) || isFilledString(r.rightId));
+
+  // Si es opcional y está vacío => OK
+  if (min <= 0 && !anyTouched) {
+    return { ok: true, completeValidCount: 0, anyTouched: false, reason: null };
+  }
+
+  const seen = new Set();
+  let completeValidCount = 0;
+
+  for (const r of arr) {
+    const leftFilled = isFilledString(r.leftId);
+    const rightFilled = isFilledString(r.rightId);
+
+    // Si el usuario tocó el bloque, una fila medio llena es inválida
+    if ((leftFilled && !rightFilled) || (!leftFilled && rightFilled)) {
+      return { ok: false, completeValidCount, anyTouched: true, reason: "incomplete_row" };
+    }
+
+    // Fila vacía -> la ignoramos (en opcional) / no suma (en requerido)
+    if (!leftFilled && !rightFilled) continue;
+
+    // A-A inválido
+    if (String(r.leftId) === String(r.rightId)) {
+      return { ok: false, completeValidCount, anyTouched: true, reason: "self_pair" };
+    }
+
+    // Duplicado (A-B == B-A)
+    const key = normalizePairKey(r.leftId, r.rightId);
+    if (seen.has(key)) {
+      return { ok: false, completeValidCount, anyTouched: true, reason: "duplicate_pair" };
+    }
+    seen.add(key);
+
+    completeValidCount += 1;
+  }
+
+  // Si es requerido, pedimos mínimo de pares completos válidos
+  if (min > 0 && completeValidCount < min) {
+    return { ok: false, completeValidCount, anyTouched: true, reason: "min_not_met" };
+  }
+
+  return { ok: true, completeValidCount, anyTouched: true, reason: null };
+}
+
 function isQuestionAnswered(q, ans) {
   const t = qType(q);
 
@@ -68,13 +150,8 @@ function isQuestionAnswered(q, ans) {
   }
 
   if (t === "pairing_rows" || t === "pairing_of_peers") {
-    const rows = Number.isFinite(q.rows) ? q.rows : 3;
-    const arr = Array.isArray(ans) ? ans.slice(0, rows) : [];
-    if (arr.length < rows) return false;
-    return arr.every((x) => {
-      if (!x || typeof x !== "object") return false;
-      return isFilledString(x.leftId) && isFilledString(x.rightId);
-    });
+    const v = validatePairingAnswer(q, ans);
+    return v.ok;
   }
 
   // fallback: string/number truthy-ish
@@ -82,24 +159,18 @@ function isQuestionAnswered(q, ans) {
   if (typeof ans === "number") return Number.isFinite(ans);
   if (Array.isArray(ans)) return ans.some((x) => isFilledString(x));
   if (ans && typeof ans === "object") {
-    if (typeof ans.value === "number" && Number.isFinite(ans.value))
-      return true;
+    if (typeof ans.value === "number" && Number.isFinite(ans.value)) return true;
     if (typeof ans.value === "string" && isFilledString(ans.value)) return true;
-    if (typeof ans.suggestion === "string" && isFilledString(ans.suggestion))
-      return true;
-    if (typeof ans.leftId === "string" && isFilledString(ans.leftId))
-      return true;
-    if (typeof ans.rightId === "string" && isFilledString(ans.rightId))
-      return true;
+    if (typeof ans.suggestion === "string" && isFilledString(ans.suggestion)) return true;
+    if (typeof ans.leftId === "string" && isFilledString(ans.leftId)) return true;
+    if (typeof ans.rightId === "string" && isFilledString(ans.rightId)) return true;
   }
   return false;
 }
 
 export function computeCompletionFromTemplate(template, draft) {
-  const questions =
-    getQuestionsFromTemplate(template).filter(isAnswerableQuestion);
-  const answers =
-    draft?.answers && typeof draft.answers === "object" ? draft.answers : {};
+  const questions = getQuestionsFromTemplate(template).filter(isAnswerableQuestion);
+  const answers = draft?.answers && typeof draft.answers === "object" ? draft.answers : {};
 
   // Compute total number of questions
   let total = 0;
@@ -110,10 +181,11 @@ export function computeCompletionFromTemplate(template, draft) {
       total += 1;
     }
   }
-  if (total === 0) return { total: 0, answered: 0, percent: 0, missingIds: [] };
+  if (total === 0) return { total: 0, answered: 0, percent: 0, missingIds: [], invalidIds: [] };
 
   let answered = 0;
   const missingIds = [];
+  const invalidIds = [];
 
   for (let i = 0; i < questions.length; i++) {
     const q = questions[i];
@@ -138,15 +210,26 @@ export function computeCompletionFromTemplate(template, draft) {
     const id = qId(q, i);
     const a = answers[id];
 
+    // pairing_rows: si es opcional y vacío, cuenta como answered
+    if (t === "pairing_rows" || t === "pairing_of_peers") {
+      const v = validatePairingAnswer(q, a);
+
+      if (v.ok) {
+        answered += 1;
+      } else {
+        // distinguimos inválido vs faltante (para mensaje de submit)
+        invalidIds.push(id);
+        missingIds.push(id);
+      }
+      continue;
+    }
+
     if (isQuestionAnswered(q, a)) answered += 1;
     else missingIds.push(id);
   }
 
-  const percent = Math.max(
-    0,
-    Math.min(100, Math.round((answered / total) * 100)),
-  );
-  return { total, answered, percent, missingIds };
+  const percent = Math.max(0, Math.min(100, Math.round((answered / total) * 100)));
+  return { total, answered, percent, missingIds, invalidIds };
 }
 
 export function hasMeaningfulDraft(draft) {
@@ -164,11 +247,9 @@ export function hasMeaningfulDraft(draft) {
     if (Array.isArray(v)) return v.some((x) => isFilledString(x));
     if (typeof v === "object") {
       if (typeof v.value === "number" && Number.isFinite(v.value)) return true;
-      if (typeof v.suggestion === "string" && isFilledString(v.suggestion))
-        return true;
+      if (typeof v.suggestion === "string" && isFilledString(v.suggestion)) return true;
       if (typeof v.leftId === "string" && isFilledString(v.leftId)) return true;
-      if (typeof v.rightId === "string" && isFilledString(v.rightId))
-        return true;
+      if (typeof v.rightId === "string" && isFilledString(v.rightId)) return true;
     }
     return false;
   });

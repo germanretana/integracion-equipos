@@ -247,6 +247,20 @@ function validateBeforeSubmit({ proc, meId, kind, peerId = null }) {
   }
 
   const comp0 = computeCompletionFromTemplate(tpl, entry0?.draft);
+
+  if (Array.isArray(comp0.invalidIds) && comp0.invalidIds.length > 0) {
+    return {
+      ok: false,
+      status: 400,
+      payload: {
+        error:
+          "Hay pares inválidos en las selecciones para conversaciones. No se permite una persona con sigo misma ni pares de personas duplicados. Corríjalos antes de enviar.",
+        missingIds: comp0.invalidIds, // scroll/highlight
+        percent: comp0.percent,
+      },
+    };
+  }
+
   if (comp0.total > 0 && comp0.missingIds.length > 0) {
     return {
       ok: false,
