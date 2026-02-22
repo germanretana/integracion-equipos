@@ -808,12 +808,6 @@ export default function MasterTemplates() {
     }
   }
 
-  function loadOfficial() {
-    const next = kind === "c1" ? OFFICIAL_C1 : OFFICIAL_C2;
-    setQuestions(next);
-    setFlash("Set oficial cargado (pendiente de guardar).");
-  }
-
   const title =
     kind === "c1" ? "Plantilla Maestra — C1" : "Plantilla Maestra — C2";
   const subtitle =
@@ -871,16 +865,6 @@ export default function MasterTemplates() {
             <Tab active={kind === "c2"} onClick={() => setKind("c2")}>
               C2
             </Tab>
-
-            <button
-              className="btn"
-              type="button"
-              onClick={loadOfficial}
-              disabled={loading || saving}
-              title="Carga el set oficial en memoria (luego debés Guardar)"
-            >
-              Cargar set oficial
-            </button>
 
             <button
               className="btn"
@@ -990,25 +974,11 @@ export default function MasterTemplates() {
                 >
                   <div>
                     <h2 className="h2" style={{ margin: 0 }}>
-                      Preguntas (preview)
+                      Preguntas
                     </h2>
                     <p className="sub" style={{ marginTop: 6 }}>
                       Total: <strong>{qCount}</strong>
                     </p>
-                  </div>
-
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <button
-                      className="btn"
-                      type="button"
-                      disabled={saving || loading}
-                      onClick={() => {
-                        setQuestions([]);
-                        setFlash("Preguntas limpiadas (pendiente de guardar).");
-                      }}
-                    >
-                      Limpiar
-                    </button>
                   </div>
                 </div>
 
@@ -1126,19 +1096,6 @@ export default function MasterTemplates() {
                     </table>
                   </div>
                 )}
-
-                <div
-                  style={{
-                    marginTop: 10,
-                    fontSize: 12,
-                    opacity: 0.65,
-                    lineHeight: 1.4,
-                  }}
-                >
-                  Nota: en este bloque sólo guardamos el instrumento
-                  (questions[]). La UI de participantes se actualiza en el
-                  siguiente bloque.
-                </div>
               </div>
             </div>
 
