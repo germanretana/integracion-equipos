@@ -13,6 +13,7 @@ import {
   computeCompletionFromTemplate,
   calcStatusFromEntryAndTemplate,
 } from "./lib/questionnaires.js";
+import process from "process";
 
 const app = express();
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3001;
@@ -25,14 +26,6 @@ app.get("/api/health", (_req, res) => res.json({ ok: true }));
 /* =========================
    HELPERS
 ========================= */
-function slugify(value) {
-  return String(value || "")
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)+/g, "");
-}
 
 function ensureMockParticipantsForProcess(proc) {
   if (Array.isArray(proc.participants) && proc.participants.length > 0) return;
@@ -77,6 +70,17 @@ function ensureMockParticipantsForProcess(proc) {
 }
 
 // ===== Response entry helpers (pure accessors over process.responses) =====
+
+function canParticipantEdit(proc) {
+  // Editar = guardar draft + submit
+  return proc?.status === "EN_CURSO";
+}
+
+function canParticipantView(proc) {
+  // Ver = GETs /questionnaires, /templates, /c1, /c2
+  // Permitimos ver incluso cerrado (histórico). Ajustable.
+  return proc?.status === "EN_CURSO" || proc?.status === "CERRADO";
+}
 
 function ensureResponsesShape(p) {
   if (!p.responses || typeof p.responses !== "object")
@@ -766,13 +770,32 @@ app.put("/api/app/:processSlug/c1", requireParticipant, (req, res) => {
   const { draft } = req.body || {};
   const incomingDraft = draft && typeof draft === "object" ? draft : {};
 
+  // 1) Gate BEFORE updateDb (no side-effects inside updateDb)
+  {
+    const db0 = readDb();
+    const scoped0 = getProcAndMeScoped(db0, req);
+    if (scoped0.error)
+      return res.status(scoped0.status).json({ error: scoped0.error });
+
+    const { proc } = scoped0;
+    if (!canParticipantEdit(proc)) {
+      return res
+        .status(403)
+        .json({ error: "El proceso no está habilitado para edición." });
+    }
+  }
+
+  // 2) Persist draft
   const next = updateDb((db2) => {
     const scoped2 = getProcAndMeScoped(db2, req);
     if (scoped2.error) return db2;
 
     const { proc, me } = scoped2;
-    const entry = ensureC1Entry(proc, me.id);
 
+    // Redundant safety (cheap + keeps invariants)
+    if (!canParticipantEdit(proc)) return db2;
+
+    const entry = ensureC1Entry(proc, me.id);
     if (entry.submittedAt) return db2;
 
     saveDraftIntoEntry({ entry, incomingDraft, forceLegacyFreeText: true });
@@ -784,8 +807,11 @@ app.put("/api/app/:processSlug/c1", requireParticipant, (req, res) => {
   const proc = next.processes.find(
     (p) => p.processSlug === req.params.processSlug,
   );
-  const entry = proc?.responses?.c1?.[req.participant.participantId];
-  res.json(entry);
+  const entry = proc?.responses?.c1?.[req.participant.participantId] || null;
+
+  return res.json(
+    entry || { draft: { answers: {} }, savedAt: null, submittedAt: null },
+  );
 });
 
 app.post("/api/app/:processSlug/c1/submit", requireParticipant, (req, res) => {
@@ -798,6 +824,12 @@ app.post("/api/app/:processSlug/c1/submit", requireParticipant, (req, res) => {
     return res.status(scoped0.status).json({ error: scoped0.error });
 
   const { proc: p0, me: me0 } = scoped0;
+
+  if (!canParticipantEdit(p0)) {
+    return res.status(403).json({
+      error: "El proceso está cerrado. No se pueden enviar respuestas.",
+    });
+  }
 
   const validation = validateBeforeSubmit({
     proc: p0,
@@ -869,11 +901,38 @@ app.put("/api/app/:processSlug/c2/:peerId", requireParticipant, (req, res) => {
   const { draft } = req.body || {};
   const incomingDraft = draft && typeof draft === "object" ? draft : {};
 
+  // 1) Gate BEFORE updateDb (no side effects inside updateDb)
+  {
+    const db0 = readDb();
+    const scoped0 = getProcAndMeScoped(db0, req);
+    if (scoped0.error)
+      return res.status(scoped0.status).json({ error: scoped0.error });
+
+    const { proc, me } = scoped0;
+
+    if (!canParticipantEdit(proc)) {
+      return res
+        .status(403)
+        .json({ error: "El proceso no está habilitado para edición." });
+    }
+
+    const exists0 = (proc.participants || []).some(
+      (p) => p.id === peerId && p.id !== me.id,
+    );
+    if (!exists0)
+      return res.status(404).json({ error: "Participante no encontrado." });
+  }
+
+  // 2) Persist draft
   const next = updateDb((db2) => {
     const scoped2 = getProcAndMeScoped(db2, req);
     if (scoped2.error) return db2;
 
     const { proc, me } = scoped2;
+
+    // redundant safety
+    if (!canParticipantEdit(proc)) return db2;
+
     const exists = (proc.participants || []).some(
       (p) => p.id === peerId && p.id !== me.id,
     );
@@ -891,8 +950,16 @@ app.put("/api/app/:processSlug/c2/:peerId", requireParticipant, (req, res) => {
   const proc = next.processes.find(
     (p) => p.processSlug === req.params.processSlug,
   );
-  const entry = proc?.responses?.c2?.[req.participant.participantId]?.[peerId];
-  res.json(entry);
+  const entry =
+    proc?.responses?.c2?.[req.participant.participantId]?.[peerId] || null;
+
+  return res.json(
+    entry || {
+      draft: { answers: {}, freeText: "" },
+      savedAt: null,
+      submittedAt: null,
+    },
+  );
 });
 
 app.post(
@@ -908,6 +975,12 @@ app.post(
       return res.status(scoped0.status).json({ error: scoped0.error });
 
     const { proc: p0, me: me0 } = scoped0;
+
+    if (!canParticipantEdit(p0)) {
+      return res.status(403).json({
+        error: "El proceso está cerrado. No se pueden enviar respuestas.",
+      });
+    }
     const exists = (p0.participants || []).some(
       (p) => p.id === peerId && p.id !== me0.id,
     );
