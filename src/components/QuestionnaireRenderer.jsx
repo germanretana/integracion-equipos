@@ -65,14 +65,14 @@ function normalizeType(typeRaw) {
   return t;
 }
 
-function helpText(minEntries, maxEntries) {
+function helpText(minEntries) {
   const min = Number.isFinite(minEntries) ? minEntries : null;
 
   // Si no hay mínimo requerido, no mostramos hint.
   if (min == null || min <= 0) return "";
 
-  if (min === 1) return "Requerido.";
-  return `Requerido: ${min}.`;
+  if (min === 1) return "Requerida: 1";
+  return `Requeridas: ${min}`;
 }
 
 function qText(q) {

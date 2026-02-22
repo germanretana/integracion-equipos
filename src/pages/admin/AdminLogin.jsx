@@ -4,6 +4,22 @@ import Logo from "../../components/Logo";
 import "../../styles/auth.css";
 import { auth } from "../../services/auth";
 
+const backgrounds = [
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "G",
+  "H",
+  "I",
+  "J",
+  "K",
+  "L",
+];
+const bg = backgrounds[Math.floor(Math.random() * backgrounds.length)];
+
 export default function AdminLogin() {
   const navigate = useNavigate();
 
@@ -29,7 +45,10 @@ export default function AdminLogin() {
   }
 
   return (
-    <div className="auth-container">
+    <div
+      className="auth-container"
+      style={{ backgroundImage: `url(/backgrounds/${bg}.jpg)` }}
+    >
       <div className="auth-overlay" />
 
       <div className="auth-content">
@@ -37,7 +56,11 @@ export default function AdminLogin() {
           <Logo />
 
           <div className="auth-card">
-            <p className="auth-instructions">Acceso de administrador.</p>
+            <p className="auth-instructions">
+              <b>
+                <center>Acceso de administrador</center>
+              </b>
+            </p>
 
             <form onSubmit={onSubmit} noValidate>
               <input
