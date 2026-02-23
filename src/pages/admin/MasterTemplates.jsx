@@ -762,6 +762,38 @@ export default function MasterTemplates() {
     }
   }, [questions]);
 
+  function addQuestion() {
+    const nextOrder =
+      questions.length === 0
+        ? 1
+        : Math.max(...questions.map((q) => Number(q.order) || 0)) + 1;
+
+    const newId = `new-${Date.now()}`;
+
+    const newQuestion = {
+      schemaVersion: SCHEMA_VERSION,
+      id: newId,
+      order: nextOrder,
+      item: "",
+      type: "text_area",
+      minEntries: 1,
+      maxEntries: 1,
+      explanation: null,
+      condition: null,
+      groupId: null,
+      dependsOn: null,
+      meta: null,
+    };
+
+    setQuestions((prev) => [...prev, newQuestion]);
+  }
+
+  function removeQuestion(id) {
+    if (!window.confirm("¿Eliminar esta pregunta?")) return;
+
+    setQuestions((prev) => prev.filter((q) => q.id !== id));
+  }
+
   function updateQuestionField(id, field, value) {
     setQuestions((prev) =>
       prev.map((q) => (q.id === id ? { ...q, [field]: value } : q)),
@@ -1057,10 +1089,9 @@ export default function MasterTemplates() {
                 <div
                   style={{
                     display: "flex",
-                    alignItems: "baseline",
+                    alignItems: "center",
                     justifyContent: "space-between",
                     gap: 12,
-                    flexWrap: "wrap",
                   }}
                 >
                   <div>
@@ -1071,6 +1102,10 @@ export default function MasterTemplates() {
                       Total: <strong>{qCount}</strong>
                     </p>
                   </div>
+
+                  <button className="btn" type="button" onClick={addQuestion}>
+                    + Nueva pregunta
+                  </button>
                 </div>
 
                 {qCount === 0 ? (
@@ -1114,6 +1149,16 @@ export default function MasterTemplates() {
                             }}
                           >
                             Item
+                          </th>
+                          <th
+                            style={{
+                              textAlign: "left",
+                              padding: "10px 8px",
+                              borderBottom: "1px solid rgba(0,0,0,0.08)",
+                              width: 80,
+                            }}
+                          >
+                            Acciones
                           </th>
                         </tr>
                       </thead>
@@ -1383,7 +1428,7 @@ export default function MasterTemplates() {
                                       marginBottom: 4,
                                     }}
                                   >
-                                    dependsOn
+                                    Mostrar si
                                   </div>
 
                                   <div style={{ display: "flex", gap: 8 }}>
@@ -1436,6 +1481,16 @@ export default function MasterTemplates() {
                                     )}
                                   </div>
                                 </div>
+                              </td>
+                              <td style={{ padding: "8px" }}>
+                                <button
+                                  className="btn"
+                                  type="button"
+                                  onClick={() => removeQuestion(q.id)}
+                                  style={{ opacity: 0.8 }}
+                                >
+                                  ✕
+                                </button>
                               </td>
                             </tr>
                           ))}
