@@ -130,6 +130,24 @@ export default function MasterTemplates() {
     setQuestions((prev) => prev.filter((q) => q.id !== id));
   }
 
+  function moveQuestion(index, direction) {
+    setQuestions((prev) => {
+      const newQuestions = [...prev];
+
+      const targetIndex = direction === "up" ? index - 1 : index + 1;
+
+      if (targetIndex < 0 || targetIndex >= newQuestions.length) {
+        return prev; // no se mueve fuera de límites
+      }
+
+      const temp = newQuestions[index];
+      newQuestions[index] = newQuestions[targetIndex];
+      newQuestions[targetIndex] = temp;
+
+      return newQuestions;
+    });
+  }
+
   function updateQuestionField(id, field, value) {
     setQuestions((prev) =>
       prev.map((q) => (q.id === id ? { ...q, [field]: value } : q)),
@@ -534,11 +552,40 @@ export default function MasterTemplates() {
                                     </select>
                                   </div>
 
-                                  <div style={{ marginLeft: "auto" }}>
+                                  <div
+                                    style={{
+                                      marginLeft: "auto",
+                                      display: "flex",
+                                      gap: 6,
+                                    }}
+                                  >
+                                    <button
+                                      className="btn"
+                                      type="button"
+                                      onClick={() => moveQuestion(index, "up")}
+                                      disabled={index === 0}
+                                      style={{ padding: "4px 8px" }}
+                                    >
+                                      ↑
+                                    </button>
+
+                                    <button
+                                      className="btn"
+                                      type="button"
+                                      onClick={() =>
+                                        moveQuestion(index, "down")
+                                      }
+                                      disabled={index === questions.length - 1}
+                                      style={{ padding: "4px 8px" }}
+                                    >
+                                      ↓
+                                    </button>
+
                                     <button
                                       className="btn"
                                       type="button"
                                       onClick={() => removeQuestion(q.id)}
+                                      style={{ padding: "4px 8px" }}
                                     >
                                       ✕
                                     </button>
