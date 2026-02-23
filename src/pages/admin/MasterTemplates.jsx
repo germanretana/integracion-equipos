@@ -768,6 +768,30 @@ export default function MasterTemplates() {
     );
   }
 
+  function updateDependsOn(id, field, value) {
+    setQuestions((prev) =>
+      prev.map((q) => {
+        if (q.id !== id) return q;
+
+        const current = q.dependsOn || {};
+
+        return {
+          ...q,
+          dependsOn: {
+            ...current,
+            [field]: value,
+          },
+        };
+      }),
+    );
+  }
+
+  function clearDependsOn(id) {
+    setQuestions((prev) =>
+      prev.map((q) => (q.id === id ? { ...q, dependsOn: null } : q)),
+    );
+  }
+
   /* Funciones para grids (o tablas de preguntas) */
   function updateGridItem(qId, itemIndex, field, value) {
     setQuestions((prev) =>
@@ -1349,6 +1373,68 @@ export default function MasterTemplates() {
                                       )
                                     }
                                   />
+                                </div>
+                                {/* dependsOn editor */}
+                                <div style={{ marginTop: 8 }}>
+                                  <div
+                                    style={{
+                                      fontSize: 12,
+                                      opacity: 0.7,
+                                      marginBottom: 4,
+                                    }}
+                                  >
+                                    dependsOn
+                                  </div>
+
+                                  <div style={{ display: "flex", gap: 8 }}>
+                                    <select
+                                      className="admin-input"
+                                      style={{ width: 180 }}
+                                      value={q.dependsOn?.id || ""}
+                                      onChange={(e) =>
+                                        updateDependsOn(
+                                          q.id,
+                                          "id",
+                                          e.target.value || null,
+                                        )
+                                      }
+                                    >
+                                      <option value="">
+                                        — sin dependencia —
+                                      </option>
+                                      {questions
+                                        .filter((p) => p.id !== q.id)
+                                        .map((p) => (
+                                          <option key={p.id} value={p.id}>
+                                            {p.id}
+                                          </option>
+                                        ))}
+                                    </select>
+
+                                    <input
+                                      className="admin-input"
+                                      style={{ width: 120 }}
+                                      placeholder="equals"
+                                      value={q.dependsOn?.equals || ""}
+                                      onChange={(e) =>
+                                        updateDependsOn(
+                                          q.id,
+                                          "equals",
+                                          e.target.value,
+                                        )
+                                      }
+                                    />
+
+                                    {q.dependsOn && (
+                                      <button
+                                        type="button"
+                                        className="btn"
+                                        onClick={() => clearDependsOn(q.id)}
+                                      >
+                                        ✕
+                                      </button>
+                                    )}
+                                  </div>
                                 </div>
                               </td>
                             </tr>
