@@ -699,6 +699,26 @@ export default function QuestionnaireRenderer({
     );
   }
 
+  function shouldRenderQuestion(q, answers) {
+    if (!q?.dependsOn || typeof q.dependsOn !== "object") return true;
+
+    const { id, equals } = q.dependsOn;
+    if (!id) return true;
+
+    const val = answers?.[id];
+
+    // normalizamos yes/no
+    if (val === "yes") {
+      return equals === "yes" || equals === "Sí" || equals === true;
+    }
+
+    if (val === "no") {
+      return equals === "no" || equals === "No" || equals === false;
+    }
+
+    return val === equals;
+  }
+
   function renderQuestion(q) {
     const type = normalizeType(q?.type);
 
@@ -737,16 +757,18 @@ export default function QuestionnaireRenderer({
 
   return (
     <div>
-      {(questions || []).map((q, idx) => {
-        const id = String(q?.id || q?.key || `${idx}`);
-        const missing = missingSet.has(id);
-        const child = renderQuestion({ ...q, id });
-        return (
-          <MissingWrap key={id} qid={id} missing={missing}>
-            {child}
-          </MissingWrap>
-        );
-      })}
+      {(questions || [])
+        .filter((q) => shouldRenderQuestion(q, answers))
+        .map((q, idx) => {
+          const id = String(q?.id || q?.key || `${idx}`);
+          const missing = missingSet.has(id);
+          const child = renderQuestion({ ...q, id });
+          return (
+            <MissingWrap key={id} qid={id} missing={missing}>
+              {child}
+            </MissingWrap>
+          );
+        })}
     </div>
   );
 }
