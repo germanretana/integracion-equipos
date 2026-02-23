@@ -226,25 +226,26 @@ export default function MasterTemplates() {
     navigate("/admin/login", { replace: true });
   }
 
-  async function load(k) {
-    setLoading(true);
-    setError("");
-    try {
-      const tpl = await auth.fetch(`/api/admin/base-templates/${k}`);
-      setInstructionsMd(tpl?.instructionsMd || "");
-      setQuestions(Array.isArray(tpl?.questions) ? tpl.questions : []);
-    } catch (e) {
-      setError(e?.message || "No se pudo cargar la plantilla.");
-      setInstructionsMd("");
-      setQuestions([]);
-    } finally {
-      setLoading(false);
-    }
-  }
+  useEffect(() => {
+    async function fetchTemplate() {
+      setLoading(true);
+      setError("");
 
-  React.useEffect(() => {
-    load(kind);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      try {
+        const tpl = await auth.fetch(`/api/admin/base-templates/${kind}`);
+
+        setInstructionsMd(tpl?.instructionsMd || "");
+        setQuestions(Array.isArray(tpl?.questions) ? tpl.questions : []);
+      } catch (e) {
+        setError(e?.message || "No se pudo cargar la plantilla.");
+        setInstructionsMd("");
+        setQuestions([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchTemplate();
   }, [kind]);
 
   React.useEffect(() => {
@@ -423,7 +424,7 @@ export default function MasterTemplates() {
                   <button
                     className="btn"
                     type="button"
-                    onClick={() => load(kind)}
+                    onClick={() => setKind((prev) => prev)}
                     disabled={saving || loading}
                   >
                     Recargar
