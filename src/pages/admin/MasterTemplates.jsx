@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { auth } from "../../services/auth";
 import Markdown from "../../components/Markdown";
 import "../../styles/admin.css";
+import QuestionnaireRenderer from "../../components/QuestionnaireRenderer";
 
 /**
  * BLOQUE 4B-1
@@ -740,14 +741,6 @@ const OFFICIAL_C2 = [
   }),
 ];
 
-function truncate(s, n = 90) {
-  const t = String(s || "")
-    .replace(/\s+/g, " ")
-    .trim();
-  if (t.length <= n) return t;
-  return t.slice(0, n - 1) + "…";
-}
-
 export default function MasterTemplates() {
   const navigate = useNavigate();
 
@@ -759,6 +752,15 @@ export default function MasterTemplates() {
 
   const [instructionsMd, setInstructionsMd] = React.useState("");
   const [questions, setQuestions] = React.useState([]);
+
+  const [previewMode, setPreviewMode] = useState(false);
+  const [previewAnswers, setPreviewAnswers] = useState({});
+
+  useEffect(() => {
+    if (previewMode) {
+      setPreviewAnswers({});
+    }
+  }, [questions]);
 
   function updateQuestionField(id, field, value) {
     setQuestions((prev) =>
@@ -973,7 +975,7 @@ export default function MasterTemplates() {
                 >
                   <div>
                     <p className="sub" style={{ marginTop: 0 }}>
-                      Markdown
+                      Instrucciones Generales
                     </p>
                     <textarea
                       className="admin-textarea"
@@ -1370,6 +1372,67 @@ export default function MasterTemplates() {
               Nota: los procesos ya creados mantienen sus propias plantillas.
               Estas plantillas maestras afectan únicamente a procesos nuevos.
             </div>
+            {/* Preview cuestionario como participante */}
+            <div style={{ marginTop: 30 }}>
+              <button
+                className="btn"
+                type="button"
+                onClick={() => {
+                  setPreviewAnswers({});
+                  setPreviewMode((v) => !v);
+                }}
+              >
+                {previewMode
+                  ? "Cerrar Preview Cuestionario"
+                  : "Preview Cuestionario"}
+              </button>
+            </div>
+
+            {previewMode && (
+              <div
+                style={{
+                  marginTop: 20,
+                  padding: 24,
+                  borderRadius: 16,
+                  background: "rgba(80,140,255,0.06)",
+                  border: "1px solid rgba(80,140,255,0.25)",
+                }}
+              >
+                <div
+                  style={{
+                    fontWeight: 800,
+                    fontSize: 18,
+                    marginBottom: 8,
+                  }}
+                >
+                  👁 Preview como participante
+                </div>
+
+                <div
+                  style={{
+                    fontSize: 13,
+                    opacity: 0.7,
+                    marginBottom: 20,
+                  }}
+                >
+                  Este modo no guarda respuestas ni afecta procesos.
+                </div>
+
+                <QuestionnaireRenderer
+                  questions={questions}
+                  answers={previewAnswers}
+                  onChange={setPreviewAnswers}
+                  disabled={false}
+                  peers={[
+                    { id: "p1", name: "Ana López" },
+                    { id: "p2", name: "Carlos Méndez" },
+                    { id: "p3", name: "Laura Jiménez" },
+                  ]}
+                  currentParticipantId="p0"
+                  missingIds={[]}
+                />
+              </div>
+            )}
           </>
         )}
       </div>
