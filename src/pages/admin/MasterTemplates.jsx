@@ -1152,9 +1152,7 @@ export default function MasterTemplates() {
                                     }}
                                   >
                                     <div style={{ width: 70 }}>
-                                      <div
-                                        style={{ fontSize: 11, opacity: 0.7 }}
-                                      >
+                                      <div className="admin-field-label">
                                         Orden
                                       </div>
                                       <input
@@ -1172,27 +1170,17 @@ export default function MasterTemplates() {
                                     </div>
 
                                     <div style={{ minWidth: 220 }}>
-                                      <div
-                                        style={{ fontSize: 11, opacity: 0.7 }}
-                                      >
+                                      <div className="admin-field-label">
                                         Tipo
                                       </div>
                                       <select
-                                        className="admin-input"
-                                        style={{
-                                          width: "100%",
-                                          height: 34,
-                                          background: "#ffffff",
-                                          color: "#1a1a1a",
-                                          border: "1px solid rgba(0,0,0,0.15)",
-                                          appearance: "auto",
-                                        }}
-                                        value={q.dependsOn?.id || ""}
+                                        className="admin-select"
+                                        value={q.type || ""}
                                         onChange={(e) =>
-                                          updateDependsOn(
+                                          updateQuestionField(
                                             q.id,
-                                            "id",
-                                            e.target.value || null,
+                                            "type",
+                                            e.target.value,
                                           )
                                         }
                                       >
@@ -1240,7 +1228,7 @@ export default function MasterTemplates() {
 
                                   {/* TEXTO */}
                                   <div style={{ marginBottom: 14 }}>
-                                    <div style={{ fontSize: 12, opacity: 0.7 }}>
+                                    <div className="admin-field-label">
                                       Texto de la pregunta
                                     </div>
                                     <textarea
@@ -1384,9 +1372,7 @@ export default function MasterTemplates() {
                                     }}
                                   >
                                     <div>
-                                      <div
-                                        style={{ fontSize: 11, opacity: 0.7 }}
-                                      >
+                                      <div className="admin-field-label">
                                         Respuestas mínimas
                                       </div>
                                       <input
@@ -1406,9 +1392,7 @@ export default function MasterTemplates() {
                                     </div>
 
                                     <div>
-                                      <div
-                                        style={{ fontSize: 11, opacity: 0.7 }}
-                                      >
+                                      <div className="admin-field-label">
                                         Respuestas máximas
                                       </div>
                                       <input
@@ -1428,9 +1412,7 @@ export default function MasterTemplates() {
                                     </div>
 
                                     <div>
-                                      <div
-                                        style={{ fontSize: 11, opacity: 0.7 }}
-                                      >
+                                      <div className="admin-field-label">
                                         Grupo
                                       </div>
                                       <input
@@ -1450,7 +1432,7 @@ export default function MasterTemplates() {
 
                                   {/* DEPENDS ON */}
                                   <div>
-                                    <div style={{ fontSize: 11, opacity: 0.7 }}>
+                                    <div className="admin-field-label">
                                       Mostrar solo si:
                                     </div>
 
@@ -1463,15 +1445,7 @@ export default function MasterTemplates() {
                                       }}
                                     >
                                       <select
-                                        className="admin-input"
-                                        style={{
-                                          width: "100%",
-                                          height: 34,
-                                          background: "#ffffff",
-                                          color: "#1a1a1a",
-                                          border: "1px solid rgba(0,0,0,0.15)",
-                                          appearance: "auto",
-                                        }}
+                                        className="admin-select"
                                         value={q.dependsOn?.id || ""}
                                         onChange={(e) =>
                                           updateDependsOn(
