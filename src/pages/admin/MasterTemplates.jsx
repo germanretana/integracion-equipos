@@ -784,6 +784,22 @@ export default function MasterTemplates() {
     );
   }
 
+  /* Dependiendo de si tiene suggestions o no se renderiza como una o dos columnas */
+  function updateGridMeta(qId, newMeta) {
+    setQuestions((prev) =>
+      prev.map((q) => {
+        if (q.id !== qId) return q;
+        return {
+          ...q,
+          meta: {
+            ...(q.meta || {}),
+            ...newMeta,
+          },
+        };
+      }),
+    );
+  }
+
   function addGridItem(qId) {
     setQuestions((prev) =>
       prev.map((q) => {
@@ -1163,13 +1179,56 @@ export default function MasterTemplates() {
                                         "1px solid rgba(255,255,255,0.08)",
                                     }}
                                   >
+                                    {/* Header row */}
                                     <div
                                       style={{
-                                        fontWeight: 700,
-                                        marginBottom: 8,
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                        marginBottom: 10,
                                       }}
                                     >
-                                      Items del grid
+                                      <div style={{ fontWeight: 700 }}>
+                                        Items del grid
+                                      </div>
+
+                                      <label
+                                        style={{
+                                          display: "flex",
+                                          gap: 6,
+                                          alignItems: "center",
+                                          fontSize: 13,
+                                          fontWeight: 500,
+                                          opacity: 0.9,
+                                          cursor: "pointer",
+                                        }}
+                                      >
+                                        <input
+                                          type="checkbox"
+                                          checked={
+                                            Array.isArray(q.meta?.columns) &&
+                                            q.meta.columns.includes(
+                                              "suggestion",
+                                            )
+                                          }
+                                          onChange={(e) => {
+                                            if (e.target.checked) {
+                                              updateGridMeta(q.id, {
+                                                columns: [
+                                                  "label",
+                                                  "value",
+                                                  "suggestion",
+                                                ],
+                                              });
+                                            } else {
+                                              updateGridMeta(q.id, {
+                                                columns: ["label", "value"],
+                                              });
+                                            }
+                                          }}
+                                        />
+                                        Incluir sugerencias
+                                      </label>
                                     </div>
 
                                     {(Array.isArray(q.items)
@@ -1187,7 +1246,7 @@ export default function MasterTemplates() {
                                       >
                                         <input
                                           className="admin-input"
-                                          style={{ width: 140 }}
+                                          style={{ width: 160 }}
                                           value={it.id || ""}
                                           onChange={(e) =>
                                             updateGridItem(
