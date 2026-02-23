@@ -5,14 +5,6 @@ import Markdown from "../../components/Markdown";
 import "../../styles/admin.css";
 import QuestionnaireRenderer from "../../components/QuestionnaireRenderer";
 
-/**
- * BLOQUE 4B-1
- * Guardamos un "instrumento" fiel a la tabla:
- * - flat list (no UI participante aún)
- * - con groupId / dependsOn para lógica condicional y preguntas compuestas
- *
- * schemaVersion nos permite evolucionar luego (matrices, layouts, etc.)
- */
 const SCHEMA_VERSION = 1;
 
 function Tab({ active, children, onClick }) {
@@ -226,26 +218,26 @@ export default function MasterTemplates() {
     navigate("/admin/login", { replace: true });
   }
 
-  useEffect(() => {
-    async function fetchTemplate() {
-      setLoading(true);
-      setError("");
+  async function fetchTemplate(currentKind) {
+    setLoading(true);
+    setError("");
 
-      try {
-        const tpl = await auth.fetch(`/api/admin/base-templates/${kind}`);
+    try {
+      const tpl = await auth.fetch(`/api/admin/base-templates/${currentKind}`);
 
-        setInstructionsMd(tpl?.instructionsMd || "");
-        setQuestions(Array.isArray(tpl?.questions) ? tpl.questions : []);
-      } catch (e) {
-        setError(e?.message || "No se pudo cargar la plantilla.");
-        setInstructionsMd("");
-        setQuestions([]);
-      } finally {
-        setLoading(false);
-      }
+      setInstructionsMd(tpl?.instructionsMd || "");
+      setQuestions(Array.isArray(tpl?.questions) ? tpl.questions : []);
+    } catch (e) {
+      setError(e?.message || "No se pudo cargar la plantilla.");
+      setInstructionsMd("");
+      setQuestions([]);
+    } finally {
+      setLoading(false);
     }
+  }
 
-    fetchTemplate();
+  useEffect(() => {
+    fetchTemplate(kind);
   }, [kind]);
 
   React.useEffect(() => {
@@ -341,6 +333,14 @@ export default function MasterTemplates() {
 
             <button
               className="btn"
+              type="button"
+              onClick={() => fetchTemplate(kind)}
+              disabled={saving || loading}
+            >
+              Recargar
+            </button>
+            <button
+              className="btn"
               onClick={onSave}
               disabled={saving || loading}
             >
@@ -411,24 +411,6 @@ export default function MasterTemplates() {
                       <Markdown text={instructionsMd || ""} />
                     </div>
                   </div>
-                </div>
-
-                <div style={{ marginTop: 14, display: "flex", gap: 8 }}>
-                  <button
-                    className="btn"
-                    onClick={onSave}
-                    disabled={saving || loading}
-                  >
-                    {saving ? "Guardando…" : "Guardar"}
-                  </button>
-                  <button
-                    className="btn"
-                    type="button"
-                    onClick={() => setKind((prev) => prev)}
-                    disabled={saving || loading}
-                  >
-                    Recargar
-                  </button>
                 </div>
               </div>
             </div>
