@@ -924,11 +924,22 @@ export default function MasterTemplates() {
   async function onSave() {
     setSaving(true);
     setError("");
+
     try {
+      // 🔹 Generamos order dinámico según posición en el array
+      const questionsWithOrder = questions.map((q, index) => ({
+        ...q,
+        order: index + 1,
+      }));
+
       await auth.fetch(`/api/admin/base-templates/${kind}`, {
         method: "PUT",
-        body: JSON.stringify({ instructionsMd, questions }),
+        body: JSON.stringify({
+          instructionsMd,
+          questions: questionsWithOrder,
+        }),
       });
+
       setFlash("Plantilla guardada.");
     } catch (e) {
       setError(e?.message || "No se pudo guardar.");
@@ -1125,378 +1136,365 @@ export default function MasterTemplates() {
                       }}
                     >
                       <tbody>
-                        {questions
-                          .slice()
-                          .sort(
-                            (a, b) =>
-                              (Number(a?.order) || 0) - (Number(b?.order) || 0),
-                          )
-                          .map((q) => (
-                            <tr
-                              key={q.id}
-                              style={{
-                                borderBottom:
-                                  "1px solid rgba(255,255,255,0.08)",
-                              }}
-                            >
-                              <td style={{ padding: "14px 0" }}>
+                        {questions.map((q, index) => (
+                          <tr
+                            key={q.id}
+                            style={{
+                              borderBottom: "1px solid rgba(255,255,255,0.08)",
+                            }}
+                          >
+                            <td style={{ padding: "14px 0" }}>
+                              <div
+                                style={{
+                                  background: "rgba(255,255,255,0.04)",
+                                  border: "1px solid rgba(255,255,255,0.10)",
+                                  borderRadius: 16,
+                                  padding: 16,
+                                }}
+                              >
+                                {/* HEADER LINE — compacto */}
                                 <div
                                   style={{
-                                    background: "rgba(255,255,255,0.04)",
-                                    border: "1px solid rgba(255,255,255,0.10)",
-                                    borderRadius: 16,
-                                    padding: 16,
+                                    display: "flex",
+                                    gap: 12,
+                                    alignItems: "center",
+                                    marginBottom: 14,
                                   }}
                                 >
-                                  {/* HEADER LINE — compacto */}
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      gap: 12,
-                                      alignItems: "center",
-                                      marginBottom: 14,
-                                    }}
-                                  >
-                                    <div style={{ width: 70 }}>
-                                      <div className="admin-field-label">
-                                        Orden
-                                      </div>
-                                      <input
-                                        className="admin-input"
-                                        style={{ width: "100%", height: 34 }}
-                                        value={q.order ?? ""}
-                                        onChange={(e) =>
-                                          updateQuestionField(
-                                            q.id,
-                                            "order",
-                                            Number(e.target.value),
-                                          )
-                                        }
-                                      />
+                                  <div style={{ width: 70 }}>
+                                    <div className="admin-field-label">
+                                      Orden
                                     </div>
-
-                                    <div style={{ minWidth: 220 }}>
-                                      <div className="admin-field-label">
-                                        Tipo
-                                      </div>
-                                      <select
-                                        className="admin-select"
-                                        value={q.type || ""}
-                                        onChange={(e) =>
-                                          updateQuestionField(
-                                            q.id,
-                                            "type",
-                                            e.target.value,
-                                          )
-                                        }
-                                      >
-                                        <option value="header">header</option>
-                                        <option value="input_list">
-                                          input_list
-                                        </option>
-                                        <option value="text_area">
-                                          text_area
-                                        </option>
-                                        <option value="binary_yes_no">
-                                          binary_yes_no
-                                        </option>
-                                        <option value="rating_masc_5">
-                                          rating_masc_5
-                                        </option>
-                                        <option value="rating_fem_5">
-                                          rating_fem_5
-                                        </option>
-                                        <option value="value_0_4">
-                                          value_0_4
-                                        </option>
-                                        <option value="evaluation_0_10">
-                                          evaluation_0_10
-                                        </option>
-                                        <option value="pairing_rows">
-                                          pairing_rows
-                                        </option>
-                                        <option value="value_0_4_grid">
-                                          value_0_4_grid
-                                        </option>
-                                      </select>
-                                    </div>
-
-                                    <div style={{ marginLeft: "auto" }}>
-                                      <button
-                                        className="btn"
-                                        type="button"
-                                        onClick={() => removeQuestion(q.id)}
-                                      >
-                                        ✕
-                                      </button>
-                                    </div>
+                                    <input
+                                      className="admin-input"
+                                      style={{ width: "100%", height: 34 }}
+                                      value={index + 1}
+                                      disabled
+                                    />
                                   </div>
 
-                                  {/* TEXTO */}
-                                  <div style={{ marginBottom: 14 }}>
+                                  <div style={{ minWidth: 220 }}>
                                     <div className="admin-field-label">
-                                      Texto de la pregunta
+                                      Tipo
                                     </div>
-                                    <textarea
-                                      className="admin-textarea"
-                                      style={{ minHeight: 50 }}
-                                      value={q.item || ""}
+                                    <select
+                                      className="admin-select"
+                                      value={q.type || ""}
                                       onChange={(e) =>
                                         updateQuestionField(
                                           q.id,
-                                          "item",
+                                          "type",
                                           e.target.value,
+                                        )
+                                      }
+                                    >
+                                      <option value="header">header</option>
+                                      <option value="input_list">
+                                        input_list
+                                      </option>
+                                      <option value="text_area">
+                                        text_area
+                                      </option>
+                                      <option value="binary_yes_no">
+                                        binary_yes_no
+                                      </option>
+                                      <option value="rating_masc_5">
+                                        rating_masc_5
+                                      </option>
+                                      <option value="rating_fem_5">
+                                        rating_fem_5
+                                      </option>
+                                      <option value="value_0_4">
+                                        value_0_4
+                                      </option>
+                                      <option value="evaluation_0_10">
+                                        evaluation_0_10
+                                      </option>
+                                      <option value="pairing_rows">
+                                        pairing_rows
+                                      </option>
+                                      <option value="value_0_4_grid">
+                                        value_0_4_grid
+                                      </option>
+                                    </select>
+                                  </div>
+
+                                  <div style={{ marginLeft: "auto" }}>
+                                    <button
+                                      className="btn"
+                                      type="button"
+                                      onClick={() => removeQuestion(q.id)}
+                                    >
+                                      ✕
+                                    </button>
+                                  </div>
+                                </div>
+
+                                {/* TEXTO */}
+                                <div style={{ marginBottom: 14 }}>
+                                  <div className="admin-field-label">
+                                    Texto de la pregunta
+                                  </div>
+                                  <textarea
+                                    className="admin-textarea"
+                                    style={{ minHeight: 50 }}
+                                    value={q.item || ""}
+                                    onChange={(e) =>
+                                      updateQuestionField(
+                                        q.id,
+                                        "item",
+                                        e.target.value,
+                                      )
+                                    }
+                                  />
+                                </div>
+
+                                {/* GRID */}
+                                {q.type === "value_0_4_grid" && (
+                                  <div
+                                    style={{
+                                      marginBottom: 14,
+                                      padding: 12,
+                                      borderRadius: 12,
+                                      background: "rgba(0,0,0,0.25)",
+                                      border:
+                                        "1px solid rgba(255,255,255,0.08)",
+                                    }}
+                                  >
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                        marginBottom: 8,
+                                      }}
+                                    >
+                                      <strong>Items del grid</strong>
+
+                                      <label
+                                        style={{
+                                          display: "flex",
+                                          gap: 6,
+                                          alignItems: "center",
+                                          fontSize: 13,
+                                          cursor: "pointer",
+                                        }}
+                                      >
+                                        <input
+                                          type="checkbox"
+                                          checked={
+                                            Array.isArray(q.meta?.columns) &&
+                                            q.meta.columns.includes(
+                                              "suggestion",
+                                            )
+                                          }
+                                          onChange={(e) =>
+                                            updateGridMeta(q.id, {
+                                              columns: e.target.checked
+                                                ? [
+                                                    "label",
+                                                    "value",
+                                                    "suggestion",
+                                                  ]
+                                                : ["label", "value"],
+                                            })
+                                          }
+                                        />
+                                        Incluir sugerencias
+                                      </label>
+                                    </div>
+
+                                    {(Array.isArray(q.items)
+                                      ? q.items
+                                      : []
+                                    ).map((it, idx) => (
+                                      <div
+                                        key={idx}
+                                        style={{
+                                          display: "flex",
+                                          gap: 8,
+                                          marginBottom: 6,
+                                        }}
+                                      >
+                                        <input
+                                          className="admin-input"
+                                          style={{ width: 150, height: 34 }}
+                                          value={it.id || ""}
+                                          onChange={(e) =>
+                                            updateGridItem(
+                                              q.id,
+                                              idx,
+                                              "id",
+                                              e.target.value,
+                                            )
+                                          }
+                                          placeholder="id"
+                                        />
+                                        <input
+                                          className="admin-input"
+                                          style={{ flex: 1, height: 34 }}
+                                          value={it.text || ""}
+                                          onChange={(e) =>
+                                            updateGridItem(
+                                              q.id,
+                                              idx,
+                                              "text",
+                                              e.target.value,
+                                            )
+                                          }
+                                          placeholder="texto"
+                                        />
+                                        <button
+                                          className="btn"
+                                          type="button"
+                                          onClick={() =>
+                                            removeGridItem(q.id, idx)
+                                          }
+                                        >
+                                          ✕
+                                        </button>
+                                      </div>
+                                    ))}
+
+                                    <button
+                                      className="btn"
+                                      type="button"
+                                      onClick={() => addGridItem(q.id)}
+                                    >
+                                      + Agregar fila
+                                    </button>
+                                  </div>
+                                )}
+
+                                {/* CONFIG SECUNDARIA */}
+                                <div
+                                  style={{
+                                    display: "grid",
+                                    gridTemplateColumns: "repeat(3, 1fr)",
+                                    gap: 12,
+                                    marginBottom: 14,
+                                  }}
+                                >
+                                  <div>
+                                    <div className="admin-field-label">
+                                      Respuestas mínimas
+                                    </div>
+                                    <input
+                                      className="admin-input"
+                                      style={{ width: "100%", height: 34 }}
+                                      value={q.minEntries ?? ""}
+                                      onChange={(e) =>
+                                        updateQuestionField(
+                                          q.id,
+                                          "minEntries",
+                                          e.target.value === ""
+                                            ? null
+                                            : Number(e.target.value),
                                         )
                                       }
                                     />
                                   </div>
 
-                                  {/* GRID */}
-                                  {q.type === "value_0_4_grid" && (
-                                    <div
-                                      style={{
-                                        marginBottom: 14,
-                                        padding: 12,
-                                        borderRadius: 12,
-                                        background: "rgba(0,0,0,0.25)",
-                                        border:
-                                          "1px solid rgba(255,255,255,0.08)",
-                                      }}
-                                    >
-                                      <div
-                                        style={{
-                                          display: "flex",
-                                          justifyContent: "space-between",
-                                          alignItems: "center",
-                                          marginBottom: 8,
-                                        }}
-                                      >
-                                        <strong>Items del grid</strong>
-
-                                        <label
-                                          style={{
-                                            display: "flex",
-                                            gap: 6,
-                                            alignItems: "center",
-                                            fontSize: 13,
-                                            cursor: "pointer",
-                                          }}
-                                        >
-                                          <input
-                                            type="checkbox"
-                                            checked={
-                                              Array.isArray(q.meta?.columns) &&
-                                              q.meta.columns.includes(
-                                                "suggestion",
-                                              )
-                                            }
-                                            onChange={(e) =>
-                                              updateGridMeta(q.id, {
-                                                columns: e.target.checked
-                                                  ? [
-                                                      "label",
-                                                      "value",
-                                                      "suggestion",
-                                                    ]
-                                                  : ["label", "value"],
-                                              })
-                                            }
-                                          />
-                                          Incluir sugerencias
-                                        </label>
-                                      </div>
-
-                                      {(Array.isArray(q.items)
-                                        ? q.items
-                                        : []
-                                      ).map((it, idx) => (
-                                        <div
-                                          key={idx}
-                                          style={{
-                                            display: "flex",
-                                            gap: 8,
-                                            marginBottom: 6,
-                                          }}
-                                        >
-                                          <input
-                                            className="admin-input"
-                                            style={{ width: 150, height: 34 }}
-                                            value={it.id || ""}
-                                            onChange={(e) =>
-                                              updateGridItem(
-                                                q.id,
-                                                idx,
-                                                "id",
-                                                e.target.value,
-                                              )
-                                            }
-                                            placeholder="id"
-                                          />
-                                          <input
-                                            className="admin-input"
-                                            style={{ flex: 1, height: 34 }}
-                                            value={it.text || ""}
-                                            onChange={(e) =>
-                                              updateGridItem(
-                                                q.id,
-                                                idx,
-                                                "text",
-                                                e.target.value,
-                                              )
-                                            }
-                                            placeholder="texto"
-                                          />
-                                          <button
-                                            className="btn"
-                                            type="button"
-                                            onClick={() =>
-                                              removeGridItem(q.id, idx)
-                                            }
-                                          >
-                                            ✕
-                                          </button>
-                                        </div>
-                                      ))}
-
-                                      <button
-                                        className="btn"
-                                        type="button"
-                                        onClick={() => addGridItem(q.id)}
-                                      >
-                                        + Agregar fila
-                                      </button>
+                                  <div>
+                                    <div className="admin-field-label">
+                                      Respuestas máximas
                                     </div>
-                                  )}
+                                    <input
+                                      className="admin-input"
+                                      style={{ width: "100%", height: 34 }}
+                                      value={q.maxEntries ?? ""}
+                                      onChange={(e) =>
+                                        updateQuestionField(
+                                          q.id,
+                                          "maxEntries",
+                                          e.target.value === ""
+                                            ? null
+                                            : Number(e.target.value),
+                                        )
+                                      }
+                                    />
+                                  </div>
 
-                                  {/* CONFIG SECUNDARIA */}
+                                  <div>
+                                    <div className="admin-field-label">
+                                      Grupo
+                                    </div>
+                                    <input
+                                      className="admin-input"
+                                      style={{ width: "100%", height: 34 }}
+                                      value={q.groupId || ""}
+                                      onChange={(e) =>
+                                        updateQuestionField(
+                                          q.id,
+                                          "groupId",
+                                          e.target.value || null,
+                                        )
+                                      }
+                                    />
+                                  </div>
+                                </div>
+
+                                {/* DEPENDS ON */}
+                                <div>
+                                  <div className="admin-field-label">
+                                    Mostrar solo si:
+                                  </div>
+
                                   <div
                                     style={{
                                       display: "grid",
-                                      gridTemplateColumns: "repeat(3, 1fr)",
-                                      gap: 12,
-                                      marginBottom: 14,
+                                      gridTemplateColumns: "1fr 140px",
+                                      gap: 10,
+                                      marginTop: 4,
                                     }}
                                   >
-                                    <div>
-                                      <div className="admin-field-label">
-                                        Respuestas mínimas
-                                      </div>
-                                      <input
-                                        className="admin-input"
-                                        style={{ width: "100%", height: 34 }}
-                                        value={q.minEntries ?? ""}
-                                        onChange={(e) =>
-                                          updateQuestionField(
-                                            q.id,
-                                            "minEntries",
-                                            e.target.value === ""
-                                              ? null
-                                              : Number(e.target.value),
-                                          )
-                                        }
-                                      />
-                                    </div>
-
-                                    <div>
-                                      <div className="admin-field-label">
-                                        Respuestas máximas
-                                      </div>
-                                      <input
-                                        className="admin-input"
-                                        style={{ width: "100%", height: 34 }}
-                                        value={q.maxEntries ?? ""}
-                                        onChange={(e) =>
-                                          updateQuestionField(
-                                            q.id,
-                                            "maxEntries",
-                                            e.target.value === ""
-                                              ? null
-                                              : Number(e.target.value),
-                                          )
-                                        }
-                                      />
-                                    </div>
-
-                                    <div>
-                                      <div className="admin-field-label">
-                                        Grupo
-                                      </div>
-                                      <input
-                                        className="admin-input"
-                                        style={{ width: "100%", height: 34 }}
-                                        value={q.groupId || ""}
-                                        onChange={(e) =>
-                                          updateQuestionField(
-                                            q.id,
-                                            "groupId",
-                                            e.target.value || null,
-                                          )
-                                        }
-                                      />
-                                    </div>
-                                  </div>
-
-                                  {/* DEPENDS ON */}
-                                  <div>
-                                    <div className="admin-field-label">
-                                      Mostrar solo si:
-                                    </div>
-
-                                    <div
-                                      style={{
-                                        display: "grid",
-                                        gridTemplateColumns: "1fr 140px",
-                                        gap: 10,
-                                        marginTop: 4,
-                                      }}
+                                    <select
+                                      className="admin-select"
+                                      value={q.dependsOn?.id || ""}
+                                      onChange={(e) =>
+                                        updateDependsOn(
+                                          q.id,
+                                          "id",
+                                          e.target.value || null,
+                                        )
+                                      }
                                     >
-                                      <select
-                                        className="admin-select"
-                                        value={q.dependsOn?.id || ""}
-                                        onChange={(e) =>
-                                          updateDependsOn(
-                                            q.id,
-                                            "id",
-                                            e.target.value || null,
-                                          )
-                                        }
-                                      >
-                                        <option value="">
-                                          — sin dependencia —
-                                        </option>
-                                        {questions
-                                          .filter(
-                                            (p) =>
-                                              p.id !== q.id &&
-                                              p.type !== "header",
-                                          )
-                                          .map((p) => (
-                                            <option key={p.id} value={p.id}>
-                                              {p.order} — {truncate(p.item, 60)}
-                                            </option>
-                                          ))}
-                                      </select>
+                                      <option value="">
+                                        — sin dependencia —
+                                      </option>
+                                      {questions
+                                        .filter(
+                                          (p) =>
+                                            p.id !== q.id &&
+                                            p.type !== "header",
+                                        )
+                                        .map((p) => (
+                                          <option key={p.id} value={p.id}>
+                                            {p.order} — {truncate(p.item, 60)}
+                                          </option>
+                                        ))}
+                                    </select>
 
-                                      <input
-                                        className="admin-input"
-                                        style={{ height: 34 }}
-                                        placeholder="igual a"
-                                        value={q.dependsOn?.equals || ""}
-                                        onChange={(e) =>
-                                          updateDependsOn(
-                                            q.id,
-                                            "equals",
-                                            e.target.value,
-                                          )
-                                        }
-                                        disabled={!q.dependsOn?.id}
-                                      />
-                                    </div>
+                                    <input
+                                      className="admin-input"
+                                      style={{ height: 34 }}
+                                      placeholder="igual a"
+                                      value={q.dependsOn?.equals || ""}
+                                      onChange={(e) =>
+                                        updateDependsOn(
+                                          q.id,
+                                          "equals",
+                                          e.target.value,
+                                        )
+                                      }
+                                      disabled={!q.dependsOn?.id}
+                                    />
                                   </div>
                                 </div>
-                              </td>
-                            </tr>
-                          ))}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>
