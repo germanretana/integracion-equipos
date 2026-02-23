@@ -206,782 +206,118 @@
           "id": "c1.q8",
           "order": 8,
           "item": "Utilice la siguiente escala para evaluar el desempeño del Equipo Gerencial:<br/>0 Insatisfactorio · 1 Regular · 2 Bueno · 3 Muy Bueno · 4 Excelente",
-          "type": "header",
+          "type": "value_0_4_grid",
           "minEntries": null,
           "maxEntries": null,
           "explanation": null,
           "condition": null,
           "groupId": null,
           "dependsOn": null,
-          "meta": null
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c1.q8.01",
-          "order": 8.01,
-          "item": "Participación, fluidez y compromiso en formulación y ejecución de la estrategia:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": "Sugerencias para mejorar:",
-          "condition": null,
-          "groupId": null,
-          "dependsOn": null,
           "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Insatisfactorio",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "withSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c1.q8.02",
-          "order": 8.02,
-          "item": "Periodicidad de reuniones como equipo líder.",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": "Sugerencias para mejorar:",
-          "condition": null,
-          "groupId": null,
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Insatisfactorio",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "withSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c1.q8.03",
-          "order": 8.03,
-          "item": "Conducción, involucramiento y eficiencia en cada reunión:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": "Sugerencias para mejorar:",
-          "condition": null,
-          "groupId": null,
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Insatisfactorio",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "withSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c1.q8.04",
-          "order": 8.04,
-          "item": "Calidad de información disponible entre nosotros para análisis y toma de decisiones:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": "Sugerencias para mejorar:",
-          "condition": null,
-          "groupId": null,
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Insatisfactorio",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "withSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c1.q8.05",
-          "order": 8.05,
-          "item": "Seguimiento a cumplimiento de nuestros acuerdos como Equipo Gerencial.",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": "Sugerencias para mejorar:",
-          "condition": null,
-          "groupId": null,
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Insatisfactorio",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "withSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c1.q8.06",
-          "order": 8.06,
-          "item": "Juego limpio en nuestra comunicación formal y no formal (no chismes).",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": "Sugerencias para mejorar:",
-          "condition": null,
-          "groupId": null,
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Insatisfactorio",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "withSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c1.q8.07",
-          "order": 8.07,
-          "item": "Objetividad y neutralidad de decisiones (sin intereses o agendas personales de por medio):",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": "Sugerencias para mejorar:",
-          "condition": null,
-          "groupId": null,
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Insatisfactorio",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "withSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c1.q8.08",
-          "order": 8.08,
-          "item": "Ambiente de equipo, cooperación, solidaridad,  confidencialidad y respeto entre nosotros:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": "Sugerencias para mejorar:",
-          "condition": null,
-          "groupId": null,
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Insatisfactorio",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "withSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c1.q8.09",
-          "order": 8.09,
-          "item": "Relaciones de miembros de equipo gerencial con siguiente nivel de gestión en la organización:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": "Sugerencias para mejorar:",
-          "condition": null,
-          "groupId": null,
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Insatisfactorio",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "withSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c1.q8.10",
-          "order": 8.1,
-          "item": "Calidad de las relaciones interpersonales (formales y no formales) entre nosotros:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": "Sugerencias para mejorar:",
-          "condition": null,
-          "groupId": null,
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Insatisfactorio",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "withSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c1.q8.11",
-          "order": 8.11,
-          "item": "Apertura para ejecutar proyectos conjuntos entre diversas áreas a nuestro cargo:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": "Sugerencias para mejorar:",
-          "condition": null,
-          "groupId": null,
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Insatisfactorio",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "withSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c1.q8.12",
-          "order": 8.12,
-          "item": "Compromiso con metas de la organización y responsabilidades individuales para alcanzarlas:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": "Sugerencias para mejorar:",
-          "condition": null,
-          "groupId": null,
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Insatisfactorio",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "withSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c1.q8.13",
-          "order": 8.13,
-          "item": "Sabemos y respetamos quién puede decidir qué y cuándo:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": "Sugerencias para mejorar:",
-          "condition": null,
-          "groupId": null,
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Insatisfactorio",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "withSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c1.q8.14",
-          "order": 8.14,
-          "item": "Proactividad para resolver conflictos y diferencias de criterio en el equipo:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": "Sugerencias para mejorar:",
-          "condition": null,
-          "groupId": null,
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Insatisfactorio",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "withSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c1.q8.15",
-          "order": 8.15,
-          "item": "Apertura y cultura de retroalimentación mutua, directa y adecuada (asertividad):",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": "Sugerencias para mejorar:",
-          "condition": null,
-          "groupId": null,
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Insatisfactorio",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "withSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c1.q8.16",
-          "order": 8.16,
-          "item": "Actitud de aprendizaje, mejoramiento, creatividad e innovación en equipo:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": "Sugerencias para mejorar:",
-          "condition": null,
-          "groupId": null,
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Insatisfactorio",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "withSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c1.q8.17",
-          "order": 8.17,
-          "item": "Desempeño como un solo equipo ante el resto de la organización; consistencia en el trato del personal:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": "Sugerencias para mejorar:",
-          "condition": null,
-          "groupId": null,
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Insatisfactorio",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "withSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c1.q8.18",
-          "order": 8.18,
-          "item": "Escucha activa, receptividad y respeto en la comunicación entre colegas o pares:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": "Sugerencias para mejorar:",
-          "condition": null,
-          "groupId": null,
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Insatisfactorio",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "withSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c1.q8.19",
-          "order": 8.19,
-          "item": "Percepción de equidad en nuestros beneficios e incentivos:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": "Sugerencias para mejorar:",
-          "condition": null,
-          "groupId": null,
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Insatisfactorio",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "withSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c1.q8.20",
-          "order": 8.2,
-          "item": "Somos ejemplo de práctica de valores y cultura deseada para la organización:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": "Sugerencias para mejorar:",
-          "condition": null,
-          "groupId": null,
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Insatisfactorio",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "withSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c1.q8.21",
-          "order": 8.21,
-          "item": "Cooperación, servicio y compromiso entre gerencias:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": "Sugerencias para mejorar:",
-          "condition": null,
-          "groupId": null,
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Insatisfactorio",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "withSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c1.q8.22",
-          "order": 8.22,
-          "item": "Cultura de reconocimiento y aprecio por logros individuales y de los departamentos:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": "Sugerencias para mejorar:",
-          "condition": null,
-          "groupId": null,
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Insatisfactorio",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "withSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c1.q8.23",
-          "order": 8.23,
-          "item": "Empoderamiento y auto-empoderamiento adecuado según nivel de responsabilidad:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": "Sugerencias para mejorar:",
-          "condition": null,
-          "groupId": null,
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Insatisfactorio",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "withSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c1.q8.24",
-          "order": 8.24,
-          "item": "Cumplimiento excelente y constante de responsabilidades individuales con el equipo:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": "Sugerencias para mejorar:",
-          "condition": null,
-          "groupId": null,
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Insatisfactorio",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "withSuggestion": true,
-            "hideLegend": true
-          }
+            "columns": [
+              "label",
+              "value",
+              "suggestion"
+            ]
+          },
+          "items": [
+            {
+              "id": "c1.q8.01",
+              "text": "Participación, fluidez y compromiso en formulación y ejecución de la estrategia:"
+            },
+            {
+              "id": "c1.q8.02",
+              "text": "Periodicidad de reuniones como equipo líder."
+            },
+            {
+              "id": "c1.q8.03",
+              "text": "Conducción, involucramiento y eficiencia en cada reunión:"
+            },
+            {
+              "id": "c1.q8.04",
+              "text": "Calidad de información disponible entre nosotros para análisis y toma de decisiones:"
+            },
+            {
+              "id": "c1.q8.05",
+              "text": "Seguimiento a cumplimiento de nuestros acuerdos como Equipo Gerencial."
+            },
+            {
+              "id": "c1.q8.06",
+              "text": "Juego limpio en nuestra comunicación formal y no formal (no chismes)."
+            },
+            {
+              "id": "c1.q8.07",
+              "text": "Objetividad y neutralidad de decisiones (sin intereses o agendas personales de por medio):"
+            },
+            {
+              "id": "c1.q8.08",
+              "text": "Ambiente de equipo, cooperación, solidaridad,  confidencialidad y respeto entre nosotros:"
+            },
+            {
+              "id": "c1.q8.09",
+              "text": "Relaciones de miembros de equipo gerencial con siguiente nivel de gestión en la organización:"
+            },
+            {
+              "id": "c1.q8.10",
+              "text": "Calidad de las relaciones interpersonales (formales y no formales) entre nosotros:"
+            },
+            {
+              "id": "c1.q8.11",
+              "text": "Apertura para ejecutar proyectos conjuntos entre diversas áreas a nuestro cargo:"
+            },
+            {
+              "id": "c1.q8.12",
+              "text": "Compromiso con metas de la organización y responsabilidades individuales para alcanzarlas:"
+            },
+            {
+              "id": "c1.q8.13",
+              "text": "Sabemos y respetamos quién puede decidir qué y cuándo:"
+            },
+            {
+              "id": "c1.q8.14",
+              "text": "Proactividad para resolver conflictos y diferencias de criterio en el equipo:"
+            },
+            {
+              "id": "c1.q8.15",
+              "text": "Apertura y cultura de retroalimentación mutua, directa y adecuada (asertividad):"
+            },
+            {
+              "id": "c1.q8.16",
+              "text": "Actitud de aprendizaje, mejoramiento, creatividad e innovación en equipo:"
+            },
+            {
+              "id": "c1.q8.17",
+              "text": "Desempeño como un solo equipo ante el resto de la organización; consistencia en el trato del personal:"
+            },
+            {
+              "id": "c1.q8.18",
+              "text": "Escucha activa, receptividad y respeto en la comunicación entre colegas o pares:"
+            },
+            {
+              "id": "c1.q8.19",
+              "text": "Percepción de equidad en nuestros beneficios e incentivos:"
+            },
+            {
+              "id": "c1.q8.20",
+              "text": "Somos ejemplo de práctica de valores y cultura deseada para la organización:"
+            },
+            {
+              "id": "c1.q8.21",
+              "text": "Cooperación, servicio y compromiso entre gerencias:"
+            },
+            {
+              "id": "c1.q8.22",
+              "text": "Cultura de reconocimiento y aprecio por logros individuales y de los departamentos:"
+            },
+            {
+              "id": "c1.q8.23",
+              "text": "Empoderamiento y auto-empoderamiento adecuado según nivel de responsabilidad:"
+            },
+            {
+              "id": "c1.q8.24",
+              "text": "Cumplimiento excelente y constante de responsabilidades individuales con el equipo:"
+            }
+          ]
         },
         {
           "schemaVersion": 1,
@@ -1050,7 +386,7 @@
         {
           "schemaVersion": 1,
           "id": "c2-2",
-          "order": 2.1,
+          "order": 2,
           "item": "Creo que sería muy positivo que usted siguiera haciendo lo siguiente como hasta ahora o que lo incrementara porque en esa manera nos beneficia a todos los que trabajamos y coordinamos acciones con usted en la organización",
           "type": "input_list",
           "minEntries": 2,
@@ -1197,1425 +533,192 @@
           }
         },
         {
-          "schemaVersion": 1,
           "id": "c2-9",
-          "order": 9,
-          "item": "Con mi mayor sinceridad, le expreso mi criterio sobre algunos aspectos de su estilo, desempeño y relaciones, utilizando la siguiente escala: (4) Excelente, (3) Muy Bueno, (2) Bueno (1) Regular, (0) Malo",
-          "type": "header",
-          "minEntries": null,
-          "maxEntries": null,
-          "explanation": null,
-          "condition": null,
-          "groupId": null,
-          "dependsOn": null,
-          "meta": null
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_01",
-          "order": 9.01,
-          "item": "Preparación previa para reuniones y/o sesiones de trabajo:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
+          "type": "value_0_4_grid",
+          "text": "Con mi mayor sinceridad, le expreso mi criterio sobre algunos aspectos de su estilo, desempeño y relaciones, utilizando la siguiente escala: (4) Excelente, (3) Muy Bueno, (2) Bueno (1) Regular, (0) Malo",
+          "items": [
+            {
+              "id": "c2-9_01",
+              "text": "Preparación previa para reuniones y/o sesiones de trabajo:"
+            },
+            {
+              "id": "c2-9_02",
+              "text": "Calidad y cantidad de información a otros para análisis y decisiones:"
+            },
+            {
+              "id": "c2-9_03",
+              "text": "Calidad de su relación interpersonal con colegas gerentes:"
+            },
+            {
+              "id": "c2-9_04",
+              "text": "Motivación para dialogar con usted sobre temas de confianza:"
+            },
+            {
+              "id": "c2-9_05",
+              "text": "Innovación, aporte de visión e interés por practicar nuevas formas de trabajo:"
+            },
+            {
+              "id": "c2-9_06",
+              "text": "Mi disposición para trabajar en equipo con usted en proyectos y servicios:"
+            },
+            {
+              "id": "c2-9_07",
+              "text": "Compromiso y cumplimiento (rendición de cuentas) de acciones a su cargo:"
+            },
+            {
+              "id": "c2-9_08",
+              "text": "Habilidad para coordinar actividades y trabajos específicos a su cargo:"
+            },
+            {
+              "id": "c2-9_09",
+              "text": "Comunicación e información hacia el personal de su área:"
+            },
+            {
+              "id": "c2-9_10",
+              "text": "Actitud gerencial, liderazgo en el cambio y apoyo a transformaciones:"
+            },
+            {
+              "id": "c2-9_11",
+              "text": "Liderazgo colaborativo e incluyente hacia su jefe, colegas y colaboradores:"
+            },
+            {
+              "id": "c2-9_12",
+              "text": "Tolerancia al criterio ajeno cuando el mismo es diferente al suyo:"
+            },
+            {
+              "id": "c2-9_13",
+              "text": "Respeto, estima y confianza que inspira recibir de sus colegas gerentes:"
+            },
+            {
+              "id": "c2-9_14",
+              "text": "Apertura y proactividad para ofrecer ayuda a otras áreas que no son la suya:"
+            },
+            {
+              "id": "c2-9_15",
+              "text": "Lealtad y confidencialidad en temas analizados con usted:"
+            },
+            {
+              "id": "c2-9_16",
+              "text": "Representante de la cultura, valores y códigos éticos de la organización:"
+            },
+            {
+              "id": "c2-9_17",
+              "text": "Espíritu futurista, moderno e innovador para la gestión de la organización:"
+            },
+            {
+              "id": "c2-9_18",
+              "text": "Receptividad, interés y consideración real de las ideas de los colegas y colaboradores:"
+            },
+            {
+              "id": "c2-9_19",
+              "text": "Prudencia y moderación en sus críticas u observaciones (magnitud, ambiente o momento, sustentación):"
+            },
+            {
+              "id": "c2-9_20",
+              "text": "Franqueza, no practica ni promueve el “chisme” ni el “serrucheo de piso”:"
+            },
+            {
+              "id": "c2-9_21",
+              "text": "Compromiso con el equipo aun cuando está en desacuerdo con decisiones:"
+            },
+            {
+              "id": "c2-9_22",
+              "text": "Receptividad para escuchar recomendaciones no provenientes de la Gerencia General:"
+            },
+            {
+              "id": "c2-9_23",
+              "text": "Alineamiento del área a su cargo con estrategia, políticas y procedimientos de la organización:"
+            },
+            {
+              "id": "c2-9_24",
+              "text": "Objetividad, profesionalismo y neutralidad en decisiones que nos influyen como equipo líder:"
+            },
+            {
+              "id": "c2-9_25",
+              "text": "En general, calidad de relaciones humanas con el resto del personal de la organización:"
+            },
+            {
+              "id": "c2-9_26",
+              "text": "Su apertura para recibir retroalimentación cuando todos sabemos que la necesita:"
+            },
+            {
+              "id": "c2-9_27",
+              "text": "Habilidad para comunicar y persuadir sobre sus ideas, puntos de vista y propuestas:"
+            },
+            {
+              "id": "c2-9_28",
+              "text": "Involucramiento y participación en actividades no formales de la organización:"
+            },
+            {
+              "id": "c2-9_29",
+              "text": "Capacidad para dar seguimiento a detalles, pasión por la ejecución:"
+            },
+            {
+              "id": "c2-9_30",
+              "text": "Generación de confianza en sus ideas: proyecta decisión y voluntad para actuar:"
+            },
+            {
+              "id": "c2-9_31",
+              "text": "Inspira positivismo, entusiasmo, superación y actitud proactiva ante los retos:"
+            },
+            {
+              "id": "c2-9_32",
+              "text": "Control personal, serenidad o “auto-gerencia”, bajo condiciones de alta presión:"
+            },
+            {
+              "id": "c2-9_33",
+              "text": "Calidad de relación profesional, jerárquica y personal con su jefe inmediato:"
+            },
+            {
+              "id": "c2-9_34",
+              "text": "Calidad de liderazgo, dirección y confianza en su área de responsabilidad:"
+            },
+            {
+              "id": "c2-9_35",
+              "text": "Humildad para reconocer errores, desconocimiento o debilidades personales:"
+            },
+            {
+              "id": "c2-9_36",
+              "text": "Balance entre capacidad profesional-técnica (resultados) y ambiente de trabajo en su área:"
+            },
+            {
+              "id": "c2-9_37",
+              "text": "Orden en la conducción de asuntos y actividades a su cargo:"
+            },
+            {
+              "id": "c2-9_38",
+              "text": "Contribución a armonía, ambiente positivo, coordinación y eficiencia en Equipo Líder:"
+            },
+            {
+              "id": "c2-9_39",
+              "text": "Proactividad para compartir conocimientos de su especialidad con colegas y colaboradores:"
+            },
+            {
+              "id": "c2-9_40",
+              "text": "Liderazgo y credibilidad que proyecta al personal de la organización en general:"
+            },
+            {
+              "id": "c2-9_41",
+              "text": "Capacidad para resolver conflictos y “dejar atrás” situaciones ya resueltas sin actitudes negativas ni resentimientos:"
+            },
+            {
+              "id": "c2-9_42",
+              "text": "Puntualidad general: reuniones, actividades y responsabilidades:"
+            },
+            {
+              "id": "c2-9_43",
+              "text": "Orientación a resultados extraordinarios, crecientes y sostenibles en su área:"
+            },
+            {
+              "id": "c2-9_44",
+              "text": "Alineamiento y motivación de su equipo con filosofía y metas de la organización:"
+            }
+          ],
           "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_02",
-          "order": 9.02,
-          "item": "Calidad y cantidad de información a otros para análisis y decisiones:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_03",
-          "order": 9.03,
-          "item": "Calidad de su relación interpersonal con colegas gerentes:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_04",
-          "order": 9.04,
-          "item": "Motivación para dialogar con usted sobre temas de confianza:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_05",
-          "order": 9.05,
-          "item": "Innovación, aporte de visión e interés por practicar nuevas formas de trabajo:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_06",
-          "order": 9.06,
-          "item": "Mi disposición para trabajar en equipo con usted en proyectos y servicios:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_07",
-          "order": 9.07,
-          "item": "Compromiso y cumplimiento (rendición de cuentas) de acciones a su cargo:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_08",
-          "order": 9.08,
-          "item": "Habilidad para coordinar actividades y trabajos específicos a su cargo:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_09",
-          "order": 9.09,
-          "item": "Comunicación e información hacia el personal de su área:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_10",
-          "order": 9.1,
-          "item": "Actitud gerencial, liderazgo en el cambio y apoyo a transformaciones:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_11",
-          "order": 9.11,
-          "item": "Liderazgo colaborativo e incluyente hacia su jefe, colegas y colaboradores:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_12",
-          "order": 9.12,
-          "item": "Tolerancia al criterio ajeno cuando el mismo es diferente al suyo:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_13",
-          "order": 9.13,
-          "item": "Respeto, estima y confianza que inspira recibir de sus colegas gerentes:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_14",
-          "order": 9.14,
-          "item": "Apertura y proactividad para ofrecer ayuda a otras áreas que no son la suya:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_15",
-          "order": 9.15,
-          "item": "Lealtad y confidencialidad en temas analizados con usted:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_16",
-          "order": 9.16,
-          "item": "Representante de la cultura, valores y códigos éticos de la organización:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_17",
-          "order": 9.17,
-          "item": "Espíritu futurista, moderno e innovador para la gestión de la organización:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_18",
-          "order": 9.18,
-          "item": "Receptividad, interés y consideración real de las ideas de los colegas y colaboradores:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_19",
-          "order": 9.19,
-          "item": "Prudencia y moderación en sus críticas u observaciones (magnitud, ambiente o momento, sustentación):",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_20",
-          "order": 9.2,
-          "item": "Franqueza, no practica ni promueve el “chisme” ni el “serrucheo de piso”:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_21",
-          "order": 9.21,
-          "item": "Compromiso con el equipo aun cuando está en desacuerdo con decisiones:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_22",
-          "order": 9.22,
-          "item": "Receptividad para escuchar recomendaciones no provenientes de la Gerencia General:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_23",
-          "order": 9.23,
-          "item": "Alineamiento del área a su cargo con estrategia, políticas y procedimientos de la organización:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_24",
-          "order": 9.24,
-          "item": "Objetividad, profesionalismo y neutralidad en decisiones que nos influyen como equipo líder:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_25",
-          "order": 9.25,
-          "item": "En general, calidad de relaciones humanas con el resto del personal de la organización:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_26",
-          "order": 9.26,
-          "item": "Su apertura para recibir retroalimentación cuando todos sabemos que la necesita:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_27",
-          "order": 9.27,
-          "item": "Habilidad para comunicar y persuadir sobre sus ideas, puntos de vista y propuestas:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_28",
-          "order": 9.28,
-          "item": "Involucramiento y participación en actividades no formales de la organización:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_29",
-          "order": 9.29,
-          "item": "Capacidad para dar seguimiento a detalles, pasión por la ejecución:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_30",
-          "order": 9.3,
-          "item": "Generación de confianza en sus ideas: proyecta decisión y voluntad para actuar:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_31",
-          "order": 9.31,
-          "item": "Inspira positivismo, entusiasmo, superación y actitud proactiva ante los retos:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_32",
-          "order": 9.32,
-          "item": "Control personal, serenidad o “auto-gerencia”, bajo condiciones de alta presión:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_33",
-          "order": 9.33,
-          "item": "Calidad de relación profesional, jerárquica y personal con su jefe inmediato:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_34",
-          "order": 9.34,
-          "item": "Calidad de liderazgo, dirección y confianza en su área de responsabilidad:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_35",
-          "order": 9.35,
-          "item": "Humildad para reconocer errores, desconocimiento o debilidades personales:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_36",
-          "order": 9.36,
-          "item": "Balance entre capacidad profesional-técnica (resultados) y ambiente de trabajo en su área:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_37",
-          "order": 9.37,
-          "item": "Orden en la conducción de asuntos y actividades a su cargo:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_38",
-          "order": 9.38,
-          "item": "Contribución a armonía, ambiente positivo, coordinación y eficiencia en Equipo Líder:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_39",
-          "order": 9.39,
-          "item": "Proactividad para compartir conocimientos de su especialidad con colegas y colaboradores:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_40",
-          "order": 9.4,
-          "item": "Liderazgo y credibilidad que proyecta al personal de la organización en general:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_41",
-          "order": 9.41,
-          "item": "Capacidad para resolver conflictos y “dejar atrás” situaciones ya resueltas sin actitudes negativas ni resentimientos:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_42",
-          "order": 9.42,
-          "item": "Puntualidad general: reuniones, actividades y responsabilidades:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_43",
-          "order": 9.43,
-          "item": "Orientación a resultados extraordinarios, crecientes y sostenibles en su área:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
-          }
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c2-9_44",
-          "order": 9.44,
-          "item": "Alineamiento y motivación de su equipo con filosofía y metas de la organización:",
-          "type": "value_0_4",
-          "minEntries": 1,
-          "maxEntries": 1,
-          "explanation": null,
-          "condition": null,
-          "groupId": "c2-9",
-          "dependsOn": null,
-          "meta": {
-            "scale": [
-              0,
-              1,
-              2,
-              3,
-              4
-            ],
-            "labels": [
-              "Malo",
-              "Regular",
-              "Bueno",
-              "Muy Bueno",
-              "Excelente"
-            ],
-            "report": "avg",
-            "noSuggestion": true,
-            "hideLegend": true
+            "columns": [
+              "label",
+              "value"
+            ]
           }
         },
         {

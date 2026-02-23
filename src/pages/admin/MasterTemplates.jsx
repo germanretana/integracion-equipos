@@ -766,6 +766,49 @@ export default function MasterTemplates() {
     );
   }
 
+  /* Funciones para grids (o tablas de preguntas) */
+  function updateGridItem(qId, itemIndex, field, value) {
+    setQuestions((prev) =>
+      prev.map((q) => {
+        if (q.id !== qId) return q;
+        const items = Array.isArray(q.items) ? q.items.slice() : [];
+        if (!items[itemIndex]) return q;
+
+        items[itemIndex] = {
+          ...items[itemIndex],
+          [field]: value,
+        };
+
+        return { ...q, items };
+      }),
+    );
+  }
+
+  function addGridItem(qId) {
+    setQuestions((prev) =>
+      prev.map((q) => {
+        if (q.id !== qId) return q;
+        const items = Array.isArray(q.items) ? q.items.slice() : [];
+        items.push({
+          id: `${qId}-${items.length + 1}`,
+          text: "",
+        });
+        return { ...q, items };
+      }),
+    );
+  }
+
+  function removeGridItem(qId, index) {
+    setQuestions((prev) =>
+      prev.map((q) => {
+        if (q.id !== qId) return q;
+        const items = Array.isArray(q.items) ? q.items.slice() : [];
+        items.splice(index, 1);
+        return { ...q, items };
+      }),
+    );
+  }
+
   function handleLogout() {
     auth.clearAdminSession();
     navigate("/admin/login", { replace: true });
@@ -1109,7 +1152,90 @@ export default function MasterTemplates() {
                                     )
                                   }
                                 />
+                                {q.type === "value_0_4_grid" && (
+                                  <div
+                                    style={{
+                                      marginTop: 12,
+                                      padding: 10,
+                                      borderRadius: 10,
+                                      background: "rgba(0,0,0,0.18)",
+                                      border:
+                                        "1px solid rgba(255,255,255,0.08)",
+                                    }}
+                                  >
+                                    <div
+                                      style={{
+                                        fontWeight: 700,
+                                        marginBottom: 8,
+                                      }}
+                                    >
+                                      Items del grid
+                                    </div>
 
+                                    {(Array.isArray(q.items)
+                                      ? q.items
+                                      : []
+                                    ).map((it, idx) => (
+                                      <div
+                                        key={idx}
+                                        style={{
+                                          display: "flex",
+                                          gap: 8,
+                                          marginBottom: 6,
+                                          alignItems: "center",
+                                        }}
+                                      >
+                                        <input
+                                          className="admin-input"
+                                          style={{ width: 140 }}
+                                          value={it.id || ""}
+                                          onChange={(e) =>
+                                            updateGridItem(
+                                              q.id,
+                                              idx,
+                                              "id",
+                                              e.target.value,
+                                            )
+                                          }
+                                          placeholder="id"
+                                        />
+
+                                        <input
+                                          className="admin-input"
+                                          style={{ flex: 1 }}
+                                          value={it.text || ""}
+                                          onChange={(e) =>
+                                            updateGridItem(
+                                              q.id,
+                                              idx,
+                                              "text",
+                                              e.target.value,
+                                            )
+                                          }
+                                          placeholder="texto"
+                                        />
+
+                                        <button
+                                          className="btn"
+                                          type="button"
+                                          onClick={() =>
+                                            removeGridItem(q.id, idx)
+                                          }
+                                        >
+                                          ✕
+                                        </button>
+                                      </div>
+                                    ))}
+
+                                    <button
+                                      className="btn"
+                                      type="button"
+                                      onClick={() => addGridItem(q.id)}
+                                    >
+                                      + Agregar fila
+                                    </button>
+                                  </div>
+                                )}
                                 <div
                                   style={{
                                     display: "flex",
