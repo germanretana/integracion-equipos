@@ -741,6 +741,12 @@ const OFFICIAL_C2 = [
   }),
 ];
 
+function truncate(text, max = 60) {
+  if (!text) return "";
+  const clean = text.replace(/<[^>]+>/g, "");
+  return clean.length > max ? clean.slice(0, max) + "…" : clean;
+}
+
 export default function MasterTemplates() {
   const navigate = useNavigate();
 
@@ -1459,10 +1465,14 @@ export default function MasterTemplates() {
                                           — sin dependencia —
                                         </option>
                                         {questions
-                                          .filter((p) => p.id !== q.id)
+                                          .filter(
+                                            (p) =>
+                                              p.id !== q.id &&
+                                              p.type !== "header",
+                                          )
                                           .map((p) => (
                                             <option key={p.id} value={p.id}>
-                                              {p.id}
+                                              {p.order} — {truncate(p.item, 60)}
                                             </option>
                                           ))}
                                       </select>
