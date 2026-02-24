@@ -10,6 +10,7 @@ import C2 from "./pages/C2";
 import AdminLogin from "./pages/admin/AdminLogin";
 import ProcessesList from "./pages/admin/ProcessesList";
 import ProcessDashboard from "./pages/admin/ProcessDashboard";
+import ProcessEditor from "./pages/admin/ProcessEditor";
 import MasterTemplates from "./pages/admin/MasterTemplates";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 
@@ -36,6 +37,10 @@ export default function App() {
           <Route
             path="/admin/processes/:processSlug"
             element={<ProcessDashboard />}
+          />
+          <Route
+            path="/admin/processes/new"
+            element={<ProcessEditor mode="create" />}
           />
           <Route path="/admin/master-templates" element={<MasterTemplates />} />
         </Route>

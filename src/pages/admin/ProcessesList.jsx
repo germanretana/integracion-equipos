@@ -54,6 +54,9 @@ export default function ProcessesList() {
           </h1>
 
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <Link to="/admin/processes/new" className="btn">
+              + Nuevo proceso
+            </Link>
             <Link to="/admin/master-templates" className="btn">
               Plantillas Maestras
             </Link>
