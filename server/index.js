@@ -715,16 +715,15 @@ app.post("/api/app/login", async (req, res) => {
     });
   }
 
-  if (participant.passwordHash) {
-    const ok = await bcrypt.compare(
-      String(password || ""),
-      participant.passwordHash,
-    );
-    if (!ok) return res.status(401).json({ error: "Credenciales inválidas." });
-  } else {
-    if (String(password).length < 6)
-      return res.status(401).json({ error: "Credenciales inválidas." });
-  }
+  if (!participant.passwordHash)
+    return res.status(401).json({ error: "Credenciales inválidas." });
+
+  const ok = await bcrypt.compare(
+    String(password || ""),
+    participant.passwordHash,
+  );
+
+  if (!ok) return res.status(401).json({ error: "Credenciales inválidas." });
 
   const token = signParticipantToken({
     processSlug: proc.processSlug,
@@ -1203,6 +1202,153 @@ app.get(
       },
       participants: rows,
     });
+  },
+);
+
+/* =========================
+   ADMIN – PARTICIPANTS CRUD (EN_PREPARACION only)
+========================= */
+
+app.get(
+  "/api/admin/processes/:processSlug/participants",
+  requireAdmin,
+  (req, res) => {
+    const { processSlug } = req.params;
+    const db = readDb();
+
+    const proc = db.processes.find((p) => p.processSlug === processSlug);
+    if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
+
+    res.json(proc.participants || []);
+  },
+);
+
+app.post(
+  "/api/admin/processes/:processSlug/participants",
+  requireAdmin,
+  async (req, res) => {
+    const { processSlug } = req.params;
+    const { firstName, lastName, email } = req.body || {};
+
+    if (!firstName || !lastName || !email)
+      return res.status(400).json({ error: "Datos incompletos." });
+
+    const emailNorm = String(email).trim().toLowerCase();
+
+    const db = readDb();
+    const proc = db.processes.find((p) => p.processSlug === processSlug);
+    if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
+
+    if (proc.status !== "EN_PREPARACION")
+      return res.status(400).json({
+        error: "Solo se pueden agregar participantes en EN_PREPARACION.",
+      });
+
+    if (
+      (proc.participants || []).some((p) => p.email.toLowerCase() === emailNorm)
+    )
+      return res
+        .status(409)
+        .json({ error: "El correo ya existe en el proceso." });
+
+    const id = `p-${Date.now()}`;
+    const tempPassword = genTempPassword();
+    const passwordHash = await bcrypt.hash(tempPassword, 10);
+
+    const newParticipant = {
+      id,
+      firstName: String(firstName).trim(),
+      lastName: String(lastName).trim(),
+      email: emailNorm,
+      passwordHash,
+    };
+
+    updateDb((db2) => {
+      const p2 = db2.processes.find((p) => p.processSlug === processSlug);
+      if (!p2) return db2;
+      p2.participants.push(newParticipant);
+      return db2;
+    });
+
+    res.json({
+      ...newParticipant,
+      tempPassword, // only returned once
+    });
+  },
+);
+
+app.put(
+  "/api/admin/processes/:processSlug/participants/:participantId",
+  requireAdmin,
+  (req, res) => {
+    const { processSlug, participantId } = req.params;
+    const { firstName, lastName, email } = req.body || {};
+
+    const db = readDb();
+    const proc = db.processes.find((p) => p.processSlug === processSlug);
+    if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
+
+    if (proc.status !== "EN_PREPARACION")
+      return res.status(400).json({
+        error: "Solo se pueden editar participantes en EN_PREPARACION.",
+      });
+
+    const participant = (proc.participants || []).find(
+      (p) => p.id === participantId,
+    );
+    if (!participant)
+      return res.status(404).json({ error: "Participante no encontrado." });
+
+    if (email) {
+      const emailNorm = String(email).trim().toLowerCase();
+      if (
+        (proc.participants || []).some(
+          (p) => p.email === emailNorm && p.id !== participantId,
+        )
+      )
+        return res
+          .status(409)
+          .json({ error: "El correo ya existe en el proceso." });
+      participant.email = emailNorm;
+    }
+
+    if (firstName !== undefined)
+      participant.firstName = String(firstName).trim();
+    if (lastName !== undefined) participant.lastName = String(lastName).trim();
+
+    updateDb((db2) => db2);
+
+    res.json(participant);
+  },
+);
+
+app.delete(
+  "/api/admin/processes/:processSlug/participants/:participantId",
+  requireAdmin,
+  (req, res) => {
+    const { processSlug, participantId } = req.params;
+
+    const db = readDb();
+    const proc = db.processes.find((p) => p.processSlug === processSlug);
+    if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
+
+    if (proc.status !== "EN_PREPARACION")
+      return res.status(400).json({
+        error: "Solo se pueden eliminar participantes en EN_PREPARACION.",
+      });
+
+    updateDb((db2) => {
+      const p2 = db2.processes.find((p) => p.processSlug === processSlug);
+      if (!p2) return db2;
+
+      p2.participants = (p2.participants || []).filter(
+        (p) => p.id !== participantId,
+      );
+
+      return db2;
+    });
+
+    res.json({ ok: true });
   },
 );
 
