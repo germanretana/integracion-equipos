@@ -426,6 +426,65 @@ app.get("/api/admin/processes/:processSlug", requireAdmin, (req, res) => {
   res.json(proc);
 });
 
+app.put("/api/admin/processes/:processSlug", requireAdmin, (req, res) => {
+  const { processSlug } = req.params;
+  const {
+    companyName,
+    processName,
+    expectedStartDate,
+    expectedEndDate,
+    logoUrl,
+    newSlug,
+  } = req.body || {};
+
+  const db = readDb();
+  const existing = db.processes.find((p) => p.processSlug === processSlug);
+
+  if (!existing)
+    return res.status(404).json({ error: "Proceso no encontrado." });
+
+  if (existing.status !== "EN_PREPARACION")
+    return res.status(400).json({
+      error: "Solo se puede editar un proceso en EN_PREPARACION.",
+    });
+
+  // Slug change
+  let finalSlug = processSlug;
+
+  if (newSlug && newSlug !== processSlug) {
+    const normalized = slugify(newSlug);
+
+    if (!normalized) return res.status(400).json({ error: "Slug inválido." });
+
+    if (db.processes.some((p) => p.processSlug === normalized))
+      return res.status(409).json({ error: "El slug ya existe." });
+
+    finalSlug = normalized;
+  }
+
+  const next = updateDb((db2) => {
+    const proc = db2.processes.find((p) => p.processSlug === processSlug);
+    if (!proc) return db2;
+
+    proc.companyName = companyName ?? proc.companyName;
+    proc.processName = processName ?? proc.processName;
+    proc.expectedStartDate =
+      expectedStartDate ?? proc.expectedStartDate ?? null;
+    proc.expectedEndDate = expectedEndDate ?? proc.expectedEndDate ?? null;
+    proc.logoUrl = logoUrl ?? proc.logoUrl ?? null;
+
+    if (finalSlug !== processSlug) {
+      proc.processSlug = finalSlug;
+    }
+
+    return db2;
+  });
+
+  const updated = next.processes.find((p) => p.processSlug === finalSlug);
+
+  res.json(updated);
+});
+
 app.get(
   "/api/admin/processes/:processSlug/progress",
   requireAdmin,
