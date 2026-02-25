@@ -27,6 +27,30 @@ app.get("/api/health", (_req, res) => res.json({ ok: true }));
    HELPERS
 ========================= */
 
+function slugify(str) {
+  return String(str || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .replace(/--+/g, "-");
+}
+
+function generateProcessSlug(db, companyName, processName) {
+  const base = slugify(`${companyName}-${processName}`);
+  if (!base) return `process-${Date.now()}`;
+
+  let slug = base;
+  let counter = 2;
+
+  while (db.processes.some((p) => p.processSlug === slug)) {
+    slug = `${base}-${counter++}`;
+  }
+
+  return slug;
+}
+
 function ensureMockParticipantsForProcess(proc) {
   if (Array.isArray(proc.participants) && proc.participants.length > 0) return;
 
@@ -359,26 +383,30 @@ app.get("/api/admin/processes", requireAdmin, (_req, res) => {
 });
 
 app.post("/api/admin/processes", requireAdmin, (req, res) => {
-  const { processSlug, companyName, processName } = req.body || {};
-  if (!processSlug || !companyName || !processName)
+  const { companyName, processName } = req.body || {};
+
+  if (!companyName || !processName)
     return res.status(400).json({ error: "Datos incompletos." });
 
   const db = readDb();
-  if (db.processes.some((p) => p.processSlug === processSlug))
-    return res.status(409).json({ error: "processSlug ya existe." });
+  const processSlug = generateProcessSlug(db, companyName, processName);
 
   const now = new Date().toISOString();
+
   const newProcess = {
     processSlug,
     companyName,
     processName,
-    status: "PREPARACION",
+    status: "EN_PREPARACION",
     templates: structuredClone(db.baseTemplates),
     participants: [],
     responses: { c1: {}, c2: {} },
     createdAt: now,
     launchedAt: null,
     closedAt: null,
+    expectedStartDate: null,
+    expectedEndDate: null,
+    logoUrl: null,
   };
 
   updateDb((db2) => {
@@ -483,7 +511,7 @@ app.patch(
   requireAdmin,
   (req, res) => {
     const { status } = req.body || {};
-    if (!["PREPARACION", "EN_CURSO", "CERRADO"].includes(status))
+    if (!["EN_PREPARACION", "EN_CURSO", "CERRADO"].includes(status))
       return res.status(400).json({ error: "Estado inválido." });
 
     const now = new Date().toISOString();
