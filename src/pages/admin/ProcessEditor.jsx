@@ -32,6 +32,8 @@ export default function ProcessEditor() {
 
   const [activeTab, setActiveTab] = React.useState("general");
   const [process, setProcess] = React.useState(null);
+  const [form, setForm] = React.useState(null);
+  const debounceRef = React.useRef(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState("");
 
@@ -55,6 +57,19 @@ export default function ProcessEditor() {
     load();
   }, [processSlug]);
 
+  React.useEffect(() => {
+    if (!process) return;
+
+    setForm({
+      companyName: process.companyName || "",
+      processName: process.processName || "",
+      processSlug: process.processSlug || "",
+      expectedStartAt: process.expectedStartAt || "",
+      expectedEndAt: process.expectedEndAt || "",
+      logoUrl: process.logoUrl || "",
+    });
+  }, [process]);
+
   if (loading) {
     return (
       <div className="page">
@@ -73,6 +88,48 @@ export default function ProcessEditor() {
         </div>
       </div>
     );
+  }
+
+  function scheduleSave(nextForm) {
+    if (!process || process.status !== "EN_PREPARACION") return;
+
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const payload = {
+          companyName: nextForm.companyName,
+          processName: nextForm.processName,
+          expectedStartAt: nextForm.expectedStartAt || null,
+          expectedEndAt: nextForm.expectedEndAt || null,
+        };
+
+        if (nextForm.processSlug !== process.processSlug) {
+          payload.newSlug = nextForm.processSlug;
+        }
+
+        const updated = await auth.fetch(
+          `/api/admin/processes/${process.processSlug}`,
+          {
+            method: "PATCH",
+            body: JSON.stringify(payload),
+          },
+        );
+
+        setProcess(updated);
+
+        // If slug changed, redirect
+        if (updated.processSlug !== process.processSlug) {
+          navigate(`/admin/processes/${updated.processSlug}`, {
+            replace: true,
+          });
+        }
+      } catch (e) {
+        console.error("Autosave error:", e);
+      }
+    }, 800);
   }
 
   return (
@@ -139,24 +196,117 @@ export default function ProcessEditor() {
 
         {/* Tab content */}
 
-        {activeTab === "general" && (
+        {activeTab === "general" && form && (
           <div className="section">
             <div className="section-body">
-              <p>
-                <strong>Empresa:</strong> {process.companyName}
-              </p>
-              <p>
-                <strong>Proceso:</strong> {process.processName}
-              </p>
-              <p>
-                <strong>Estado:</strong> {process.status}
-              </p>
-              <p>
-                <strong>Slug:</strong> {process.processSlug}
-              </p>
-              <p>
-                <strong>Creado:</strong> {process.createdAt}
-              </p>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: 16,
+                }}
+              >
+                {/* Empresa */}
+                <div>
+                  <div className="admin-field-label">Empresa</div>
+                  <input
+                    className="admin-input"
+                    value={form.companyName}
+                    disabled={process.status !== "EN_PREPARACION"}
+                    onChange={(e) => {
+                      const next = { ...form, companyName: e.target.value };
+                      setForm(next);
+                      scheduleSave(next);
+                    }}
+                  />
+                </div>
+
+                {/* Proceso */}
+                <div>
+                  <div className="admin-field-label">Nombre del proceso</div>
+                  <input
+                    className="admin-input"
+                    value={form.processName}
+                    disabled={process.status !== "EN_PREPARACION"}
+                    onChange={(e) => {
+                      const next = { ...form, processName: e.target.value };
+                      setForm(next);
+                      scheduleSave(next);
+                    }}
+                  />
+                </div>
+
+                {/* Slug */}
+                <div>
+                  <div className="admin-field-label">Código (para sitio web)</div>
+                  <input
+                    className="admin-input"
+                    value={form.processSlug}
+                    disabled={process.status !== "EN_PREPARACION"}
+                    onChange={(e) => {
+                      const next = { ...form, processSlug: e.target.value };
+                      setForm(next);
+                      scheduleSave(next);
+                    }}
+                  />
+                </div>
+
+                {/* Estado */}
+                <div>
+                  <div className="admin-field-label">Estado</div>
+                  <input
+                    className="admin-input"
+                    value={process.status}
+                    disabled
+                  />
+                </div>
+
+                {/* Fecha inicio */}
+                <div>
+                  <div className="admin-field-label">
+                    Fecha prevista de inicio
+                  </div>
+                  <input
+                    type="date"
+                    className="admin-input"
+                    value={form.expectedStartAt || ""}
+                    disabled={process.status !== "EN_PREPARACION"}
+                    onChange={(e) => {
+                      const next = {
+                        ...form,
+                        expectedStartAt: e.target.value,
+                      };
+                      setForm(next);
+                      scheduleSave(next);
+                    }}
+                  />
+                </div>
+
+                {/* Fecha fin */}
+                <div>
+                  <div className="admin-field-label">
+                    Fecha prevista de cierre
+                  </div>
+                  <input
+                    type="date"
+                    className="admin-input"
+                    value={form.expectedEndAt || ""}
+                    disabled={process.status !== "EN_PREPARACION"}
+                    onChange={(e) => {
+                      const next = {
+                        ...form,
+                        expectedEndAt: e.target.value,
+                      };
+                      setForm(next);
+                      scheduleSave(next);
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ marginTop: 20, opacity: 0.6, fontSize: 12 }}>
+                Los cambios se guardan automáticamente.
+              </div>
             </div>
           </div>
         )}
