@@ -642,6 +642,68 @@ app.patch(
   },
 );
 
+app.patch("/api/admin/processes/:processSlug", requireAdmin, (req, res) => {
+  const { processSlug } = req.params;
+  const {
+    companyName,
+    processName,
+    expectedStartAt,
+    expectedEndAt,
+    newSlug,
+    logoUrl,
+  } = req.body || {};
+
+  const next = updateDb((db2) => {
+    const proc = db2.processes.find((p) => p.processSlug === processSlug);
+    if (!proc) return db2;
+
+    // Only editable in EN_PREPARACION
+    if (proc.status !== "EN_PREPARACION") {
+      return db2;
+    }
+
+    if (companyName != null) {
+      proc.companyName = String(companyName).trim();
+    }
+
+    if (processName != null) {
+      proc.processName = String(processName).trim();
+    }
+
+    if (expectedStartAt !== undefined) {
+      proc.expectedStartAt = expectedStartAt || null;
+    }
+
+    if (expectedEndAt !== undefined) {
+      proc.expectedEndAt = expectedEndAt || null;
+    }
+
+    if (logoUrl !== undefined) {
+      proc.logoUrl = logoUrl || null;
+    }
+
+    // Slug change
+    if (newSlug && newSlug !== processSlug) {
+      const exists = db2.processes.some((p) => p.processSlug === newSlug);
+      if (!exists) {
+        proc.processSlug = newSlug;
+      }
+    }
+
+    return db2;
+  });
+
+  const updated = next.processes.find(
+    (p) => p.processSlug === newSlug || p.processSlug === processSlug,
+  );
+
+  if (!updated) {
+    return res.status(404).json({ error: "Proceso no encontrado." });
+  }
+
+  res.json(updated);
+});
+
 /* =========================
    PROCESS TEMPLATES (ADMIN)
 ========================= */
