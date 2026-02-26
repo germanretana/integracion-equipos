@@ -1,6 +1,13 @@
 import express from "express";
 import cors from "cors";
 import bcrypt from "bcryptjs";
+
+import multer from "multer";
+import sharp from "sharp";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
 import { readDb, updateDb } from "./lib/db.js";
 import {
   requireAdmin,
@@ -16,6 +23,17 @@ import {
 import process from "process";
 
 const app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const UPLOAD_DIR = path.join(__dirname, "uploads");
+const LOGO_DIR = path.join(UPLOAD_DIR, "logos");
+
+if (!fs.existsSync(LOGO_DIR)) {
+  fs.mkdirSync(LOGO_DIR, { recursive: true });
+}
+
+app.use("/uploads", express.static(UPLOAD_DIR));
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3001;
 
 app.use(express.json({ limit: "1mb" }));
@@ -305,6 +323,24 @@ function validateBeforeSubmit({ proc, meId, kind, peerId = null }) {
 }
 
 /* =========================
+   CONFIGURE MULTER FOR LOGO UPLOADS
+========================= */
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB
+  },
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith("image/")) {
+      cb(new Error("El archivo debe ser de tipo imagen."));
+    } else {
+      cb(null, true);
+    }
+  },
+});
+
+/* =========================
    ADMIN AUTH
 ========================= */
 app.post("/api/admin/bootstrap", async (req, res) => {
@@ -426,6 +462,7 @@ app.get("/api/admin/processes/:processSlug", requireAdmin, (req, res) => {
   res.json(proc);
 });
 
+// Update Slug
 app.put("/api/admin/processes/:processSlug", requireAdmin, (req, res) => {
   const { processSlug } = req.params;
   const {
@@ -474,7 +511,15 @@ app.put("/api/admin/processes/:processSlug", requireAdmin, (req, res) => {
     proc.logoUrl = logoUrl ?? proc.logoUrl ?? null;
 
     if (finalSlug !== processSlug) {
+      const oldLogoPath = path.join(LOGO_DIR, `${processSlug}.jpg`);
+      const newLogoPath = path.join(LOGO_DIR, `${finalSlug}.jpg`);
+
+      if (fs.existsSync(oldLogoPath)) {
+        fs.renameSync(oldLogoPath, newLogoPath);
+      }
+
       proc.processSlug = finalSlug;
+      proc.logoUrl = `/uploads/logos/${finalSlug}.jpg`;
     }
 
     return db2;
@@ -639,6 +684,52 @@ app.put(
     if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
 
     res.json(proc.templates[kind]);
+  },
+);
+
+/* =========================
+   ADMIN – PROCESS LOGO UPLOAD
+========================= */
+
+app.post(
+  "/api/admin/processes/:processSlug/logo",
+  requireAdmin,
+  upload.single("logo"),
+  async (req, res) => {
+    const { processSlug } = req.params;
+
+    const db = readDb();
+    const proc = db.processes.find((p) => p.processSlug === processSlug);
+
+    if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
+
+    if (proc.status !== "EN_PREPARACION")
+      return res.status(400).json({
+        error: "Solo se puede modificar el logo en EN_PREPARACION.",
+      });
+
+    if (!req.file) return res.status(400).json({ error: "No file uploaded." });
+
+    const outputPath = path.join(LOGO_DIR, `${processSlug}.jpg`);
+
+    try {
+      await sharp(req.file.buffer)
+        .resize({ width: 1200, withoutEnlargement: true })
+        .jpeg({ quality: 80 })
+        .toFile(outputPath);
+    } catch (err) {
+      return res.status(500).json({ error: "Image processing failed." });
+    }
+
+    const logoUrl = `/uploads/logos/${processSlug}.jpg`;
+
+    updateDb((db2) => {
+      const p2 = db2.processes.find((p) => p.processSlug === processSlug);
+      if (p2) p2.logoUrl = logoUrl;
+      return db2;
+    });
+
+    res.json({ logoUrl });
   },
 );
 
