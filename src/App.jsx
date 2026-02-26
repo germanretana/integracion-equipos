@@ -11,6 +11,7 @@ import AdminLogin from "./pages/admin/AdminLogin";
 import ProcessesList from "./pages/admin/ProcessesList";
 import ProcessDashboard from "./pages/admin/ProcessDashboard";
 import ProcessEditor from "./pages/admin/ProcessEditor";
+import ProcessRouter from "./pages/admin/ProcessRouter";
 import MasterTemplates from "./pages/admin/MasterTemplates";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 
@@ -36,7 +37,7 @@ export default function App() {
           <Route path="/admin/processes" element={<ProcessesList />} />
           <Route
             path="/admin/processes/:processSlug"
-            element={<ProcessDashboard />}
+            element={<ProcessRouter />}
           />
           <Route
             path="/admin/processes/new"
