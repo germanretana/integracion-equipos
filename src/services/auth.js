@@ -24,13 +24,15 @@ function getTokenForUrl(url) {
 
 async function fetchJson(url, options = {}) {
   const token = getTokenForUrl(url);
+  const isFormData =
+    typeof FormData !== "undefined" && options?.body instanceof FormData;
 
   let res;
   try {
     res = await fetch(`${API_BASE}${url}`, {
       ...options,
       headers: {
-        "Content-Type": "application/json",
+        ...(!isFormData ? { "Content-Type": "application/json" } : {}),
         ...(options.headers || {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
@@ -56,7 +58,7 @@ async function fetchJson(url, options = {}) {
     }
     const err = new Error(msg);
     err.status = res.status;
-    err.data = data; // <-- clave: missingIds, percent, etc.
+    err.data = data;
     throw err;
   }
 
@@ -147,7 +149,9 @@ export const auth = {
 
   /* ========= Forgot password ========= */
   async requestPasswordReset(email) {
-    const emailNorm = String(email || "").trim().toLowerCase();
+    const emailNorm = String(email || "")
+      .trim()
+      .toLowerCase();
     if (!emailNorm) throw new Error("Debe ingresar un correo electrónico.");
 
     const USE_BACKEND_FORGOT =

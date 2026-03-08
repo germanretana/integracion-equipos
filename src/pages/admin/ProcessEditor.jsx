@@ -4,6 +4,8 @@ import { auth } from "../../services/auth";
 import TemplateEditor from "../../components/admin/TemplateEditor";
 import "../../styles/admin.css";
 
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3001";
+
 function Tab({ active, children, onClick }) {
   return (
     <button
@@ -48,6 +50,7 @@ export default function ProcessEditor({ mode = "edit" }) {
   const [loading, setLoading] = React.useState(mode !== "create");
   const [error, setError] = React.useState("");
   const [creating, setCreating] = React.useState(false);
+  const [uploadingLogo, setUploadingLogo] = React.useState(false);
 
   function handleLogout() {
     auth.clearAdminSession();
@@ -132,6 +135,54 @@ export default function ProcessEditor({ mode = "edit" }) {
       window.alert(e?.message || "No se pudo crear el proceso.");
     } finally {
       setCreating(false);
+    }
+  }
+
+  async function handleLogoSelected(file) {
+    if (!file) return;
+    if (mode === "create") {
+      window.alert("Primero debe crear el proceso antes de subir un logo.");
+      return;
+    }
+    if (!process || process.status !== "EN_PREPARACION") {
+      window.alert("Solo se puede modificar el logo en EN_PREPARACION.");
+      return;
+    }
+
+    const fd = new FormData();
+    fd.append("logo", file);
+
+    setUploadingLogo(true);
+    try {
+      const data = await auth.fetch(
+        `/api/admin/processes/${process.processSlug}/logo`,
+        {
+          method: "POST",
+          body: fd,
+        },
+      );
+
+      const nextLogoUrl = data?.logoUrl || "";
+      setForm((prev) =>
+        prev
+          ? {
+              ...prev,
+              logoUrl: nextLogoUrl,
+            }
+          : prev,
+      );
+      setProcess((prev) =>
+        prev
+          ? {
+              ...prev,
+              logoUrl: nextLogoUrl,
+            }
+          : prev,
+      );
+    } catch (e) {
+      window.alert(e?.message || "No se pudo subir el logo.");
+    } finally {
+      setUploadingLogo(false);
     }
   }
 
@@ -431,6 +482,92 @@ export default function ProcessEditor({ mode = "edit" }) {
                       scheduleSave(next);
                     }}
                   />
+                </div>
+
+                {/* Logo */}
+                <div style={{ gridColumn: "1 / -1" }}>
+                  <div className="admin-field-label">Logo</div>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 16,
+                      alignItems: "flex-start",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 220,
+                        height: 140,
+                        borderRadius: 16,
+                        border: "1px solid rgba(255,255,255,0.12)",
+                        background: "rgba(255,255,255,0.04)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        overflow: "hidden",
+                      }}
+                    >
+                      {form.logoUrl ? (
+                        <img
+                          src={`${API_BASE}${form.logoUrl}`}
+                          alt="Logo del proceso"
+                          style={{
+                            maxWidth: "100%",
+                            maxHeight: "100%",
+                            objectFit: "contain",
+                            display: "block",
+                          }}
+                        />
+                      ) : (
+                        <span style={{ opacity: 0.6, fontSize: 13 }}>
+                          Sin logo
+                        </span>
+                      )}
+                    </div>
+
+                    <div style={{ minWidth: 260 }}>
+                      {mode === "create" ? (
+                        <div
+                          style={{
+                            opacity: 0.65,
+                            fontSize: 13,
+                            lineHeight: 1.5,
+                          }}
+                        >
+                          Podrá subir el logo una vez creado el proceso.
+                        </div>
+                      ) : (
+                        <>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            disabled={
+                              process.status !== "EN_PREPARACION" ||
+                              uploadingLogo
+                            }
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              handleLogoSelected(file);
+                              e.target.value = "";
+                            }}
+                          />
+                          <div
+                            style={{
+                              marginTop: 8,
+                              opacity: 0.65,
+                              fontSize: 12,
+                            }}
+                          >
+                            {uploadingLogo
+                              ? "Subiendo logo…"
+                              : "Formatos recomendados: JPG o PNG. El sistema optimiza automáticamente la imagen."}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
 
