@@ -28,6 +28,10 @@ function Tab({ active, children, onClick }) {
   );
 }
 
+function participantLabel(p) {
+  return `${p?.firstName || ""} ${p?.lastName || ""}`.trim() || p?.email || "Participante";
+}
+
 export default function ProcessEditor({ mode = "edit" }) {
   const navigate = useNavigate();
   const { processSlug } = useParams();
@@ -51,6 +55,18 @@ export default function ProcessEditor({ mode = "edit" }) {
   const [error, setError] = React.useState("");
   const [creating, setCreating] = React.useState(false);
   const [uploadingLogo, setUploadingLogo] = React.useState(false);
+
+  const [participants, setParticipants] = React.useState([]);
+  const [participantsLoading, setParticipantsLoading] = React.useState(false);
+  const [participantsError, setParticipantsError] = React.useState("");
+  const [participantForm, setParticipantForm] = React.useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+  });
+  const [participantSaving, setParticipantSaving] = React.useState(false);
+  const [editingParticipantId, setEditingParticipantId] = React.useState(null);
+  const [credentialModal, setCredentialModal] = React.useState(null);
 
   function handleLogout() {
     auth.clearAdminSession();
@@ -101,7 +117,6 @@ export default function ProcessEditor({ mode = "edit" }) {
         }),
       });
 
-      // If user had typed optional values in create screen, persist them immediately
       const patchPayload = {
         expectedStartAt: form.expectedStartAt || null,
         expectedEndAt: form.expectedEndAt || null,
@@ -186,6 +201,150 @@ export default function ProcessEditor({ mode = "edit" }) {
     }
   }
 
+  async function loadParticipants(currentSlug = processSlug) {
+    if (mode === "create") return;
+    setParticipantsLoading(true);
+    setParticipantsError("");
+    try {
+      const data = await auth.fetch(
+        `/api/admin/processes/${currentSlug}/participants`,
+      );
+      setParticipants(Array.isArray(data) ? data : []);
+    } catch (e) {
+      setParticipantsError(e?.message || "No se pudieron cargar los participantes.");
+    } finally {
+      setParticipantsLoading(false);
+    }
+  }
+
+  function resetParticipantForm() {
+    setParticipantForm({
+      firstName: "",
+      lastName: "",
+      email: "",
+    });
+    setEditingParticipantId(null);
+  }
+
+  async function handleParticipantSubmit() {
+    const firstName = String(participantForm.firstName || "").trim();
+    const lastName = String(participantForm.lastName || "").trim();
+    const email = String(participantForm.email || "").trim();
+
+    if (!firstName || !lastName || !email) {
+      window.alert("Debe completar nombre, apellido y correo.");
+      return;
+    }
+
+    if (!process || process.status !== "EN_PREPARACION") {
+      window.alert("Solo se pueden modificar participantes en EN_PREPARACION.");
+      return;
+    }
+
+    setParticipantSaving(true);
+    try {
+      if (editingParticipantId) {
+        await auth.fetch(
+          `/api/admin/processes/${process.processSlug}/participants/${editingParticipantId}`,
+          {
+            method: "PUT",
+            body: JSON.stringify({
+              firstName,
+              lastName,
+              email,
+            }),
+          },
+        );
+      } else {
+        const created = await auth.fetch(
+          `/api/admin/processes/${process.processSlug}/participants`,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              firstName,
+              lastName,
+              email,
+            }),
+          },
+        );
+
+        setCredentialModal({
+          title: "Participante creado",
+          participantName: participantLabel(created),
+          email: created.email,
+          tempPassword: created.tempPassword,
+        });
+      }
+
+      await loadParticipants(process.processSlug);
+      resetParticipantForm();
+    } catch (e) {
+      window.alert(e?.message || "No se pudo guardar el participante.");
+    } finally {
+      setParticipantSaving(false);
+    }
+  }
+
+  function handleParticipantEdit(p) {
+    setEditingParticipantId(p.id);
+    setParticipantForm({
+      firstName: p.firstName || "",
+      lastName: p.lastName || "",
+      email: p.email || "",
+    });
+  }
+
+  async function handleParticipantDelete(p) {
+    if (!process || process.status !== "EN_PREPARACION") return;
+
+    const ok = window.confirm(
+      `¿Eliminar a ${participantLabel(p)}?\n\nEsta acción no se puede deshacer.`,
+    );
+    if (!ok) return;
+
+    try {
+      await auth.fetch(
+        `/api/admin/processes/${process.processSlug}/participants/${p.id}`,
+        {
+          method: "DELETE",
+        },
+      );
+      await loadParticipants(process.processSlug);
+      if (editingParticipantId === p.id) {
+        resetParticipantForm();
+      }
+    } catch (e) {
+      window.alert(e?.message || "No se pudo eliminar el participante.");
+    }
+  }
+
+  async function handleParticipantResetAccess(p) {
+    if (!process) return;
+
+    const ok = window.confirm(
+      `¿Resetear acceso de ${participantLabel(p)}?`,
+    );
+    if (!ok) return;
+
+    try {
+      const data = await auth.fetch(
+        `/api/admin/processes/${process.processSlug}/participants/${p.id}/reset-access`,
+        {
+          method: "POST",
+        },
+      );
+
+      setCredentialModal({
+        title: "Acceso reiniciado",
+        participantName: participantLabel(p),
+        email: p.email,
+        tempPassword: data.tempPassword,
+      });
+    } catch (e) {
+      window.alert(e?.message || "No se pudo resetear el acceso.");
+    }
+  }
+
   React.useEffect(() => {
     if (mode === "create") return;
 
@@ -216,6 +375,12 @@ export default function ProcessEditor({ mode = "edit" }) {
       logoUrl: process.logoUrl || "",
     });
   }, [mode, process]);
+
+  React.useEffect(() => {
+    if (mode === "create") return;
+    if (!processSlug) return;
+    loadParticipants(processSlug);
+  }, [mode, processSlug]);
 
   if (loading) {
     return (
@@ -268,7 +433,6 @@ export default function ProcessEditor({ mode = "edit" }) {
 
         setProcess(updated);
 
-        // If slug changed, redirect
         if (updated.processSlug !== process.processSlug) {
           navigate(`/admin/processes/${updated.processSlug}`, {
             replace: true,
@@ -283,7 +447,6 @@ export default function ProcessEditor({ mode = "edit" }) {
   return (
     <div className="page">
       <div className="page-inner">
-        {/* Top bar */}
         <div
           style={{
             display: "flex",
@@ -302,14 +465,12 @@ export default function ProcessEditor({ mode = "edit" }) {
           </button>
         </div>
 
-        {/* Process title */}
         <h1 className="h1" style={{ marginBottom: 8 }}>
           {mode === "create"
             ? "Nuevo proceso"
             : `${process.companyName} — ${process.processName}`}
         </h1>
 
-        {/* Tabs */}
         <div
           style={{
             display: "flex",
@@ -361,8 +522,6 @@ export default function ProcessEditor({ mode = "edit" }) {
           )}
         </div>
 
-        {/* Tab content */}
-
         {activeTab === "general" && form && (
           <div className="section">
             <div className="section-body">
@@ -373,7 +532,6 @@ export default function ProcessEditor({ mode = "edit" }) {
                   gap: 16,
                 }}
               >
-                {/* Empresa */}
                 <div>
                   <div className="admin-field-label">Empresa</div>
                   <input
@@ -390,7 +548,6 @@ export default function ProcessEditor({ mode = "edit" }) {
                   />
                 </div>
 
-                {/* Proceso */}
                 <div>
                   <div className="admin-field-label">Nombre del proceso</div>
                   <input
@@ -407,7 +564,6 @@ export default function ProcessEditor({ mode = "edit" }) {
                   />
                 </div>
 
-                {/* Slug */}
                 <div>
                   <div className="admin-field-label">
                     Código (para sitio web)
@@ -426,7 +582,6 @@ export default function ProcessEditor({ mode = "edit" }) {
                   />
                 </div>
 
-                {/* Estado */}
                 <div>
                   <div className="admin-field-label">Estado</div>
                   <input
@@ -438,7 +593,6 @@ export default function ProcessEditor({ mode = "edit" }) {
                   />
                 </div>
 
-                {/* Fecha inicio */}
                 <div>
                   <div className="admin-field-label">
                     Fecha prevista de inicio
@@ -461,7 +615,6 @@ export default function ProcessEditor({ mode = "edit" }) {
                   />
                 </div>
 
-                {/* Fecha fin */}
                 <div>
                   <div className="admin-field-label">
                     Fecha prevista de cierre
@@ -484,7 +637,6 @@ export default function ProcessEditor({ mode = "edit" }) {
                   />
                 </div>
 
-                {/* Logo */}
                 <div style={{ gridColumn: "1 / -1" }}>
                   <div className="admin-field-label">Logo</div>
 
@@ -529,13 +681,7 @@ export default function ProcessEditor({ mode = "edit" }) {
 
                     <div style={{ minWidth: 260 }}>
                       {mode === "create" ? (
-                        <div
-                          style={{
-                            opacity: 0.65,
-                            fontSize: 13,
-                            lineHeight: 1.5,
-                          }}
-                        >
+                        <div style={{ opacity: 0.65, fontSize: 13, lineHeight: 1.5 }}>
                           Podrá subir el logo una vez creado el proceso.
                         </div>
                       ) : (
@@ -543,23 +689,14 @@ export default function ProcessEditor({ mode = "edit" }) {
                           <input
                             type="file"
                             accept="image/*"
-                            disabled={
-                              process.status !== "EN_PREPARACION" ||
-                              uploadingLogo
-                            }
+                            disabled={process.status !== "EN_PREPARACION" || uploadingLogo}
                             onChange={(e) => {
                               const file = e.target.files?.[0];
                               handleLogoSelected(file);
                               e.target.value = "";
                             }}
                           />
-                          <div
-                            style={{
-                              marginTop: 8,
-                              opacity: 0.65,
-                              fontSize: 12,
-                            }}
-                          >
+                          <div style={{ marginTop: 8, opacity: 0.65, fontSize: 12 }}>
                             {uploadingLogo
                               ? "Subiendo logo…"
                               : "Formatos recomendados: JPG o PNG. El sistema optimiza automáticamente la imagen."}
@@ -615,7 +752,170 @@ export default function ProcessEditor({ mode = "edit" }) {
         {activeTab === "participants" && (
           <div className="section">
             <div className="section-body">
-              <p>Gestión de participantes próximamente.</p>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr 1.2fr auto auto",
+                  gap: 12,
+                  alignItems: "end",
+                  marginBottom: 18,
+                }}
+              >
+                <div>
+                  <div className="admin-field-label">Nombre</div>
+                  <input
+                    className="admin-input"
+                    value={participantForm.firstName}
+                    disabled={process.status !== "EN_PREPARACION" || participantSaving}
+                    onChange={(e) =>
+                      setParticipantForm((prev) => ({
+                        ...prev,
+                        firstName: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+
+                <div>
+                  <div className="admin-field-label">Apellido</div>
+                  <input
+                    className="admin-input"
+                    value={participantForm.lastName}
+                    disabled={process.status !== "EN_PREPARACION" || participantSaving}
+                    onChange={(e) =>
+                      setParticipantForm((prev) => ({
+                        ...prev,
+                        lastName: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+
+                <div>
+                  <div className="admin-field-label">Correo electrónico</div>
+                  <input
+                    className="admin-input"
+                    value={participantForm.email}
+                    disabled={process.status !== "EN_PREPARACION" || participantSaving}
+                    onChange={(e) =>
+                      setParticipantForm((prev) => ({
+                        ...prev,
+                        email: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+
+                <button
+                  className="btn"
+                  type="button"
+                  disabled={process.status !== "EN_PREPARACION" || participantSaving}
+                  onClick={handleParticipantSubmit}
+                >
+                  {participantSaving
+                    ? "Guardando…"
+                    : editingParticipantId
+                      ? "Actualizar"
+                      : "Agregar"}
+                </button>
+
+                <button
+                  className="btn"
+                  type="button"
+                  disabled={participantSaving}
+                  onClick={resetParticipantForm}
+                >
+                  Limpiar
+                </button>
+              </div>
+
+              {participantsError && <div className="error">{participantsError}</div>}
+              {participantsLoading && <p className="sub">Cargando participantes…</p>}
+
+              {!participantsLoading && participants.length === 0 && (
+                <p className="sub">No hay participantes configurados.</p>
+              )}
+
+              {!participantsLoading && participants.length > 0 && (
+                <div style={{ overflowX: "auto" }}>
+                  <table
+                    style={{
+                      width: "100%",
+                      borderCollapse: "collapse",
+                    }}
+                  >
+                    <thead>
+                      <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.12)" }}>
+                        <th style={{ textAlign: "left", padding: "10px 8px" }}>
+                          Nombre
+                        </th>
+                        <th style={{ textAlign: "left", padding: "10px 8px" }}>
+                          Correo
+                        </th>
+                        <th style={{ textAlign: "left", padding: "10px 8px" }}>
+                          Acciones
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {participants.map((p) => (
+                        <tr
+                          key={p.id}
+                          style={{
+                            borderBottom: "1px solid rgba(255,255,255,0.08)",
+                          }}
+                        >
+                          <td style={{ padding: "12px 8px" }}>
+                            {participantLabel(p)}
+                          </td>
+                          <td style={{ padding: "12px 8px" }}>{p.email}</td>
+                          <td style={{ padding: "12px 8px" }}>
+                            <div
+                              style={{
+                                display: "flex",
+                                gap: 8,
+                                flexWrap: "wrap",
+                              }}
+                            >
+                              <button
+                                className="btn"
+                                type="button"
+                                disabled={process.status !== "EN_PREPARACION"}
+                                onClick={() => handleParticipantEdit(p)}
+                              >
+                                Editar
+                              </button>
+
+                              <button
+                                className="btn"
+                                type="button"
+                                onClick={() => handleParticipantResetAccess(p)}
+                              >
+                                Reset acceso
+                              </button>
+
+                              <button
+                                className="btn"
+                                type="button"
+                                disabled={process.status !== "EN_PREPARACION"}
+                                onClick={() => handleParticipantDelete(p)}
+                              >
+                                Eliminar
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              <div style={{ marginTop: 16, opacity: 0.65, fontSize: 12 }}>
+                {process.status === "EN_PREPARACION"
+                  ? "Puede agregar, editar o eliminar participantes mientras el proceso esté en preparación."
+                  : "En procesos ya lanzados, la lista queda bloqueada. Solo puede resetear accesos."}
+              </div>
             </div>
           </div>
         )}
@@ -650,6 +950,81 @@ export default function ProcessEditor({ mode = "edit" }) {
           <div className="section">
             <div className="section-body">
               <p>Editor de reporte C2 próximamente.</p>
+            </div>
+          </div>
+        )}
+
+        {credentialModal && (
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(0,0,0,0.45)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 20,
+              zIndex: 1000,
+            }}
+          >
+            <div
+              style={{
+                width: "100%",
+                maxWidth: 520,
+                borderRadius: 18,
+                padding: 20,
+                background: "rgba(20,24,32,0.98)",
+                border: "1px solid rgba(255,255,255,0.12)",
+                boxShadow: "0 20px 60px rgba(0,0,0,0.35)",
+              }}
+            >
+              <h2 className="h2" style={{ marginTop: 0 }}>
+                {credentialModal.title}
+              </h2>
+
+              <p style={{ marginBottom: 8 }}>
+                <strong>Participante:</strong> {credentialModal.participantName}
+              </p>
+              <p style={{ marginBottom: 8 }}>
+                <strong>Correo:</strong> {credentialModal.email}
+              </p>
+              <p style={{ marginBottom: 12 }}>
+                <strong>Contraseña temporal:</strong>{" "}
+                <span
+                  style={{
+                    fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+                    fontSize: 15,
+                  }}
+                >
+                  {credentialModal.tempPassword}
+                </span>
+              </p>
+
+              <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                <button
+                  className="btn"
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(
+                        credentialModal.tempPassword || "",
+                      );
+                    } catch {
+                      // ignore
+                    }
+                  }}
+                >
+                  Copiar contraseña
+                </button>
+
+                <button
+                  className="btn"
+                  type="button"
+                  onClick={() => setCredentialModal(null)}
+                >
+                  Cerrar
+                </button>
+              </div>
             </div>
           </div>
         )}
