@@ -71,10 +71,7 @@ export default function ProcessEditor({ mode = "edit" }) {
         },
       );
 
-      navigate("/admin/processes", { replace: true });
-      setTimeout(() => {
-        navigate(`/admin/processes/${updated.processSlug}`, { replace: true });
-      }, 0);
+      window.location.replace(`/admin/processes/${updated.processSlug}`);
     } catch (e) {
       window.alert(e?.message || "No se pudo lanzar el proceso.");
     }
