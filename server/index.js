@@ -1452,26 +1452,54 @@ app.put(
     if (!participant)
       return res.status(404).json({ error: "Participante no encontrado." });
 
-    if (email) {
-      const emailNorm = String(email).trim().toLowerCase();
+    let emailNorm = null;
+    if (email !== undefined) {
+      emailNorm = String(email).trim().toLowerCase();
       if (
         (proc.participants || []).some(
           (p) => p.email === emailNorm && p.id !== participantId,
         )
-      )
+      ) {
         return res
           .status(409)
           .json({ error: "El correo ya existe en el proceso." });
-      participant.email = emailNorm;
+      }
     }
 
-    if (firstName !== undefined)
-      participant.firstName = String(firstName).trim();
-    if (lastName !== undefined) participant.lastName = String(lastName).trim();
+    const next = updateDb((db2) => {
+      const proc2 = db2.processes.find((p) => p.processSlug === processSlug);
+      if (!proc2) return db2;
 
-    updateDb((db2) => db2);
+      const participant2 = (proc2.participants || []).find(
+        (p) => p.id === participantId,
+      );
+      if (!participant2) return db2;
 
-    res.json(participant);
+      if (firstName !== undefined) {
+        participant2.firstName = String(firstName).trim();
+      }
+      if (lastName !== undefined) {
+        participant2.lastName = String(lastName).trim();
+      }
+      if (emailNorm !== null) {
+        participant2.email = emailNorm;
+      }
+
+      return db2;
+    });
+
+    const updatedProc = next.processes.find(
+      (p) => p.processSlug === processSlug,
+    );
+    const updatedParticipant = (updatedProc?.participants || []).find(
+      (p) => p.id === participantId,
+    );
+
+    if (!updatedParticipant) {
+      return res.status(404).json({ error: "Participante no encontrado." });
+    }
+
+    res.json(updatedParticipant);
   },
 );
 
