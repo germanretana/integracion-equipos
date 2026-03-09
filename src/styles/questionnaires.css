@@ -140,14 +140,19 @@
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(255, 255, 255, 0.06);
   color: rgba(255, 255, 255, 0.92);
-
-  padding: 10px 12px;
   font: inherit;
-  line-height: 1.4;
+}
+
+.admin-input {
+  min-height: 36px;
+  padding: 7px 12px;
+  line-height: 1.2;
 }
 
 .admin-textarea {
   min-height: 90px;
+  padding: 10px 12px;
+  line-height: 1.4;
   resize: vertical;
 }
 
@@ -459,13 +464,27 @@
 .page input[type="email"],
 .page input[type="password"],
 .page input[type="number"],
-.page textarea,
 .page select,
 .page .admin-input {
   width: 100%;
   box-sizing: border-box;
-  border-radius: 14px;
-  padding: 12px 14px;
+  min-height: 38px;
+  border-radius: 12px;
+  padding: 8px 12px;
+
+  background: #ffffff;
+  color: #0b1b3a;
+
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  font: inherit;
+  line-height: 1.2;
+}
+
+.page textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 12px;
+  padding: 10px 12px;
 
   background: #ffffff;
   color: #0b1b3a;
@@ -632,7 +651,8 @@
 .q-grid-control .admin-input {
   width: 96px;
   max-width: 96px;
-  padding: 10px 10px;
+  min-height: 36px;
+  padding: 7px 10px;
   text-align: center;
 }
 

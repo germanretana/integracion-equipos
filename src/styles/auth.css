@@ -55,9 +55,11 @@
   color: #0b1b3a;
 
   border: 1px solid rgba(0, 0, 0, 0.18);
-  border-radius: 14px;
-  padding: 12px 14px;
+  border-radius: 12px;
+  min-height: 40px;
+  padding: 9px 12px;
   font-size: 15px;
+  line-height: 1.2;
 }
 
 .auth-card input::placeholder {
