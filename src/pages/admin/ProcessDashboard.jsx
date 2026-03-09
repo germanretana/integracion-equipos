@@ -3,6 +3,8 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { auth } from "../../services/auth";
 import "../../styles/admin.css";
 
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3001";
+
 function c1Label(status) {
   if (status === "done") return "Completado";
   if (status === "progress") return "En progreso";
@@ -418,7 +420,7 @@ export default function ProcessDashboard() {
                 <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
                   {proc.logoUrl ? (
                     <img
-                      src={proc.logoUrl}
+                      src={`${API_BASE}${proc.logoUrl}`}
                       alt="Logo"
                       style={{
                         width: 44,
