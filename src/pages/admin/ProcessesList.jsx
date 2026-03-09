@@ -5,6 +5,13 @@ import "../../styles/admin.css";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3001";
 
+const STATUS_OPTIONS = [
+  { value: "ALL", label: "Todos" },
+  { value: "EN_PREPARACION", label: "En preparación" },
+  { value: "EN_CURSO", label: "En curso" },
+  { value: "CERRADO", label: "Cerrado" },
+];
+
 function formatExpectedStart(value) {
   if (!value) return "Sin fecha prevista";
   try {
@@ -18,10 +25,7 @@ function formatExpectedStart(value) {
 }
 
 function sortRankForProcess(p) {
-  const raw =
-    p?.expectedStartAt ||
-    p?.expectedStartDate ||
-    null;
+  const raw = p?.expectedStartAt || p?.expectedStartDate || null;
 
   // EN_PREPARACION without date counts as future and should appear first.
   if (!raw && p?.status === "EN_PREPARACION") {
@@ -40,12 +44,25 @@ function sortRankForProcess(p) {
   return ts;
 }
 
+function searchableText(p) {
+  return [
+    p?.companyName || "",
+    p?.processName || "",
+    p?.processSlug || "",
+    p?.status || "",
+  ]
+    .join(" ")
+    .toLowerCase();
+}
+
 export default function ProcessesList() {
   const navigate = useNavigate();
 
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState("");
   const [items, setItems] = React.useState([]);
+  const [search, setSearch] = React.useState("");
+  const [statusFilter, setStatusFilter] = React.useState("ALL");
 
   function handleLogout() {
     auth.clearAdminSession();
@@ -87,6 +104,19 @@ export default function ProcessesList() {
     });
   }, [items]);
 
+  const filteredItems = React.useMemo(() => {
+    const q = search.trim().toLowerCase();
+
+    return sortedItems.filter((p) => {
+      const statusOk =
+        statusFilter === "ALL" ? true : String(p?.status || "") === statusFilter;
+
+      const searchOk = !q ? true : searchableText(p).includes(q);
+
+      return statusOk && searchOk;
+    });
+  }, [sortedItems, search, statusFilter]);
+
   return (
     <div className="page">
       <div className="page-inner">
@@ -115,17 +145,84 @@ export default function ProcessesList() {
           </div>
         </div>
 
+        <div className="section" style={{ marginTop: 16 }}>
+          <div className="section-body">
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 14,
+              }}
+            >
+              <div>
+                <label className="admin-field-label">Buscar proceso</label>
+                <input
+                  className="admin-input"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Buscar por empresa, nombre, código o estado"
+                />
+              </div>
+
+              <div>
+                <div className="admin-field-label" style={{ marginBottom: 8 }}>
+                  Filtrar por estado
+                </div>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  {STATUS_OPTIONS.map((opt) => {
+                    const active = statusFilter === opt.value;
+                    return (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        className="btn"
+                        onClick={() => setStatusFilter(opt.value)}
+                        style={{
+                          opacity: active ? 1 : 0.78,
+                          borderColor: active
+                            ? "rgba(255,255,255,0.22)"
+                            : "rgba(255,255,255,0.12)",
+                          background: active
+                            ? "rgba(255,255,255,0.10)"
+                            : "rgba(255,255,255,0.06)",
+                          fontWeight: active ? 900 : 800,
+                        }}
+                      >
+                        {opt.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div
+                style={{
+                  fontSize: 12,
+                  opacity: 0.72,
+                }}
+              >
+                Mostrando <strong>{filteredItems.length}</strong> de{" "}
+                <strong>{items.length}</strong> procesos.
+              </div>
+            </div>
+          </div>
+        </div>
+
         {loading && <p className="sub">Cargando procesos…</p>}
         {error && <div className="error">{error}</div>}
 
-        {!loading && sortedItems.length === 0 && (
-          <p className="sub">No hay procesos creados.</p>
+        {!loading && filteredItems.length === 0 && (
+          <p className="sub">
+            {items.length === 0
+              ? "No hay procesos creados."
+              : "No hay procesos que coincidan con los filtros."}
+          </p>
         )}
 
-        {!loading && sortedItems.length > 0 && (
+        {!loading && filteredItems.length > 0 && (
           <div className="section">
             <div className="section-body">
-              {sortedItems.map((p) => {
+              {filteredItems.map((p) => {
                 const expectedStart =
                   p.expectedStartAt || p.expectedStartDate || null;
 
