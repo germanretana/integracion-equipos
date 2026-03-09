@@ -149,29 +149,26 @@ export default function C2() {
     <div className="page">
       <div className="page-inner">
         <ParticipantBrandBar process={processInfo} />
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            gap: 12,
-            alignItems: "center",
-          }}
-        >
-          <button
-            className="admin-btn"
-            onClick={() => navigate(`/app/${processSlug}/questionnaires`)}
-            type="button"
-          >
-            ← Volver
-          </button>
+        <div className="p-topbar">
+          <div className="p-topbar-left">
+            <button
+              className="admin-btn"
+              onClick={() => navigate(`/app/${processSlug}/questionnaires`)}
+              type="button"
+            >
+              ← Volver
+            </button>
+          </div>
 
-          <span style={{ fontSize: 12, opacity: 0.8 }}>
+          <div className="p-topbar-center">
             Participante: <strong>{participantName}</strong>
-          </span>
+          </div>
 
-          <button className="admin-btn" type="button" onClick={onLogout}>
-            Logout
-          </button>
+          <div className="p-topbar-right">
+            <button className="admin-btn" type="button" onClick={onLogout}>
+              Logout
+            </button>
+          </div>
         </div>
 
         <h1 className="h1">Retroalimentación para {peerName}</h1>

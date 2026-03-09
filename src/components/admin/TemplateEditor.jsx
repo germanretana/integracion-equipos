@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Markdown from "../../components/Markdown";
 import "../../styles/admin.css";
 import QuestionnaireRenderer from "../../components/QuestionnaireRenderer";
+import ParticipantBrandBar from "../../components/ParticipantBrandBar";
 import { auth } from "../../services/auth";
 
 const SCHEMA_VERSION = 1;
@@ -286,6 +287,12 @@ export default function TemplateEditor({
   }
 
   const qCount = questions.length;
+
+  const previewProcess = {
+    companyName: "Empresa cliente",
+    processName: "Proceso de integración",
+    logoUrl: null,
+  };
 
   const defaultNote =
     "Nota: los procesos ya creados mantienen sus propias plantillas. Estas plantillas maestras afectan únicamente a procesos nuevos.";
@@ -876,19 +883,48 @@ export default function TemplateEditor({
                 Este modo no guarda respuestas ni afecta procesos.
               </div>
 
-              <QuestionnaireRenderer
-                questions={questions}
-                answers={previewAnswers}
-                onChange={setPreviewAnswers}
-                disabled={false}
-                peers={[
-                  { id: "p1", name: "Ana López" },
-                  { id: "p2", name: "Carlos Méndez" },
-                  { id: "p3", name: "Laura Jiménez" },
-                ]}
-                currentParticipantId="p0"
-                missingIds={[]}
-              />
+              <div className="page" style={{ minHeight: "auto" }}>
+                <div
+                  className="page-inner"
+                  style={{ padding: 0, maxWidth: "100%" }}
+                >
+                  <ParticipantBrandBar process={previewProcess} />
+
+                  <div className="p-topbar">
+                    <div className="p-topbar-left">
+                      <button className="admin-btn" type="button">
+                        ← Volver
+                      </button>
+                    </div>
+
+                    <div className="p-topbar-center">
+                      Participante: <strong>Participante preview</strong>
+                    </div>
+
+                    <div className="p-topbar-right">
+                      <button className="admin-btn" type="button">
+                        Logout
+                      </button>
+                    </div>
+                  </div>
+
+                  <h1 className="h1">Preview del cuestionario</h1>
+
+                  <QuestionnaireRenderer
+                    questions={questions}
+                    answers={previewAnswers}
+                    onChange={setPreviewAnswers}
+                    disabled={false}
+                    peers={[
+                      { id: "p1", name: "Ana López" },
+                      { id: "p2", name: "Carlos Méndez" },
+                      { id: "p3", name: "Laura Jiménez" },
+                    ]}
+                    currentParticipantId="p0"
+                    missingIds={[]}
+                  />
+                </div>
+              </div>
             </div>
           )}
         </>

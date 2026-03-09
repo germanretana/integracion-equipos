@@ -86,12 +86,19 @@ function Html({ html }) {
 
 function DefaultFieldWrap({ title, requiredHint, children }) {
   return (
-    <div style={{ marginTop: 14 }}>
+    <div style={{ marginTop: 18 }}>
       {title ? (
-        <div style={{ fontWeight: 800, marginBottom: 8, lineHeight: 1.35 }}>
+        <div
+          style={{
+            fontWeight: 800,
+            fontSize: 15,
+            marginBottom: 10,
+            lineHeight: 1.4,
+          }}
+        >
           {title}{" "}
           {requiredHint ? (
-            <span style={{ fontWeight: 600, opacity: 0.7, fontSize: 12 }}>
+            <span style={{ fontWeight: 600, opacity: 0.65, fontSize: 11 }}>
               ({requiredHint})
             </span>
           ) : null}
@@ -104,7 +111,7 @@ function DefaultFieldWrap({ title, requiredHint, children }) {
 
 function ButtonsRow({ children }) {
   return (
-    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>{children}</div>
+    <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>{children}</div>
   );
 }
 
@@ -200,9 +207,16 @@ export default function QuestionnaireRenderer({
   function renderHeader(q) {
     const text = qText(q);
     return (
-      <div style={{ marginTop: 16 }}>
+      <div style={{ marginTop: 20 }}>
         {text ? (
-          <div style={{ fontWeight: 900, fontSize: 14, opacity: 0.95 }}>
+          <div
+            style={{
+              fontWeight: 900,
+              fontSize: 16,
+              lineHeight: 1.35,
+              opacity: 0.96,
+            }}
+          >
             <Html html={text} />
           </div>
         ) : null}
