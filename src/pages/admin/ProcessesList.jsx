@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { auth } from "../../services/auth";
 import "../../styles/admin.css";
 
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3001";
+
 export default function ProcessesList() {
   const navigate = useNavigate();
 
@@ -83,11 +85,42 @@ export default function ProcessesList() {
                   className="row-link"
                 >
                   <div className="row">
-                    <div className="row-left">
-                      <p className="row-title">
-                        {p.companyName} — {p.processName}
-                      </p>
-                      <p className="row-desc">Estado: {p.status}</p>
+                    <div
+                      className="row-left"
+                      style={{ display: "flex", alignItems: "center", gap: 14 }}
+                    >
+                      {p.logoUrl ? (
+                        <img
+                          src={`${API_BASE}${p.logoUrl}`}
+                          alt="Logo"
+                          style={{
+                            width: 44,
+                            height: 44,
+                            borderRadius: 10,
+                            objectFit: "contain",
+                            background: "#fff",
+                            border: "1px solid rgba(0,0,0,0.08)",
+                            flexShrink: 0,
+                          }}
+                        />
+                      ) : (
+                        <div
+                          style={{
+                            width: 44,
+                            height: 44,
+                            borderRadius: 10,
+                            background: "rgba(255,255,255,0.08)",
+                            flexShrink: 0,
+                          }}
+                        />
+                      )}
+
+                      <div style={{ minWidth: 0 }}>
+                        <p className="row-title">
+                          {p.companyName} — {p.processName}
+                        </p>
+                        <p className="row-desc">Estado: {p.status}</p>
+                      </div>
                     </div>
 
                     <div className="row-right">
