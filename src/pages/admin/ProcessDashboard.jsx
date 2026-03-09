@@ -770,6 +770,8 @@ export default function ProcessDashboard() {
                   }}
                 >
                   <div>
+                    Puede hacer click en un participante para ver detalles de su
+                    progreso.<br></br>
                     Código de proceso: <code>{proc.processSlug}</code>
                   </div>
                   <div>
@@ -817,19 +819,14 @@ export default function ProcessDashboard() {
                         Participante
                       </label>
                       <select
+                        className="admin-input"
                         value={logParticipantId}
                         onChange={(e) => {
                           const v = e.target.value;
                           setLogParticipantId(v);
                           loadLogs(v);
                         }}
-                        style={{
-                          minWidth: 220,
-                          padding: "9px 12px",
-                          borderRadius: 10,
-                          border: "1px solid rgba(0,0,0,0.10)",
-                          background: "#fff",
-                        }}
+                        style={{ minWidth: 220 }}
                       >
                         <option value="">Todos</option>
                         {rows.map((p) => (
