@@ -1560,7 +1560,7 @@
           "firstName": "Ana",
           "lastName": "López",
           "email": "ana@example.com",
-          "passwordHash": "$2a$10$gqshy0hSvEES.eCPvd9SAO1wUTFa93Na1vLPzgbygPkk29t5DrNji"
+          "passwordHash": "$2a$10$atW0eJUyj0kEmW/Uh1ayIeliG1rO4M9PhDUNobdDsHOp8yc7oKOGO"
         },
         {
           "id": "p3",
@@ -1581,7 +1581,7 @@
           "firstName": "Diego",
           "lastName": "Vargas",
           "email": "diego@example.com",
-          "passwordHash": null
+          "passwordHash": "$2a$10$0DITPI13tIjcv7tNLeYZWekQzU3PBNoppcOOIBluODF8oPISzEakG"
         },
         {
           "id": "p-1772063164112",
@@ -2951,7 +2951,7 @@
           "firstName": "Ana",
           "lastName": "Lopez",
           "email": "ana@test.com",
-          "passwordHash": "$2a$10$LTI9cvKP.tenASqp500EFeUxMcobd9lYGf.j1VfVgU9N1Cibhg5D6"
+          "passwordHash": "$2a$10$xNqmvZ1maITZ8WxZZTGx4.GCGEm1KLnp7/benvxkL0iN5NPKI2AaG"
         }
       ],
       "responses": {
@@ -2963,7 +2963,9 @@
       "closedAt": null,
       "expectedStartDate": "2026-02-01",
       "expectedEndDate": "2026-04-01",
-      "logoUrl": null
+      "logoUrl": "/uploads/logos/acme-test-2026.jpg",
+      "expectedStartAt": "2026-03-11",
+      "expectedEndAt": null
     }
   ],
   "logs": [],
@@ -3145,6 +3147,46 @@
       "participantId": "p2",
       "kind": "c1",
       "peerId": null
+    },
+    {
+      "id": "evt-1773031782368-f898f638dd1d88",
+      "ts": "2026-03-09T04:49:42.364Z",
+      "type": "ADMIN_ACCESS_RESET",
+      "processSlug": "acme-test-2026",
+      "participantId": "p-1772063134230",
+      "participantEmail": "ana@test.com",
+      "participantName": "Ana Lopez",
+      "adminEmail": "german.retana@gmail.com"
+    },
+    {
+      "id": "evt-1773031800121-9686f60de4ea4",
+      "ts": "2026-03-09T04:50:00.119Z",
+      "type": "ADMIN_ACCESS_RESET",
+      "processSlug": "acme-integracion-2026",
+      "participantId": "p2",
+      "participantEmail": "ana@example.com",
+      "participantName": "Ana López",
+      "adminEmail": "german.retana@gmail.com"
+    },
+    {
+      "id": "evt-1773031838930-0b2a2f7a5273e",
+      "ts": "2026-03-09T04:50:38.928Z",
+      "type": "ADMIN_ACCESS_RESET",
+      "processSlug": "acme-test-2026",
+      "participantId": "p-1772063134230",
+      "participantEmail": "ana@test.com",
+      "participantName": "Ana Lopez",
+      "adminEmail": "german.retana@gmail.com"
+    },
+    {
+      "id": "evt-1773032197261-25a740c4612008",
+      "ts": "2026-03-09T04:56:37.260Z",
+      "type": "ADMIN_ACCESS_RESET",
+      "processSlug": "acme-integracion-2026",
+      "participantId": "p5",
+      "participantEmail": "diego@example.com",
+      "participantName": "Diego Vargas",
+      "adminEmail": "german.retana@gmail.com"
     }
   ]
 }
