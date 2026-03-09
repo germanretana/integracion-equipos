@@ -167,6 +167,34 @@ export default function TemplateEditor({
     );
   }
 
+  function ensureGridItemIds(items, qId) {
+    return (Array.isArray(items) ? items : []).map((it, idx) => ({
+      ...it,
+      id: String(it?.id || `${qId}-${idx + 1}`),
+    }));
+  }
+
+  function moveGridItem(qId, index, direction) {
+    setQuestions((prev) =>
+      prev.map((q) => {
+        if (q.id !== qId) return q;
+
+        const items = ensureGridItemIds(q.items, qId).slice();
+        const targetIndex = direction === "up" ? index - 1 : index + 1;
+
+        if (targetIndex < 0 || targetIndex >= items.length) {
+          return q;
+        }
+
+        const temp = items[index];
+        items[index] = items[targetIndex];
+        items[targetIndex] = temp;
+
+        return { ...q, items };
+      }),
+    );
+  }
+
   async function fetchTemplate() {
     setLoading(true);
     setError("");
@@ -411,15 +439,29 @@ export default function TemplateEditor({
                                     }
                                   >
                                     <option value="header">header</option>
-                                    <option value="input_list">input_list</option>
+                                    <option value="input_list">
+                                      input_list
+                                    </option>
                                     <option value="text_area">text_area</option>
-                                    <option value="binary_yes_no">binary_yes_no</option>
-                                    <option value="rating_masc_5">rating_masc_5</option>
-                                    <option value="rating_fem_5">rating_fem_5</option>
+                                    <option value="binary_yes_no">
+                                      binary_yes_no
+                                    </option>
+                                    <option value="rating_masc_5">
+                                      rating_masc_5
+                                    </option>
+                                    <option value="rating_fem_5">
+                                      rating_fem_5
+                                    </option>
                                     <option value="value_0_4">value_0_4</option>
-                                    <option value="evaluation_0_10">evaluation_0_10</option>
-                                    <option value="pairing_rows">pairing_rows</option>
-                                    <option value="value_0_4_grid">value_0_4_grid</option>
+                                    <option value="evaluation_0_10">
+                                      evaluation_0_10
+                                    </option>
+                                    <option value="pairing_rows">
+                                      pairing_rows
+                                    </option>
+                                    <option value="value_0_4_grid">
+                                      value_0_4_grid
+                                    </option>
                                   </select>
                                 </div>
 
@@ -471,7 +513,11 @@ export default function TemplateEditor({
                                   style={{ minHeight: 50 }}
                                   value={q.item || ""}
                                   onChange={(e) =>
-                                    updateQuestionField(q.id, "item", e.target.value)
+                                    updateQuestionField(
+                                      q.id,
+                                      "item",
+                                      e.target.value,
+                                    )
                                   }
                                 />
                               </div>
@@ -492,10 +538,18 @@ export default function TemplateEditor({
                                       display: "flex",
                                       justifyContent: "space-between",
                                       alignItems: "center",
-                                      marginBottom: 8,
+                                      gap: 12,
+                                      marginBottom: 10,
+                                      flexWrap: "wrap",
                                     }}
                                   >
-                                    <strong>Items del grid</strong>
+                                    <strong>
+                                      Items del grid (
+                                      {Array.isArray(q.items)
+                                        ? q.items.length
+                                        : 0}
+                                      )
+                                    </strong>
 
                                     <label
                                       style={{
@@ -524,33 +578,53 @@ export default function TemplateEditor({
                                     </label>
                                   </div>
 
-                                  {(Array.isArray(q.items) ? q.items : []).map(
-                                    (it, idx) => (
+                                  {ensureGridItemIds(q.items, q.id).map(
+                                    (it, idx, arr) => (
                                       <div
-                                        key={idx}
+                                        key={it.id || idx}
                                         style={{
                                           display: "flex",
                                           gap: 8,
-                                          marginBottom: 6,
+                                          marginBottom: 8,
+                                          alignItems: "center",
                                         }}
                                       >
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            gap: 6,
+                                            flexShrink: 0,
+                                          }}
+                                        >
+                                          <button
+                                            className="btn"
+                                            type="button"
+                                            onClick={() =>
+                                              moveGridItem(q.id, idx, "up")
+                                            }
+                                            disabled={idx === 0}
+                                            style={{ padding: "4px 8px" }}
+                                            title="Mover arriba"
+                                          >
+                                            ↑
+                                          </button>
+                                          <button
+                                            className="btn"
+                                            type="button"
+                                            onClick={() =>
+                                              moveGridItem(q.id, idx, "down")
+                                            }
+                                            disabled={idx === arr.length - 1}
+                                            style={{ padding: "4px 8px" }}
+                                            title="Mover abajo"
+                                          >
+                                            ↓
+                                          </button>
+                                        </div>
+
                                         <input
                                           className="admin-input"
-                                          style={{ width: 150, height: 34 }}
-                                          value={it.id || ""}
-                                          onChange={(e) =>
-                                            updateGridItem(
-                                              q.id,
-                                              idx,
-                                              "id",
-                                              e.target.value,
-                                            )
-                                          }
-                                          placeholder="id"
-                                        />
-                                        <input
-                                          className="admin-input"
-                                          style={{ flex: 1, height: 34 }}
+                                          style={{ flex: 1, minWidth: 0 }}
                                           value={it.text || ""}
                                           onChange={(e) =>
                                             updateGridItem(
@@ -562,10 +636,15 @@ export default function TemplateEditor({
                                           }
                                           placeholder="texto"
                                         />
+
                                         <button
                                           className="btn"
                                           type="button"
-                                          onClick={() => removeGridItem(q.id, idx)}
+                                          onClick={() =>
+                                            removeGridItem(q.id, idx)
+                                          }
+                                          style={{ padding: "4px 8px" }}
+                                          title="Eliminar fila"
                                         >
                                           ✕
                                         </button>
@@ -674,10 +753,13 @@ export default function TemplateEditor({
                                       )
                                     }
                                   >
-                                    <option value="">— sin dependencia —</option>
+                                    <option value="">
+                                      — sin dependencia —
+                                    </option>
                                     {questions
                                       .filter(
-                                        (p) => p.id !== q.id && p.type !== "header",
+                                        (p) =>
+                                          p.id !== q.id && p.type !== "header",
                                       )
                                       .map((p) => (
                                         <option key={p.id} value={p.id}>
@@ -692,7 +774,11 @@ export default function TemplateEditor({
                                     placeholder="igual a"
                                     value={q.dependsOn?.equals || ""}
                                     onChange={(e) =>
-                                      updateDependsOn(q.id, "equals", e.target.value)
+                                      updateDependsOn(
+                                        q.id,
+                                        "equals",
+                                        e.target.value,
+                                      )
                                     }
                                     disabled={!q.dependsOn?.id}
                                   />
@@ -731,7 +817,9 @@ export default function TemplateEditor({
                 setPreviewMode((v) => !v);
               }}
             >
-              {previewMode ? "Cerrar Preview Cuestionario" : "Preview Cuestionario"}
+              {previewMode
+                ? "Cerrar Preview Cuestionario"
+                : "Preview Cuestionario"}
             </button>
           </div>
 
