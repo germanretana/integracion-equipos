@@ -368,10 +368,60 @@ export default function ProcessDashboard() {
   const expectedC2Total =
     participantsCount > 0 ? Math.max(0, participantsCount - 1) : 0;
 
-  const status = proc?.status || "";
-  const canLaunch = status === "PREPARACION" && !saving;
-  const canClose = status === "EN_CURSO" && !saving;
+    const status = proc?.status || "";
   const processClosed = status === "CERRADO";
+
+  const canReopenToEditor = status === "EN_CURSO" && !saving;
+  const canCloseProcess = status === "EN_CURSO" && !saving;
+  const canReopenProcess = status === "CERRADO" && !saving;
+
+  async function reopenToEditor() {
+    if (!data?.process) return;
+
+    const ok = window.confirm(
+      "¿Reabrir el proceso para volver al editor?\n\nEsto devolverá el proceso a EN_PREPARACION.\n\nPuede haber complicaciones si algunos participantes ya enviaron respuestas.",
+    );
+    if (!ok) return;
+
+    setSaving(true);
+    setError("");
+    try {
+      await auth.fetch(`/api/admin/processes/${processSlug}/status`, {
+        method: "PATCH",
+        body: JSON.stringify({ status: "EN_PREPARACION" }),
+      });
+
+      window.location.replace(`/admin/processes/${processSlug}`);
+    } catch (e) {
+      setError(e?.message || "No se pudo reabrir el proceso.");
+      setSaving(false);
+    }
+  }
+
+  async function reopenClosedProcess() {
+    if (!data?.process) return;
+
+    const ok = window.confirm(
+      "¿Reabrir el proceso?\n\nEl proceso volverá a EN_CURSO y los participantes podrán continuar trabajando.",
+    );
+    if (!ok) return;
+
+    setSaving(true);
+    setError("");
+    try {
+      await auth.fetch(`/api/admin/processes/${processSlug}/status`, {
+        method: "PATCH",
+        body: JSON.stringify({ status: "EN_CURSO" }),
+      });
+
+      await load();
+      setFlash("Proceso reabierto.");
+    } catch (e) {
+      setError(e?.message || "No se pudo reabrir el proceso.");
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <div className="page">
@@ -417,56 +467,184 @@ export default function ProcessDashboard() {
             {/* Header */}
             <div className="section" style={{ marginBottom: 16 }}>
               <div className="section-body">
-                <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
-                  {proc.logoUrl ? (
-                    <img
-                      src={`${API_BASE}${proc.logoUrl}`}
-                      alt="Logo"
-                      style={{
-                        width: 44,
-                        height: 44,
-                        borderRadius: 10,
-                        objectFit: "contain",
-                        background: "#fff",
-                        border: "1px solid rgba(0,0,0,0.08)",
-                      }}
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        width: 44,
-                        height: 44,
-                        borderRadius: 10,
-                        background: "rgba(0,0,0,0.06)",
-                      }}
-                    />
-                  )}
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 18,
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 16,
+                      alignItems: "center",
+                      minWidth: 0,
+                      flex: 1,
+                    }}
+                  >
+                    {proc.logoUrl ? (
+                      <img
+                        src={`${API_BASE}${proc.logoUrl}`}
+                        alt="Logo"
+                        style={{
+                          width: 88,
+                          height: 88,
+                          borderRadius: 14,
+                          objectFit: "contain",
+                          background: "#fff",
+                          border: "1px solid rgba(0,0,0,0.08)",
+                          flexShrink: 0,
+                        }}
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          width: 88,
+                          height: 88,
+                          borderRadius: 14,
+                          background: "rgba(0,0,0,0.06)",
+                          flexShrink: 0,
+                        }}
+                      />
+                    )}
 
-                  <div style={{ flex: 1 }}>
-                    <h1 className="h1" style={{ marginBottom: 2 }}>
-                      {proc.companyName} — {proc.processName}
-                    </h1>
-                    <p className="sub" style={{ marginTop: 0 }}>
-                      Estado: <strong>{proc.status}</strong>
-                      {processClosed ? " (acciones bloqueadas)" : ""}
-                    </p>
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <h1 className="h1" style={{ margin: 0 }}>
+                        {proc.companyName} — {proc.processName}
+                      </h1>
+                    </div>
                   </div>
 
-                  <div style={{ display: "flex", gap: 8 }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 8,
+                      minWidth: 220,
+                    }}
+                  >
                     <button
                       className="btn"
-                      disabled={!canLaunch}
-                      onClick={() => setStatus("EN_CURSO")}
+                      type="button"
+                      disabled={!canReopenToEditor}
+                      onClick={reopenToEditor}
+                      title="Volver a EN_PREPARACION"
                     >
-                      {saving && canLaunch ? "Guardando…" : "Poner en marcha"}
+                      {saving && canReopenToEditor
+                        ? "Reabriendo…"
+                        : "Reabrir edición"}
                     </button>
-                    <button
-                      className="btn"
-                      disabled={!canClose}
-                      onClick={() => setStatus("CERRADO")}
-                    >
-                      {saving && canClose ? "Guardando…" : "Cerrar proceso"}
-                    </button>
+
+                    {status === "EN_CURSO" ? (
+                      <>
+                        <button
+                          className="btn"
+                          type="button"
+                          disabled
+                          style={{
+                            opacity: 1,
+                            cursor: "default",
+                            background: "#dcfce7",
+                            border: "1px solid rgba(22,101,52,0.25)",
+                            color: "#166534",
+                            fontWeight: 800,
+                          }}
+                        >
+                          Proceso en curso
+                        </button>
+
+                        <button
+                          className="btn"
+                          type="button"
+                          disabled={!canCloseProcess}
+                          onClick={() => setStatus("CERRADO")}
+                          style={{
+                            fontWeight: 800,
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!canCloseProcess) return;
+                            e.currentTarget.style.background = "#fee2e2";
+                            e.currentTarget.style.border =
+                              "1px solid rgba(185,28,28,0.22)";
+                            e.currentTarget.style.color = "#991b1b";
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!canCloseProcess) return;
+                            e.currentTarget.style.background = "";
+                            e.currentTarget.style.border = "";
+                            e.currentTarget.style.color = "";
+                          }}
+                        >
+                          {saving && canCloseProcess
+                            ? "Cerrando…"
+                            : "Cerrar proceso"}
+                        </button>
+                      </>
+                    ) : status === "CERRADO" ? (
+                      <>
+                        <button
+                          className="btn"
+                          type="button"
+                          disabled={!canReopenProcess}
+                          onClick={reopenClosedProcess}
+                          style={{
+                            fontWeight: 800,
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!canReopenProcess) return;
+                            e.currentTarget.style.background = "#dcfce7";
+                            e.currentTarget.style.border =
+                              "1px solid rgba(22,101,52,0.25)";
+                            e.currentTarget.style.color = "#166534";
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!canReopenProcess) return;
+                            e.currentTarget.style.background = "";
+                            e.currentTarget.style.border = "";
+                            e.currentTarget.style.color = "";
+                          }}
+                        >
+                          {saving && canReopenProcess
+                            ? "Reabriendo…"
+                            : "Reabrir proceso"}
+                        </button>
+
+                        <button
+                          className="btn"
+                          type="button"
+                          disabled
+                          style={{
+                            opacity: 1,
+                            cursor: "default",
+                            background: "#fee2e2",
+                            border: "1px solid rgba(185,28,28,0.22)",
+                            color: "#991b1b",
+                            fontWeight: 800,
+                          }}
+                        >
+                          Proceso cerrado
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        className="btn"
+                        type="button"
+                        disabled
+                        style={{
+                          opacity: 1,
+                          cursor: "default",
+                          background: "#f3f4f6",
+                          border: "1px solid rgba(55,65,81,0.16)",
+                          color: "#374151",
+                          fontWeight: 800,
+                        }}
+                      >
+                        {status}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
