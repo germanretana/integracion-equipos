@@ -101,7 +101,31 @@ export default function TemplateEditor({
     );
   }
 
+  function createsCircularDependency(questions, sourceId, targetId) {
+    if (!targetId) return false;
+
+    let current = targetId;
+
+    while (current) {
+      if (current === sourceId) return true;
+
+      const q = questions.find((x) => x.id === current);
+      current = q?.dependsOn?.id || null;
+    }
+
+    return false;
+  }
+
   function updateDependsOn(id, field, value) {
+    if (field === "id" && value) {
+      if (createsCircularDependency(questions, id, value)) {
+        window.alert(
+          "Esta dependencia crearía un ciclo entre preguntas. Por favor elija otra.",
+        );
+        return;
+      }
+    }
+
     setQuestions((prev) =>
       prev.map((q) => {
         if (q.id !== id) return q;
