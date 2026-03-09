@@ -63,6 +63,17 @@ export default function TemplateEditor({
   }
 
   function removeQuestion(id) {
+    const isReferenced = questions.some(
+      (q) => String(q?.dependsOn?.id || "") === String(id),
+    );
+
+    if (isReferenced) {
+      window.alert(
+        "No se puede eliminar esta pregunta porque otras preguntas dependen de ella.",
+      );
+      return;
+    }
+
     if (!window.confirm("¿Eliminar esta pregunta?")) return;
     setQuestions((prev) => prev.filter((q) => q.id !== id));
   }
