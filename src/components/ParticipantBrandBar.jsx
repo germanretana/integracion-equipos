@@ -11,9 +11,9 @@ export default function ParticipantBrandBar({ process }) {
     <div
       style={{
         display: "flex",
-        alignItems: "flex-start",
+        alignItems: "center",
         justifyContent: "space-between",
-        gap: 20,
+        gap: 24,
         marginBottom: 18,
         flexWrap: "wrap",
       }}
@@ -22,40 +22,58 @@ export default function ParticipantBrandBar({ process }) {
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 14,
+          gap: 16,
           minWidth: 0,
+          flex: 1,
         }}
       >
-        {logoSrc ? (
-          <img
-            src={logoSrc}
-            alt="Logo del proceso"
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: 10,
-              objectFit: "contain",
-              background: "#fff",
-              border: "1px solid rgba(0,0,0,0.08)",
-              flexShrink: 0,
-            }}
-          />
-        ) : (
-          <div
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: 10,
-              background: "rgba(255,255,255,0.08)",
-              flexShrink: 0,
-            }}
-          />
-        )}
+        <div
+          style={{
+            minWidth: 180,
+            maxWidth: 300,
+            height: 84,
+            padding: "10px 14px",
+            borderRadius: 12,
+            background: "#ffffff",
+            border: "1px solid rgba(0,0,0,0.08)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxSizing: "border-box",
+            flexShrink: 0,
+            overflow: "hidden",
+          }}
+        >
+          {logoSrc ? (
+            <img
+              src={logoSrc}
+              alt="Logo del proceso"
+              style={{
+                display: "block",
+                maxWidth: "100%",
+                maxHeight: "100%",
+                width: "auto",
+                height: "auto",
+                objectFit: "contain",
+                background: "transparent",
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                width: "100%",
+                height: "100%",
+                borderRadius: 8,
+                background: "rgba(0,0,0,0.06)",
+              }}
+            />
+          )}
+        </div>
 
         <div style={{ minWidth: 0 }}>
           <div
             style={{
-              fontSize: 18,
+              fontSize: 20,
               fontWeight: 800,
               lineHeight: 1.2,
               color: "#fff",
@@ -68,26 +86,15 @@ export default function ParticipantBrandBar({ process }) {
 
       <div
         style={{
+          width: 220,
+          maxWidth: "100%",
           display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-end",
-          gap: 6,
-          marginLeft: "auto",
+          alignItems: "center",
+          justifyContent: "flex-end",
+          flexShrink: 0,
         }}
       >
-        <div
-          style={{
-            fontSize: 12,
-            opacity: 0.72,
-            textAlign: "right",
-            whiteSpace: "nowrap",
-          }}
-        >
-          Proceso facilitado por
-        </div>
-        <div style={{ width: 180, maxWidth: "100%" }}>
-          <Logo compact />
-        </div>
+        <Logo compact />
       </div>
     </div>
   );

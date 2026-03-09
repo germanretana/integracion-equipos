@@ -7,7 +7,7 @@ export default function Logo({ compact = false }) {
         compact
           ? {
               display: "block",
-              maxWidth: "180px",
+              maxWidth: "200px",
               width: "100%",
               margin: 0,
             }
