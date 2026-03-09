@@ -1297,6 +1297,13 @@ app.get("/api/admin/processes-summary", requireAdmin, (_req, res) => {
       processName: p.processName,
       status: p.status,
       logoUrl: p.logoUrl || null,
+
+      // temporary compatibility while date field naming is inconsistent
+      expectedStartAt: p.expectedStartAt ?? p.expectedStartDate ?? null,
+      expectedEndAt: p.expectedEndAt ?? p.expectedEndDate ?? null,
+      expectedStartDate: p.expectedStartDate ?? p.expectedStartAt ?? null,
+      expectedEndDate: p.expectedEndDate ?? p.expectedEndAt ?? null,
+
       progress: { c1Completed, c1Total, c2Completed, c2Total },
     };
   });
