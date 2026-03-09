@@ -109,7 +109,9 @@ export default function ProcessesList() {
 
     return sortedItems.filter((p) => {
       const statusOk =
-        statusFilter === "ALL" ? true : String(p?.status || "") === statusFilter;
+        statusFilter === "ALL"
+          ? true
+          : String(p?.status || "") === statusFilter;
 
       const searchOk = !q ? true : searchableText(p).includes(q);
 
@@ -149,9 +151,10 @@ export default function ProcessesList() {
           <div className="section-body">
             <div
               style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 14,
+                display: "grid",
+                gridTemplateColumns: "minmax(280px, 460px) 1fr",
+                gap: 16,
+                alignItems: "end",
               }}
             >
               <div>
@@ -160,7 +163,7 @@ export default function ProcessesList() {
                   className="admin-input"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Buscar por empresa, nombre, código o estado"
+                  placeholder="Empresa, nombre, código o estado"
                 />
               </div>
 
@@ -194,16 +197,17 @@ export default function ProcessesList() {
                   })}
                 </div>
               </div>
+            </div>
 
-              <div
-                style={{
-                  fontSize: 12,
-                  opacity: 0.72,
-                }}
-              >
-                Mostrando <strong>{filteredItems.length}</strong> de{" "}
-                <strong>{items.length}</strong> procesos.
-              </div>
+            <div
+              style={{
+                marginTop: 12,
+                fontSize: 12,
+                opacity: 0.72,
+              }}
+            >
+              Mostrando <strong>{filteredItems.length}</strong> de{" "}
+              <strong>{items.length}</strong> procesos.
             </div>
           </div>
         </div>
@@ -212,11 +216,15 @@ export default function ProcessesList() {
         {error && <div className="error">{error}</div>}
 
         {!loading && filteredItems.length === 0 && (
-          <p className="sub">
-            {items.length === 0
-              ? "No hay procesos creados."
-              : "No hay procesos que coincidan con los filtros."}
-          </p>
+          <div className="section" style={{ marginTop: 16 }}>
+            <div className="section-body">
+              <p className="sub" style={{ margin: 0 }}>
+                {items.length === 0
+                  ? "No hay procesos creados."
+                  : "No hay procesos que coincidan con los filtros."}
+              </p>
+            </div>
+          </div>
         )}
 
         {!loading && filteredItems.length > 0 && (
@@ -235,7 +243,11 @@ export default function ProcessesList() {
                     <div className="row">
                       <div
                         className="row-left"
-                        style={{ display: "flex", alignItems: "center", gap: 14 }}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 14,
+                        }}
                       >
                         {p.logoUrl ? (
                           <img
@@ -293,7 +305,8 @@ export default function ProcessesList() {
                               opacity: 0.72,
                             }}
                           >
-                            Inicio previsto: {formatExpectedStart(expectedStart)}
+                            Inicio previsto:{" "}
+                            {formatExpectedStart(expectedStart)}
                           </p>
                         </div>
                       </div>
