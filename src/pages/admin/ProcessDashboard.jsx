@@ -64,6 +64,15 @@ function ProgressBar({ value, tone }) {
   );
 }
 
+function isInteractiveElement(target) {
+  if (!(target instanceof Element)) return false;
+  return Boolean(
+    target.closest(
+      'button, a, input, select, textarea, label, [role="button"]',
+    ),
+  );
+}
+
 function eventLabel(evt) {
   const t = String(evt?.type || "");
   if (t === "ADMIN_REMINDER_REQUESTED") return "Recordatorio (mock)";
@@ -219,6 +228,19 @@ export default function ProcessDashboard() {
     const t = setTimeout(() => setFlash(""), 2500);
     return () => clearTimeout(t);
   }, [flash]);
+
+  // lets the nested ProgressPanel collapse
+  React.useEffect(() => {
+    function onCollapse(evt) {
+      const pid = String(evt?.detail?.participantId || "");
+      if (!pid) return;
+      setOpenParticipantId((current) => (current === pid ? "" : current));
+    }
+
+    window.addEventListener("dashboard-collapse-progress", onCollapse);
+    return () =>
+      window.removeEventListener("dashboard-collapse-progress", onCollapse);
+  }, []);
 
   // cuando ya hay proceso cargado, traemos logs iniciales
   React.useEffect(() => {
@@ -548,7 +570,18 @@ export default function ProcessDashboard() {
 
                           return (
                             <React.Fragment key={p.id}>
-                              <tr>
+                              <tr
+                                onClick={(e) => {
+                                  if (isInteractiveElement(e.target)) return;
+                                  const next =
+                                    openParticipantId === p.id ? "" : p.id;
+                                  setOpenParticipantId(next);
+                                  if (next) loadProgress();
+                                }}
+                                style={{
+                                  cursor: processClosed ? "default" : "pointer",
+                                }}
+                              >
                                 <td
                                   style={{
                                     padding: "10px 8px",
@@ -613,24 +646,6 @@ export default function ProcessDashboard() {
                                       flexWrap: "nowrap",
                                     }}
                                   >
-                                    {/* View Progress button */}
-                                    <button
-                                      className="btn"
-                                      disabled={processClosed}
-                                      onClick={() => {
-                                        const next =
-                                          openParticipantId === p.id
-                                            ? ""
-                                            : p.id;
-                                        setOpenParticipantId(next);
-                                        if (next) loadProgress();
-                                      }}
-                                      title="Ver detalle por cuestionario (C1 y C2 por peer)"
-                                    >
-                                      {openParticipantId === p.id
-                                        ? "Ocultar progreso"
-                                        : "Ver progreso"}
-                                    </button>
                                     {/* Send reminder button */}
                                     <button
                                       className="btn"
@@ -789,10 +804,20 @@ export default function ProcessDashboard() {
                   </div>
 
                   <div
-                    style={{ display: "flex", gap: 8, alignItems: "center" }}
+                    style={{
+                      display: "flex",
+                      gap: 10,
+                      alignItems: "end",
+                      flexWrap: "wrap",
+                    }}
                   >
-                    <label style={{ fontSize: 13, opacity: 0.85 }}>
-                      Participante{" "}
+                    <div style={{ minWidth: 220 }}>
+                      <label
+                        className="admin-field-label"
+                        style={{ marginBottom: 6 }}
+                      >
+                        Participante
+                      </label>
                       <select
                         value={logParticipantId}
                         onChange={(e) => {
@@ -801,8 +826,8 @@ export default function ProcessDashboard() {
                           loadLogs(v);
                         }}
                         style={{
-                          marginLeft: 6,
-                          padding: "7px 10px",
+                          minWidth: 220,
+                          padding: "9px 12px",
                           borderRadius: 10,
                           border: "1px solid rgba(0,0,0,0.10)",
                           background: "#fff",
@@ -815,7 +840,7 @@ export default function ProcessDashboard() {
                           </option>
                         ))}
                       </select>
-                    </label>
+                    </div>
 
                     <button
                       className="btn"
@@ -994,46 +1019,56 @@ export default function ProcessDashboard() {
                 style={{
                   position: "fixed",
                   inset: 0,
-                  background: "rgba(0,0,0,0.70)",
+                  background: "rgba(0,0,0,0.45)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  padding: 16,
-                  zIndex: 50,
+                  padding: 20,
+                  zIndex: 1000,
                 }}
                 onClick={() => setResetModal(null)}
               >
                 <div
                   style={{
-                    width: "min(640px, 100%)",
-                    borderRadius: 16,
-                    background: "#ffffff",
-                    color: "#111827",
-                    border: "1px solid rgba(0,0,0,0.12)",
-                    boxShadow:
-                      "0 20px 60px rgba(0,0,0,0.25), 0 2px 8px rgba(0,0,0,0.10)",
-                    overflow: "hidden",
+                    width: "100%",
+                    maxWidth: 520,
+                    borderRadius: 18,
+                    padding: 20,
+                    background: "rgba(20,24,32,0.98)",
+                    border: "1px solid rgba(255,255,255,0.12)",
+                    boxShadow: "0 20px 60px rgba(0,0,0,0.35)",
+                    color: "rgba(255,255,255,0.92)",
                   }}
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div
                     style={{
-                      padding: 16,
-                      borderBottom: "1px solid rgba(0,0,0,0.08)",
+                      paddingBottom: 16,
+                      borderBottom: "1px solid rgba(255,255,255,0.10)",
                     }}
                   >
-                    <div style={{ fontSize: 16, fontWeight: 800 }}>
+                    <div className="h2" style={{ margin: 0 }}>
                       Acceso reseteado
                     </div>
                     <div
-                      style={{ marginTop: 4, fontSize: 13, color: "#4b5563" }}
+                      style={{
+                        marginTop: 4,
+                        fontSize: 13,
+                        color: "rgba(255,255,255,0.72)",
+                      }}
                     >
                       {resetModal.name} — {resetModal.email}
                     </div>
                   </div>
 
-                  <div style={{ padding: 16 }}>
-                    <div style={{ fontSize: 14, lineHeight: 1.5 }}>
+                  <div style={{ paddingTop: 16 }}>
+                    <div
+                      style={{
+                        fontSize: 14,
+                        lineHeight: 1.55,
+                        color: "rgba(255,255,255,0.88)",
+                      }}
+                    >
                       Se registró el envío de un correo al participante con su
                       nueva clave <strong>(mock)</strong>.
                       <br />
@@ -1045,19 +1080,18 @@ export default function ProcessDashboard() {
                         style={{
                           marginTop: 10,
                           fontSize: 13,
-                          color: "#4b5563",
+                          color: "rgba(255,255,255,0.68)",
                         }}
                       >
                         Timestamp: {formatCR(resetModal.ts)}
                       </div>
                     )}
 
-                    {/* Debug toggle */}
                     <div
                       style={{
                         marginTop: 14,
                         paddingTop: 12,
-                        borderTop: "1px solid rgba(0,0,0,0.08)",
+                        borderTop: "1px solid rgba(255,255,255,0.10)",
                       }}
                     >
                       <label
@@ -1066,7 +1100,7 @@ export default function ProcessDashboard() {
                           alignItems: "center",
                           gap: 8,
                           fontSize: 13,
-                          color: "#374151",
+                          color: "rgba(255,255,255,0.82)",
                         }}
                       >
                         <input
@@ -1089,8 +1123,8 @@ export default function ProcessDashboard() {
                             gap: 10,
                             padding: "10px 12px",
                             borderRadius: 12,
-                            border: "1px solid rgba(0,0,0,0.10)",
-                            background: "#f9fafb",
+                            border: "1px solid rgba(255,255,255,0.12)",
+                            background: "rgba(255,255,255,0.06)",
                           }}
                         >
                           <code style={{ fontSize: 16, fontWeight: 800 }}>
@@ -1281,19 +1315,52 @@ function ProgressPanel({
           display: "flex",
           justifyContent: "space-between",
           gap: 12,
-          alignItems: "baseline",
+          alignItems: "center",
+          flexWrap: "wrap",
         }}
       >
-        <div style={{ fontWeight: 800 }}>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => {
+            const evt = new CustomEvent("dashboard-collapse-progress", {
+              detail: { participantId },
+            });
+            window.dispatchEvent(evt);
+          }}
+          style={{
+            padding: 0,
+            border: "none",
+            background: "transparent",
+            color: "rgba(255,255,255,0.92)",
+            fontWeight: 800,
+            cursor: "pointer",
+          }}
+          title="Ocultar progreso"
+        >
           Progreso de:{" "}
           {participantName ||
             participantsIndex.get(String(participantId)) ||
             p.name}
-        </div>
-
-        <button className="btn" onClick={onReloadAll} disabled={false}>
-          Actualizar
         </button>
+
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <button className="btn" onClick={onReloadAll} disabled={false}>
+            Actualizar
+          </button>
+          <button
+            className="btn"
+            type="button"
+            onClick={() => {
+              const evt = new CustomEvent("dashboard-collapse-progress", {
+                detail: { participantId },
+              });
+              window.dispatchEvent(evt);
+            }}
+          >
+            Ocultar
+          </button>
+        </div>
       </div>
 
       {/* Cards list */}
