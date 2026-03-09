@@ -139,7 +139,6 @@ export default function ProcessDashboard() {
   const [rowBusy, setRowBusy] = React.useState({});
   const [flash, setFlash] = React.useState("");
   const [resetModal, setResetModal] = React.useState(null); // { name, email, tempPassword, ts }
-  const [showDebugPassword, setShowDebugPassword] = React.useState(false);
 
   // Logs
   const [logsLoading, setLogsLoading] = React.useState(false);
@@ -309,7 +308,6 @@ export default function ProcessDashboard() {
         tempPassword: resp?.tempPassword || "",
         ts: resp?.ts || null,
       });
-      setShowDebugPassword(false);
       setFlash(`Acceso reseteado para ${p.name}.`);
       loadLogs(); // refrescar logs
     } catch (e) {
@@ -1041,121 +1039,51 @@ export default function ProcessDashboard() {
                   }}
                   onClick={(e) => e.stopPropagation()}
                 >
+                  <h2 className="h2" style={{ marginTop: 0 }}>
+                    Acceso reiniciado
+                  </h2>
+
+                  <p style={{ marginBottom: 8 }}>
+                    <strong>Participante:</strong> {resetModal.name}
+                  </p>
+                  <p style={{ marginBottom: 8 }}>
+                    <strong>Correo:</strong> {resetModal.email}
+                  </p>
+                  <p style={{ marginBottom: 12 }}>
+                    <strong>Contraseña temporal:</strong>{" "}
+                    <span
+                      style={{
+                        fontFamily:
+                          "ui-monospace, SFMono-Regular, Menlo, monospace",
+                        fontSize: 15,
+                      }}
+                    >
+                      {resetModal.tempPassword}
+                    </span>
+                  </p>
+
                   <div
                     style={{
-                      paddingBottom: 16,
-                      borderBottom: "1px solid rgba(255,255,255,0.10)",
+                      display: "flex",
+                      gap: 8,
+                      justifyContent: "flex-end",
                     }}
                   >
-                    <div className="h2" style={{ margin: 0 }}>
-                      Acceso reseteado
-                    </div>
-                    <div
-                      style={{
-                        marginTop: 4,
-                        fontSize: 13,
-                        color: "rgba(255,255,255,0.72)",
-                      }}
+                    <button
+                      className="btn"
+                      type="button"
+                      onClick={() => copyToClipboard(resetModal.tempPassword)}
                     >
-                      {resetModal.name} — {resetModal.email}
-                    </div>
-                  </div>
+                      Copiar contraseña
+                    </button>
 
-                  <div style={{ paddingTop: 16 }}>
-                    <div
-                      style={{
-                        fontSize: 14,
-                        lineHeight: 1.55,
-                        color: "rgba(255,255,255,0.88)",
-                      }}
+                    <button
+                      className="btn"
+                      type="button"
+                      onClick={() => setResetModal(null)}
                     >
-                      Se registró el envío de un correo al participante con su
-                      nueva clave <strong>(mock)</strong>.
-                      <br />
-                      El admin no necesita reenviar la contraseña manualmente.
-                    </div>
-
-                    {resetModal.ts && (
-                      <div
-                        style={{
-                          marginTop: 10,
-                          fontSize: 13,
-                          color: "rgba(255,255,255,0.68)",
-                        }}
-                      >
-                        Timestamp: {formatCR(resetModal.ts)}
-                      </div>
-                    )}
-
-                    <div
-                      style={{
-                        marginTop: 14,
-                        paddingTop: 12,
-                        borderTop: "1px solid rgba(255,255,255,0.10)",
-                      }}
-                    >
-                      <label
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
-                          fontSize: 13,
-                          color: "rgba(255,255,255,0.82)",
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={showDebugPassword}
-                          onChange={(e) =>
-                            setShowDebugPassword(e.target.checked)
-                          }
-                        />
-                        Ver clave (debug local)
-                      </label>
-
-                      {showDebugPassword && (
-                        <div
-                          style={{
-                            marginTop: 10,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            gap: 10,
-                            padding: "10px 12px",
-                            borderRadius: 12,
-                            border: "1px solid rgba(255,255,255,0.12)",
-                            background: "rgba(255,255,255,0.06)",
-                          }}
-                        >
-                          <code style={{ fontSize: 16, fontWeight: 800 }}>
-                            {resetModal.tempPassword}
-                          </code>
-                          <button
-                            className="btn"
-                            onClick={() =>
-                              copyToClipboard(resetModal.tempPassword)
-                            }
-                          >
-                            Copiar
-                          </button>
-                        </div>
-                      )}
-                    </div>
-
-                    <div
-                      style={{
-                        marginTop: 14,
-                        display: "flex",
-                        justifyContent: "flex-end",
-                      }}
-                    >
-                      <button
-                        className="btn"
-                        onClick={() => setResetModal(null)}
-                      >
-                        Cerrar
-                      </button>
-                    </div>
+                      Cerrar
+                    </button>
                   </div>
                 </div>
               </div>
