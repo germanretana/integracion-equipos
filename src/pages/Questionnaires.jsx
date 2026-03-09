@@ -2,6 +2,7 @@ import React from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import "../styles/questionnaires.css";
 import { auth } from "../services/auth";
+import ParticipantBrandBar from "../components/ParticipantBrandBar";
 
 function StatusPill({ status, percent }) {
   if (status === "done")
@@ -71,6 +72,9 @@ export default function Questionnaires() {
   return (
     <div className="page">
       <div className="page-inner">
+        <ParticipantBrandBar
+          process={data?.process || session?.process || null}
+        />
         <div className="p-topbar">
           <h1 className="h1 p-topbar-left" style={{ margin: 0 }}>
             Cuestionarios

@@ -944,6 +944,7 @@ app.get(
         processSlug: proc.processSlug,
         companyName: proc.companyName,
         processName: proc.processName,
+        logoUrl: proc.logoUrl || null,
       },
       c1: {
         to: `/app/${proc.processSlug}/c1`,

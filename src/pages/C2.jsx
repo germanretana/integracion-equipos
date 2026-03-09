@@ -4,6 +4,7 @@ import "../styles/questionnaires.css";
 import Markdown from "../components/Markdown";
 import QuestionnaireRenderer from "../components/QuestionnaireRenderer";
 import { auth } from "../services/auth";
+import ParticipantBrandBar from "../components/ParticipantBrandBar";
 
 function useDebouncedEffect(value, delayMs, effect) {
   React.useEffect(() => {
@@ -20,6 +21,9 @@ export default function C2() {
   const participantName = session?.participant?.name || "—";
 
   const [tpl, setTpl] = React.useState(null);
+  const [processInfo, setProcessInfo] = React.useState(
+    session?.process || null,
+  );
   const [peerName, setPeerName] = React.useState("Compañero");
   const [loading, setLoading] = React.useState(true);
 
@@ -49,6 +53,8 @@ export default function C2() {
         if (!alive) return;
 
         setTpl(tplRes || null);
+
+        setProcessInfo(qs?.process || session?.process || null);
 
         const peer = (qs?.c2 || []).find((p) =>
           String(p.to || "").endsWith(`/c2/${peerId}`),
@@ -142,6 +148,7 @@ export default function C2() {
   return (
     <div className="page">
       <div className="page-inner">
+        <ParticipantBrandBar process={processInfo} />
         <div
           style={{
             display: "flex",

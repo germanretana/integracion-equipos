@@ -4,6 +4,7 @@ import "../styles/questionnaires.css";
 import Markdown from "../components/Markdown";
 import QuestionnaireRenderer from "../components/QuestionnaireRenderer";
 import { auth } from "../services/auth";
+import ParticipantBrandBar from "../components/ParticipantBrandBar";
 
 function useDebouncedEffect(value, delayMs, effect) {
   React.useEffect(() => {
@@ -22,6 +23,9 @@ export default function C1() {
   const myId = session?.participant?.id || "";
 
   const [tpl, setTpl] = React.useState(null);
+  const [processInfo, setProcessInfo] = React.useState(
+    session?.process || null,
+  );
   const [loading, setLoading] = React.useState(true);
 
   const [answers, setAnswers] = React.useState({});
@@ -64,6 +68,8 @@ export default function C1() {
         );
         setSavedAt(entryRes?.savedAt || null);
         setSubmittedAt(entryRes?.submittedAt || null);
+
+        setProcessInfo(qs?.process || session?.process || null);
 
         const peerList = (qs?.c2 || []).map((x) => {
           const id = String(x.to || "")
@@ -204,6 +210,7 @@ export default function C1() {
   return (
     <div className="page">
       <div className="page-inner">
+        <ParticipantBrandBar process={processInfo} />
         <div className="p-topbar">
           <div className="p-topbar-left">
             <button
