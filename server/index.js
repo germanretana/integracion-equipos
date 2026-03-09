@@ -777,6 +777,7 @@ app.post(
     try {
       await sharp(req.file.buffer)
         .resize({ width: 1200, withoutEnlargement: true })
+        .flatten({ background: "#ffffff" }) // white background for transparent images
         .jpeg({ quality: 80 })
         .toFile(outputPath);
     } catch (err) {
