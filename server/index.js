@@ -1760,6 +1760,53 @@ app.get("/api/admin/events", requireAdmin, (req, res) => {
 });
 
 /* =========================
+   ADMIN - DELETE PROCESS (EN_PREPARACION only)
+========================= */
+app.delete("/api/admin/processes/:processSlug", requireAdmin, (req, res) => {
+  const { processSlug } = req.params;
+
+  const db = readDb();
+  const proc = db.processes.find((p) => p.processSlug === processSlug);
+
+  if (!proc) {
+    return res.status(404).json({ error: "Proceso no encontrado." });
+  }
+
+  if (proc.status !== "EN_PREPARACION") {
+    return res.status(400).json({
+      error: "Solo se pueden eliminar procesos en EN_PREPARACION.",
+    });
+  }
+
+  const logoPath = path.join(LOGO_DIR, `${processSlug}.jpg`);
+
+  const next = updateDb((db2) => {
+    db2.processes = (db2.processes || []).filter(
+      (p) => p.processSlug !== processSlug,
+    );
+
+    db2.events = (db2.events || []).filter(
+      (evt) => String(evt?.processSlug || "") !== String(processSlug),
+    );
+
+    return db2;
+  });
+
+  try {
+    if (fs.existsSync(logoPath)) {
+      fs.unlinkSync(logoPath);
+    }
+  } catch (e) {
+    return res.status(500).json({
+      error:
+        "El proceso fue removido de la base de datos, pero no se pudo eliminar el logo del disco.",
+    });
+  }
+
+  return res.json({ ok: true, processSlug });
+});
+
+/* =========================
    START SERVER
 ========================= */
 app.listen(PORT, () => {

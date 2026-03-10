@@ -349,6 +349,42 @@ export default function ProcessEditor({ mode = "edit" }) {
     }
   }
 
+  async function handleDeleteProcess() {
+    if (!process) return;
+
+    if (process.status !== "EN_PREPARACION") {
+      window.alert(
+        "Primero debe revertir el proceso a EN_PREPARACION antes de eliminarlo.",
+      );
+      return;
+    }
+
+    const ok1 = window.confirm(
+      "¿Eliminar este proceso?\n\nEsta acción borrará permanentemente participantes, respuestas, plantillas, eventos y logo.",
+    );
+    if (!ok1) return;
+
+    const typed = window.prompt(
+      `Para confirmar, escriba el código exacto del proceso:\n\n${process.processSlug}`,
+    );
+
+    if (typed !== process.processSlug) {
+      window.alert("Confirmación incorrecta. El proceso no fue eliminado.");
+      return;
+    }
+
+    try {
+      await auth.fetch(`/api/admin/processes/${process.processSlug}`, {
+        method: "DELETE",
+      });
+
+      window.alert("Proceso eliminado.");
+      navigate("/admin/processes", { replace: true });
+    } catch (e) {
+      window.alert(e?.message || "No se pudo eliminar el proceso.");
+    }
+  }
+
   React.useEffect(() => {
     if (mode === "create") return;
 
@@ -768,6 +804,51 @@ export default function ProcessEditor({ mode = "edit" }) {
           </div>
         )}
 
+        {activeTab === "general" && mode !== "create" && process && (
+          <div className="section" style={{ marginTop: 18 }}>
+            <div className="section-body">
+              <h2 className="h2" style={{ marginTop: 0 }}>
+                Zona peligrosa
+              </h2>
+
+              <p className="sub" style={{ marginTop: 6 }}>
+                Eliminar este proceso borrará permanentemente participantes,
+                respuestas, plantillas, eventos y el logo asociado.
+              </p>
+
+              <button
+                className="btn"
+                type="button"
+                onClick={handleDeleteProcess}
+                disabled={process.status !== "EN_PREPARACION"}
+                style={{
+                  borderColor:
+                    process.status === "EN_PREPARACION"
+                      ? "rgba(255,80,80,0.5)"
+                      : undefined,
+                  background:
+                    process.status === "EN_PREPARACION"
+                      ? "rgba(255,80,80,0.18)"
+                      : undefined,
+                }}
+              >
+                Eliminar proceso
+              </button>
+
+              <div
+                style={{
+                  marginTop: 10,
+                  fontSize: 12,
+                  opacity: 0.75,
+                }}
+              >
+                {process.status === "EN_PREPARACION"
+                  ? "Esta acción es irreversible."
+                  : "Para eliminar el proceso primero debe revertirlo a EN_PREPARACION."}
+              </div>
+            </div>
+          </div>
+        )}
         {activeTab === "participants" && (
           <div className="section">
             <div className="section-body">
