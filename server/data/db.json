@@ -5,6 +5,18 @@
       "name": "German",
       "passwordHash": "$2a$10$u8JmQxeFjy9ZwEQhfqvSt.LLYRtu0BhPtV9CW8/kwuWwIow6y2Lp2",
       "createdAt": "2026-02-08T15:22:30.058Z"
+    },
+    {
+      "email": "dravet.retana@gmail.com",
+      "name": "Melissa Retana",
+      "passwordHash": "$2a$10$OlhdM1lAkbWZ7LRmTOSCIeoCids1IYpiYjTnbnMvp7hXvjkJHLEla",
+      "createdAt": "2026-03-10T04:55:45.499Z"
+    },
+    {
+      "email": "gr@germanretana.com",
+      "name": "German Retana",
+      "passwordHash": "$2a$10$IsYI50wKYqOyOKFA6LAnru4jSoZI0JuZkSVu1Bc5Oa.dv3Zk7W.Fu",
+      "createdAt": "2026-03-10T04:57:10.225Z"
     }
   ],
   "baseTemplates": {
@@ -778,9 +790,9 @@
   },
   "processes": [
     {
-      "processSlug": "acme-integracion-2026",
+      "processSlug": "acme-trapos-2026",
       "companyName": "ACME",
-      "processName": "Integración Equipo Gerencial 2026",
+      "processName": "Trapos Sucios",
       "status": "EN_CURSO",
       "templates": {
         "c1": {
@@ -789,7 +801,7 @@
               "schemaVersion": 1,
               "id": "c1-1",
               "order": 1,
-              "item": "Mi nivel de satisfacción general por pertenecer a este equipo gerencial es:",
+              "item": "Mi nivel de satisfacción general por pertenecer a este equipo gerencial en ACME es:",
               "type": "rating_masc_5",
               "minEntries": 1,
               "maxEntries": 1,
@@ -818,7 +830,7 @@
               "maxEntries": 2,
               "explanation": null,
               "condition": null,
-              "groupId": null,
+              "groupId": "c1-positivo",
               "dependsOn": null,
               "meta": null
             },
@@ -832,21 +844,21 @@
               "maxEntries": 3,
               "explanation": null,
               "condition": null,
-              "groupId": null,
+              "groupId": "c1-positivo",
               "dependsOn": null,
               "meta": null
             },
             {
               "schemaVersion": 1,
               "id": "c1-4a",
-              "order": 4.1,
+              "order": 4,
               "item": "Un excelente equipo de alta dirección se caracteriza por la calidad de sus discusiones sobre asuntos estratégicos. En nuestro caso la calidad del análisis sobre el desarrollo futuro de la organización es:",
               "type": "rating_fem_5",
               "minEntries": 1,
               "maxEntries": 1,
               "explanation": null,
               "condition": null,
-              "groupId": "c1-4",
+              "groupId": "c1-analisis",
               "dependsOn": null,
               "meta": {
                 "labels": [
@@ -862,14 +874,14 @@
             {
               "schemaVersion": 1,
               "id": "c1-4b",
-              "order": 4.2,
+              "order": 5,
               "item": "¿Por qué?",
               "type": "text_area",
               "minEntries": 1,
               "maxEntries": 1,
               "explanation": null,
               "condition": null,
-              "groupId": "c1-4",
+              "groupId": "c1-analisis",
               "dependsOn": null,
               "meta": {
                 "report": "list_reasons"
@@ -878,14 +890,14 @@
             {
               "schemaVersion": 1,
               "id": "c1-5a",
-              "order": 5.1,
+              "order": 6,
               "item": "¿Tenemos claros los objetivos de la organización, el plan de desarrollo estratégico y nuestros proyectos para los próximos años?",
               "type": "binary_yes_no",
               "minEntries": 1,
               "maxEntries": 1,
               "explanation": null,
               "condition": null,
-              "groupId": null,
+              "groupId": "c1-objetivos",
               "dependsOn": null,
               "meta": {
                 "report": "frequency"
@@ -894,14 +906,14 @@
             {
               "schemaVersion": 1,
               "id": "c1-5b",
-              "order": 5.2,
+              "order": 7,
               "item": "¿Nos sentimos comprometidos con ese plan?",
               "type": "binary_yes_no",
               "minEntries": 1,
               "maxEntries": 1,
               "explanation": null,
               "condition": "Appears only if 5a is \"Sí\"",
-              "groupId": null,
+              "groupId": "c1-objetivos",
               "dependsOn": {
                 "id": "c1-5a",
                 "equals": "Sí"
@@ -913,14 +925,14 @@
             {
               "schemaVersion": 1,
               "id": "c1-5c",
-              "order": 5.3,
+              "order": 8,
               "item": "El personal de la organización conoce estos objetivos y nosotros los líderes promovemos su alcance y les ofrecemos información sobre los avances.",
               "type": "binary_yes_no",
               "minEntries": 1,
               "maxEntries": 1,
               "explanation": null,
               "condition": "Appears only if 5a is \"Sí\"",
-              "groupId": null,
+              "groupId": "c1-objetivos",
               "dependsOn": {
                 "id": "c1-5a",
                 "equals": "Sí"
@@ -932,14 +944,14 @@
             {
               "schemaVersion": 1,
               "id": "c1-6a",
-              "order": 6.1,
+              "order": 9,
               "item": "¿Somos un verdadero equipo?",
               "type": "binary_yes_no",
               "minEntries": 1,
               "maxEntries": 1,
               "explanation": null,
               "condition": null,
-              "groupId": "c1-6",
+              "groupId": "c1-verdadero",
               "dependsOn": null,
               "meta": {
                 "report": "frequency"
@@ -948,14 +960,14 @@
             {
               "schemaVersion": 1,
               "id": "c1-6b",
-              "order": 6.2,
+              "order": 10,
               "item": "¿Por qué?",
               "type": "text_area",
               "minEntries": 1,
               "maxEntries": 1,
               "explanation": null,
               "condition": null,
-              "groupId": "c1-6",
+              "groupId": "c1-verdadero",
               "dependsOn": null,
               "meta": {
                 "report": "reasons_by_binary",
@@ -965,7 +977,7 @@
             {
               "schemaVersion": 1,
               "id": "c1-7",
-              "order": 7,
+              "order": 11,
               "item": "La percepción que, en general, otras personas que laboran en la organización tienen sobre nuestro desempeño como equipo líder es más o menos así:",
               "type": "text_area",
               "minEntries": 0,
@@ -979,8 +991,8 @@
             {
               "schemaVersion": 1,
               "id": "c1.q8",
-              "order": 8,
-              "item": "Utilice la siguiente escala para evaluar el desempeño del Equipo Gerencial:<br/>0 Insatisfactorio · 1 Regular · 2 Bueno · 3 Muy Bueno · 4 Excelente",
+              "order": 12,
+              "item": "Utilice la siguiente escala para evaluar el desempeño del Equipo Gerencial:\n\n<center>4 = Excelente | 3 = Muy Bueno | 2 = Bueno | 1 = Regular | 0 = Insatisfactorio </center>",
               "type": "value_0_4_grid",
               "minEntries": null,
               "maxEntries": null,
@@ -1097,7 +1109,7 @@
             {
               "schemaVersion": 1,
               "id": "c1-9",
-              "order": 9,
+              "order": 13,
               "item": "En casi todo equipo de trabajo, hay situaciones que impiden lograr un mejor desempeño. Considerando los puntajes asignados en el cuadro anterior y otros factores adicionales: ¿Cuáles son tres situaciones sumamente relevantes que nos están impidiendo ser un mejor equipo y sobre las cuales debemos conversar abiertamente en este proceso pues de lo contrario las mismas continuarán afectando nuestro desempeño e integración?",
               "type": "input_list",
               "minEntries": 3,
@@ -1111,7 +1123,7 @@
             {
               "schemaVersion": 1,
               "id": "c1-10",
-              "order": 10,
+              "order": 14,
               "item": "Las relaciones interpersonales constituyen un aspecto fundamental para el desarrollo y proyección de un equipo de trabajo. Creo que todo el equipo se fortalecería significativamente si las siguientes personas mejoraran la calidad de su relación personal y laboral. Solamente las personas mencionadas en esta respuesta conocerán el contenido de la misma, por lo tanto, escriba con la mayor apertura y franqueza.",
               "type": "header",
               "minEntries": null,
@@ -1125,7 +1137,7 @@
             {
               "schemaVersion": 1,
               "id": "c1-10",
-              "order": 10.1,
+              "order": 15,
               "item": "Sugerencias de conversaciones entre colegas (opcional)",
               "type": "pairing_rows",
               "rows": 3,
@@ -1140,7 +1152,7 @@
               }
             }
           ],
-          "instructionsMd": "# Retroalimentación del equipo (C1)\n\nEl propósito de esta encuesta es facilitar la evaluación del desempeño del equipo gerencial de la organización e identificar áreas de oportunidad para mejorar.\n\n- Conteste con sinceridad, en beneficio propio y de todo el equipo.\n- No remita esta encuesta a sus colegas.\n- Sea tan amplio como lo considere necesario para que el desempeño del equipo pueda mejorarse con base en su contribución.\n\nMuchas gracias por su valiosa cooperación."
+          "instructionsMd": "# Retroalimentación del equipo (C1)\n\nEl propósito de esta encuesta es facilitar la evaluación del desempeño del equipo gerencial de la **ACME Inc.** e identificar áreas de oportunidad para mejorar.\n\n- Conteste con sinceridad, en beneficio propio y de todo el equipo.\n- No remita esta encuesta a sus colegas.\n- Sea tan amplio como lo considere necesario para que el desempeño del equipo pueda mejorarse con base en su contribución.\n\nMuchas gracias por su valiosa cooperación."
         },
         "c2": {
           "questions": [
@@ -1168,7 +1180,7 @@
               "maxEntries": 3,
               "explanation": null,
               "condition": null,
-              "groupId": null,
+              "groupId": "c2-positivo",
               "dependsOn": null,
               "meta": null
             },
@@ -1182,7 +1194,7 @@
               "maxEntries": 1,
               "explanation": null,
               "condition": null,
-              "groupId": null,
+              "groupId": "c2-positivo",
               "dependsOn": null,
               "meta": null
             },
@@ -1196,7 +1208,7 @@
               "maxEntries": 1,
               "explanation": null,
               "condition": null,
-              "groupId": null,
+              "groupId": "c2-positivo",
               "dependsOn": null,
               "meta": null
             },
@@ -1238,56 +1250,56 @@
               "maxEntries": null,
               "explanation": null,
               "condition": null,
-              "groupId": null,
+              "groupId": "c2-fortalecer",
               "dependsOn": null,
               "meta": null
             },
             {
               "schemaVersion": 1,
               "id": "c2-7a",
-              "order": 7.1,
+              "order": 8,
               "item": "Conocimientos:",
               "type": "input_list",
               "minEntries": 1,
               "maxEntries": 2,
               "explanation": null,
               "condition": null,
-              "groupId": "c2-7",
+              "groupId": "c2-fortalecer",
               "dependsOn": null,
               "meta": null
             },
             {
               "schemaVersion": 1,
               "id": "c2-7b",
-              "order": 7.2,
+              "order": 9,
               "item": "Actitudes:",
               "type": "input_list",
               "minEntries": 1,
               "maxEntries": 2,
               "explanation": null,
               "condition": null,
-              "groupId": "c2-7",
+              "groupId": "c2-fortalecer",
               "dependsOn": null,
               "meta": null
             },
             {
               "schemaVersion": 1,
               "id": "c2-7c",
-              "order": 7.3,
+              "order": 10,
               "item": "Habilidades:",
               "type": "input_list",
               "minEntries": 1,
               "maxEntries": 2,
               "explanation": null,
               "condition": null,
-              "groupId": "c2-7",
+              "groupId": "c2-fortalecer",
               "dependsOn": null,
               "meta": null
             },
             {
               "schemaVersion": 1,
               "id": "c2-8",
-              "order": 8,
+              "order": 11,
               "item": "En síntesis, cuando le comparo con otras personas en posiciones de gerencia y jefatura en la organización considero que su ejecutoria general es:",
               "type": "rating_fem_5",
               "minEntries": 1,
@@ -1494,12 +1506,14 @@
                   "label",
                   "value"
                 ]
-              }
+              },
+              "item": "Con mi mayor sinceridad, le expreso mi criterio sobre algunos aspectos de su estilo, desempeño y relaciones, utilizando la siguiente escala:\n<center>4 = Excelente | 3 = Muy Bueno | 2 = Bueno | 1 = Regular | 0 = Malo </center>",
+              "order": 12
             },
             {
               "schemaVersion": 1,
               "id": "c2-10",
-              "order": 10,
+              "order": 13,
               "item": "Interpreto que los tres valores o principios más relevantes que usted ha procurado promover con sus conductas, actitudes y planteamientos son:",
               "type": "input_list",
               "minEntries": 3,
@@ -1513,7 +1527,7 @@
             {
               "schemaVersion": 1,
               "id": "c2-11",
-              "order": 11,
+              "order": 14,
               "item": "En una escala de 0 a 10, el grado de satisfacción que yo tengo al trabajar con usted es:",
               "type": "evaluation_0_10",
               "minEntries": 1,
@@ -1531,7 +1545,7 @@
             {
               "schemaVersion": 1,
               "id": "c2-12",
-              "order": 12,
+              "order": 15,
               "item": "Estimado/a <peer>: Desde hace mucho tiempo había deseado tener una oportunidad como esta para expresarle un comentario, inquietud, observación constructiva o simplemente compartir una percepción sobre su desempeño, actitudes y relaciones. Si usted desea mejorar su gestión gerencial y liderazgo, sería muy conveniente que reflexionara sobre aspectos que pueden ayudarle a continuar siendo una persona de valor extraordinario en este equipo y la organización. Por eso, con toda mi sinceridad y buena intención, le exhorto a tomar en consideración lo siguiente:",
               "type": "text_area",
               "minEntries": 1,
@@ -1546,846 +1560,46 @@
               }
             }
           ],
-          "instructionsMd": "# Retroalimentación a compañeros (C2)\n\nSu opinión sobre el desempeño y relaciones de cada uno de sus colegas es de gran valor para ayudarles a mejorar su papel como líderes en la organización.\n\n- Emita su criterio con la mayor profundidad y sinceridad.\n- No remita estos documentos a sus compañeros.\n- Completará un cuestionario sobre cada uno de sus colegas.\n- Sus colegas no conocerán la fuente de las evaluaciones o comentarios, pues esta información se procesa en forma anónima."
+          "instructionsMd": "# Retroalimentación a compañeros (C2)\n\nSu opinión sobre el desempeño y relaciones de cada uno de sus colegas es de gran valor para ayudarles a mejorar su papel como líderes en la organización. No todos somos caricaturas marca Acme. \n\n- Emita su criterio con la mayor profundidad y sinceridad.\n- No remita estos documentos a sus compañeros.\n- Completará un cuestionario sobre cada uno de sus colegas.\n- Sus colegas no conocerán la fuente de las evaluaciones o comentarios, pues esta información se procesa en forma anónima."
         }
       },
       "participants": [
         {
-          "id": "p1",
-          "firstName": "German",
-          "lastName": "Retana",
-          "email": "german.retana@gmail.com",
-          "passwordHash": null
-        },
-        {
-          "id": "p2",
+          "id": "p-1773118158334",
           "firstName": "Ana",
           "lastName": "López",
-          "email": "ana@example.com",
-          "passwordHash": "$2a$10$q4ZLzSRuHph1j7kVq4I5lO4TV1yMlUyV8Li1IHC7EoPFbSt15xrqG"
+          "email": "ana@acme.com",
+          "passwordHash": "$2a$10$5Up9IVyz/2RqKlLhR3HpwOtWJVEAgFze1tX8UBryUNMIv5vpduZwC"
         },
         {
-          "id": "p3",
-          "firstName": "Carlos",
-          "lastName": "Méndez",
-          "email": "carlos@example.com",
-          "passwordHash": "$2a$10$u.4XqOXIlhwiYTj5CtTNju.KVaCkuauUu64ecKbQ.3TyeNkk5hUiu"
-        },
-        {
-          "id": "p4",
-          "firstName": "Laura",
+          "id": "p-1773118197694",
+          "firstName": "Braulio",
           "lastName": "Jiménez",
-          "email": "laura@example.com",
-          "passwordHash": "$2a$10$7YaM5XPNCuNCrUiW6KW9qOenvxOnY/ABzPpSWRQQ.T/YEv.VzR3.C"
+          "email": "braulio@acme.com",
+          "passwordHash": "$2a$10$QoSqHQBhKEraHlxq.9oqMuHdcsORAi6wQdVFge/NBpF.d1wicwbqy"
         },
         {
-          "id": "p5",
-          "firstName": "Diego",
-          "lastName": "Vargas",
-          "email": "diego@example.com",
-          "passwordHash": "$2a$10$0DITPI13tIjcv7tNLeYZWekQzU3PBNoppcOOIBluODF8oPISzEakG"
-        },
-        {
-          "id": "p-1772063164112",
-          "firstName": "juan",
-          "lastName": "",
-          "email": "juan@test.com",
-          "passwordHash": null
+          "id": "p-1773118231323",
+          "firstName": "Cristian",
+          "lastName": "De Tal",
+          "email": "cristian@acme.com",
+          "passwordHash": "$2a$10$SyPKm3YcIPYqwfV6VKdEHeWQcUX/mH5sNUpddaMA75LLuolQ7xvze"
         }
       ],
-      "createdAt": "2026-02-08T15:23:07.199Z",
-      "launchedAt": "2026-03-09T18:09:22.909Z",
-      "closedAt": "2026-03-09T15:06:19.001Z",
       "responses": {
-        "c1": {
-          "p2": {
-            "draft": {
-              "answers": {
-                "c1.q1": "test",
-                "c1-1": 2,
-                "c1-2": [
-                  "asfdasdf",
-                  ""
-                ],
-                "c1-3": [
-                  "",
-                  "",
-                  ""
-                ],
-                "c1-4a": 2,
-                "c1-4b": "asdfasdf",
-                "c1-5a": "no",
-                "c1-5b": "no",
-                "c1-5c": "no",
-                "c1-6a": "no",
-                "c1-6b": "asdf",
-                "c1-7": "sadf",
-                "c1.q8.01": {
-                  "value": 3,
-                  "suggestion": ""
-                },
-                "c1.q8.02": {
-                  "value": 2,
-                  "suggestion": ""
-                },
-                "c1.q8.03": {
-                  "value": 2,
-                  "suggestion": ""
-                },
-                "c1.q8.04": {
-                  "value": 3,
-                  "suggestion": "1"
-                },
-                "c1.q8.05": {
-                  "value": 1,
-                  "suggestion": "2"
-                },
-                "c1.q8.06": {
-                  "value": 2,
-                  "suggestion": ""
-                },
-                "c1.q8.07": {
-                  "value": 3,
-                  "suggestion": ""
-                },
-                "c1.q8.08": {
-                  "value": 1,
-                  "suggestion": ""
-                },
-                "c1.q8.09": {
-                  "value": 2,
-                  "suggestion": ""
-                },
-                "c1.q8.10": {
-                  "value": 3,
-                  "suggestion": ""
-                },
-                "c1.q8.11": {
-                  "value": 1,
-                  "suggestion": ""
-                },
-                "c1.q8.12": {
-                  "value": 2,
-                  "suggestion": ""
-                },
-                "c1.q8.13": {
-                  "value": 3,
-                  "suggestion": ""
-                },
-                "c1.q8.14": {
-                  "value": 1,
-                  "suggestion": ""
-                },
-                "c1.q8.15": {
-                  "value": 2,
-                  "suggestion": ""
-                },
-                "c1.q8.16": {
-                  "value": 3,
-                  "suggestion": ""
-                },
-                "c1.q8.17": {
-                  "value": 1,
-                  "suggestion": ""
-                },
-                "c1.q8.18": {
-                  "value": 2,
-                  "suggestion": ""
-                },
-                "c1.q8.19": {
-                  "value": 3,
-                  "suggestion": ""
-                },
-                "c1.q8.20": {
-                  "value": 1,
-                  "suggestion": ""
-                },
-                "c1.q8.21": {
-                  "value": 2,
-                  "suggestion": ""
-                },
-                "c1.q8.22": {
-                  "value": 3,
-                  "suggestion": ""
-                },
-                "c1.q8.23": {
-                  "value": 1,
-                  "suggestion": ""
-                },
-                "c1.q8.24": {
-                  "value": 2,
-                  "suggestion": ""
-                },
-                "c1-9": [
-                  "sasdf",
-                  "asdf",
-                  "asfd"
-                ],
-                "c1-10": [
-                  {
-                    "leftId": "p1",
-                    "rightId": "p3"
-                  },
-                  {
-                    "leftId": "p1",
-                    "rightId": "p4"
-                  },
-                  {
-                    "leftId": "",
-                    "rightId": "p3"
-                  }
-                ]
-              },
-              "freeText": ""
-            },
-            "savedAt": "2026-03-09T22:56:50.610Z",
-            "submittedAt": null
-          },
-          "p3": {
-            "draft": {
-              "answers": {
-                "c1-1": 1,
-                "c1-2": [
-                  "asdf",
-                  "asdf"
-                ],
-                "c1-3": [
-                  "asdf",
-                  "",
-                  ""
-                ],
-                "c1-4a": 3,
-                "c1-4b": "asdf",
-                "c1-5a": "no",
-                "c1-5b": "yes",
-                "c1-5c": "no",
-                "c1-6a": "no",
-                "c1-6b": "sdf",
-                "c1-7": "asdf",
-                "c1.q8.01": {
-                  "value": 4,
-                  "suggestion": ""
-                },
-                "c1.q8.02": {
-                  "value": 4,
-                  "suggestion": ""
-                },
-                "c1.q8.03": {
-                  "value": 3,
-                  "suggestion": ""
-                },
-                "c1.q8.04": {
-                  "value": 4,
-                  "suggestion": ""
-                },
-                "c1.q8.05": {
-                  "value": 2,
-                  "suggestion": ""
-                },
-                "c1.q8.06": {
-                  "value": 1,
-                  "suggestion": ""
-                },
-                "c1.q8.07": {
-                  "value": 2,
-                  "suggestion": ""
-                },
-                "c1.q8.08": {
-                  "value": 3,
-                  "suggestion": ""
-                },
-                "c1.q8.09": {
-                  "value": 4,
-                  "suggestion": ""
-                },
-                "c1.q8.10": {
-                  "value": 4,
-                  "suggestion": ""
-                },
-                "c1.q8.11": {
-                  "value": 4,
-                  "suggestion": ""
-                },
-                "c1.q8.12": {
-                  "value": 4,
-                  "suggestion": ""
-                },
-                "c1.q8.13": {
-                  "value": 4,
-                  "suggestion": ""
-                },
-                "c1.q8.14": {
-                  "value": 4,
-                  "suggestion": ""
-                },
-                "c1.q8.15": {
-                  "value": 4,
-                  "suggestion": ""
-                },
-                "c1.q8.16": {
-                  "value": 4,
-                  "suggestion": "ñosiaj asdoij asñoij ñoasid fñaosijdf ñaosi iuhsa dl asldiufh liasudhf lsiauh asdlifuh asldiuh "
-                },
-                "c1.q8.17": {
-                  "value": 1,
-                  "suggestion": "2"
-                },
-                "c1.q8.18": {
-                  "value": 2,
-                  "suggestion": "3"
-                },
-                "c1.q8.19": {
-                  "value": 2,
-                  "suggestion": ""
-                },
-                "c1.q8.20": {
-                  "value": 2,
-                  "suggestion": ""
-                },
-                "c1.q8.21": {
-                  "value": 3,
-                  "suggestion": ""
-                },
-                "c1.q8.22": {
-                  "value": 4,
-                  "suggestion": ""
-                },
-                "c1.q8.23": {
-                  "value": 2,
-                  "suggestion": ""
-                },
-                "c1.q8.24": {
-                  "value": 3,
-                  "suggestion": ""
-                },
-                "c1-9": [
-                  "asdf",
-                  "asdf",
-                  "asdf"
-                ],
-                "c1-10": [
-                  {
-                    "leftId": "p2",
-                    "rightId": "p4"
-                  },
-                  {
-                    "leftId": "p2",
-                    "rightId": "p1"
-                  },
-                  {
-                    "leftId": "p2",
-                    "rightId": "p5"
-                  }
-                ]
-              },
-              "freeText": ""
-            },
-            "savedAt": "2026-02-11T16:12:27.712Z",
-            "submittedAt": "2026-02-11T16:12:28.307Z"
-          }
-        },
-        "c2": {
-          "p2": {
-            "p1": {
-              "draft": {
-                "answers": {
-                  "c2-9_01": {
-                    "value": null
-                  },
-                  "c2-9_09": {
-                    "value": null
-                  }
-                },
-                "freeText": ""
-              },
-              "savedAt": "2026-03-09T18:09:37.451Z",
-              "submittedAt": null
-            },
-            "p3": {
-              "draft": {
-                "answers": {
-                  "c2-1": [
-                    "sadf",
-                    "asdf",
-                    "",
-                    ""
-                  ],
-                  "c2-2": [
-                    "asf",
-                    "asdf",
-                    ""
-                  ],
-                  "c2-3": [
-                    "asdf"
-                  ],
-                  "c2-4": [
-                    "asdf"
-                  ],
-                  "c2-5": [
-                    "asdf",
-                    "asfd",
-                    ""
-                  ],
-                  "c2-6": "asfd",
-                  "c2-7a": [
-                    "asfd",
-                    ""
-                  ],
-                  "c2-7b": [
-                    "asf",
-                    ""
-                  ],
-                  "c2-7c": [
-                    "asdf",
-                    ""
-                  ],
-                  "c2-8": 2,
-                  "c2-9_01": {
-                    "value": 3
-                  },
-                  "c2-9_02": {
-                    "value": 3
-                  },
-                  "c2-9_03": {
-                    "value": 3
-                  },
-                  "c2-9_04": {
-                    "value": 3
-                  },
-                  "c2-9_05": {
-                    "value": 3
-                  },
-                  "c2-9_06": {
-                    "value": 3
-                  },
-                  "c2-9_07": {
-                    "value": 3
-                  },
-                  "c2-9_08": {
-                    "value": 3
-                  },
-                  "c2-9_09": {
-                    "value": 3
-                  },
-                  "c2-9_10": {
-                    "value": 3
-                  },
-                  "c2-9_11": {
-                    "value": 3
-                  },
-                  "c2-9_12": {
-                    "value": 3
-                  },
-                  "c2-9_13": {
-                    "value": 3
-                  },
-                  "c2-9_14": {
-                    "value": 3
-                  },
-                  "c2-9_15": {
-                    "value": 3
-                  },
-                  "c2-9_16": {
-                    "value": 3
-                  },
-                  "c2-9_17": {
-                    "value": 3
-                  },
-                  "c2-9_18": {
-                    "value": 3
-                  },
-                  "c2-9_19": {
-                    "value": 3
-                  },
-                  "c2-9_20": {
-                    "value": 3
-                  },
-                  "c2-9_21": {
-                    "value": 3
-                  },
-                  "c2-9_22": {
-                    "value": 3
-                  },
-                  "c2-9_23": {
-                    "value": 3
-                  },
-                  "c2-9_24": {
-                    "value": 3
-                  },
-                  "c2-9_25": {
-                    "value": 3
-                  },
-                  "c2-9_26": {
-                    "value": 3
-                  },
-                  "c2-9_27": {
-                    "value": 3
-                  },
-                  "c2-9_28": {
-                    "value": 3
-                  },
-                  "c2-9_29": {
-                    "value": 3
-                  },
-                  "c2-9_30": {
-                    "value": 3
-                  },
-                  "c2-9_31": {
-                    "value": 3
-                  },
-                  "c2-9_32": {
-                    "value": 3
-                  },
-                  "c2-9_33": {
-                    "value": 3
-                  },
-                  "c2-9_34": {
-                    "value": 3
-                  },
-                  "c2-9_35": {
-                    "value": 3
-                  },
-                  "c2-9_36": {
-                    "value": 3
-                  },
-                  "c2-9_37": {
-                    "value": 3
-                  },
-                  "c2-9_38": {
-                    "value": 3
-                  },
-                  "c2-9_39": {
-                    "value": 3
-                  },
-                  "c2-9_40": {
-                    "value": 3
-                  },
-                  "c2-9_41": {
-                    "value": 3
-                  },
-                  "c2-9_42": {
-                    "value": 3
-                  },
-                  "c2-9_43": {
-                    "value": 3
-                  },
-                  "c2-10": [
-                    "asdf",
-                    "asdf",
-                    "asdf"
-                  ],
-                  "c2-11": 4,
-                  "c2-12": "asdf",
-                  "c2-9_44": {
-                    "value": 2
-                  }
-                },
-                "freeText": ""
-              },
-              "savedAt": "2026-02-21T16:25:20.435Z",
-              "submittedAt": "2026-02-21T16:25:24.013Z"
-            },
-            "p5": {
-              "draft": {
-                "answers": {},
-                "freeText": ""
-              },
-              "savedAt": "2026-03-10T03:41:13.707Z",
-              "submittedAt": null
-            },
-            "p4": {
-              "draft": {
-                "answers": {
-                  "c2-1": [
-                    "asdf",
-                    "asdf",
-                    "asdf",
-                    ""
-                  ],
-                  "c2-2": [
-                    "sadf",
-                    "sadf",
-                    ""
-                  ],
-                  "c2-5": [
-                    "asdf",
-                    "aDSF",
-                    ""
-                  ],
-                  "c2-9_01": {
-                    "value": 4
-                  },
-                  "c2-9_02": {
-                    "value": 2
-                  },
-                  "c2-9_03": {
-                    "value": 2
-                  },
-                  "c2-9_04": {
-                    "value": 3
-                  },
-                  "c2-9_05": {
-                    "value": 1
-                  },
-                  "c2-9_06": {
-                    "value": 1
-                  },
-                  "c2-9_07": {
-                    "value": 2
-                  },
-                  "c2-9_08": {
-                    "value": 1
-                  },
-                  "c2-9_09": {
-                    "value": 4
-                  }
-                },
-                "freeText": ""
-              },
-              "savedAt": "2026-02-24T04:04:51.224Z",
-              "submittedAt": null
-            }
-          },
-          "p3": {
-            "p1": {
-              "draft": {
-                "answers": {},
-                "freeText": ""
-              },
-              "savedAt": "2026-02-12T03:39:37.375Z",
-              "submittedAt": null
-            },
-            "p5": {
-              "draft": {
-                "answers": {},
-                "freeText": ""
-              },
-              "savedAt": "2026-02-11T22:38:21.668Z",
-              "submittedAt": null
-            },
-            "p2": {
-              "draft": {
-                "answers": {},
-                "freeText": ""
-              },
-              "savedAt": "2026-02-12T03:40:08.691Z",
-              "submittedAt": null
-            }
-          }
-        }
+        "c1": {},
+        "c2": {}
       },
-      "logoUrl": "/uploads/logos/acme-integracion-2026.jpg"
+      "createdAt": "2026-03-10T04:48:42.659Z",
+      "launchedAt": "2026-03-10T04:52:15.222Z",
+      "closedAt": null,
+      "expectedStartDate": null,
+      "expectedEndDate": null,
+      "logoUrl": "/uploads/logos/acme-trapos-2026.jpg",
+      "expectedStartAt": "2026-03-09",
+      "expectedEndAt": "2026-04-20"
     }
   ],
   "logs": [],
-  "events": [
-    {
-      "id": "evt-1770593828008-c6e80e49fb4958",
-      "ts": "2026-02-08T23:37:08.007Z",
-      "type": "ADMIN_REMINDER_REQUESTED",
-      "processSlug": "acme-integracion-2026",
-      "participantId": "p1",
-      "participantEmail": "german.retana@gmail.com",
-      "participantName": "German Retana",
-      "adminEmail": "german.retana@gmail.com"
-    },
-    {
-      "id": "evt-1770593842368-f70e88e764376",
-      "ts": "2026-02-08T23:37:22.368Z",
-      "type": "ADMIN_ACCESS_RESET",
-      "processSlug": "acme-integracion-2026",
-      "participantId": "p2",
-      "participantEmail": "ana@example.com",
-      "participantName": "Ana López",
-      "adminEmail": "german.retana@gmail.com"
-    },
-    {
-      "id": "evt-1770594050121-c516d7666060f8",
-      "ts": "2026-02-08T23:40:50.120Z",
-      "type": "ADMIN_REMINDER_REQUESTED",
-      "processSlug": "acme-integracion-2026",
-      "participantId": "p2",
-      "participantEmail": "ana@example.com",
-      "participantName": "Ana López",
-      "adminEmail": "german.retana@gmail.com"
-    },
-    {
-      "id": "evt-1770594059887-c2e38198127328",
-      "ts": "2026-02-08T23:40:59.887Z",
-      "type": "ADMIN_ACCESS_RESET",
-      "processSlug": "acme-integracion-2026",
-      "participantId": "p2",
-      "participantEmail": "ana@example.com",
-      "participantName": "Ana López",
-      "adminEmail": "german.retana@gmail.com"
-    },
-    {
-      "id": "evt-1770594336606-854cfefcb21e68",
-      "ts": "2026-02-08T23:45:36.605Z",
-      "type": "ADMIN_REMINDER_REQUESTED",
-      "processSlug": "acme-integracion-2026",
-      "participantId": "p3",
-      "participantEmail": "carlos@example.com",
-      "participantName": "Carlos Méndez",
-      "adminEmail": "german.retana@gmail.com"
-    },
-    {
-      "id": "evt-1770594360759-eda0b135f0c17",
-      "ts": "2026-02-08T23:46:00.758Z",
-      "type": "ADMIN_ACCESS_RESET",
-      "processSlug": "acme-integracion-2026",
-      "participantId": "p4",
-      "participantEmail": "laura@example.com",
-      "participantName": "Laura Jiménez",
-      "adminEmail": "german.retana@gmail.com"
-    },
-    {
-      "id": "evt-1770594501221-fb492af12a0f58",
-      "ts": "2026-02-08T23:48:21.221Z",
-      "type": "ADMIN_REMINDER_REQUESTED",
-      "processSlug": "acme-integracion-2026",
-      "participantId": "p4",
-      "participantEmail": "laura@example.com",
-      "participantName": "Laura Jiménez",
-      "adminEmail": "german.retana@gmail.com"
-    },
-    {
-      "id": "evt-1770594795017-62493283993af",
-      "ts": "2026-02-08T23:53:15.016Z",
-      "type": "ADMIN_REMINDER_REQUESTED",
-      "processSlug": "acme-integracion-2026",
-      "participantId": "p3",
-      "participantEmail": "carlos@example.com",
-      "participantName": "Carlos Méndez",
-      "adminEmail": "german.retana@gmail.com"
-    },
-    {
-      "id": "evt-1770695589842-f0b82d60957cd8",
-      "ts": "2026-02-10T03:53:09.838Z",
-      "type": "ADMIN_REMINDER_REQUESTED",
-      "processSlug": "acme-integracion-2026",
-      "participantId": "p1",
-      "participantEmail": "german.retana@gmail.com",
-      "participantName": "German Retana",
-      "adminEmail": "german.retana@gmail.com"
-    },
-    {
-      "id": "evt-1770695600109-237052266.42331257",
-      "ts": "2026-02-10T03:53:20.107Z",
-      "type": "ADMIN_ACCESS_RESET",
-      "processSlug": "acme-integracion-2026",
-      "participantId": "p4",
-      "participantEmail": "laura@example.com",
-      "participantName": "Laura Jiménez",
-      "adminEmail": "german.retana@gmail.com"
-    },
-    {
-      "id": "evt-1770695734760-904767466.7575933",
-      "ts": "2026-02-10T03:55:34.758Z",
-      "type": "ADMIN_ACCESS_RESET",
-      "processSlug": "acme-integracion-2026",
-      "participantId": "p2",
-      "participantEmail": "ana@example.com",
-      "participantName": "Ana López",
-      "adminEmail": "german.retana@gmail.com"
-    },
-    {
-      "id": "evt-1770740360679-127fb090a9fe4",
-      "ts": "2026-02-10T16:19:20.676Z",
-      "type": "ADMIN_ACCESS_RESET",
-      "processSlug": "acme-integracion-2026",
-      "participantId": "p2",
-      "participantEmail": "ana@example.com",
-      "participantName": "Ana López",
-      "adminEmail": "german.retana@gmail.com"
-    },
-    {
-      "id": "evt-1770825380824-a861f3cefc64b",
-      "ts": "2026-02-11T15:56:20.821Z",
-      "type": "ADMIN_ACCESS_RESET",
-      "processSlug": "acme-integracion-2026",
-      "participantId": "p3",
-      "participantEmail": "carlos@example.com",
-      "participantName": "Carlos Méndez",
-      "adminEmail": "german.retana@gmail.com"
-    },
-    {
-      "at": "2026-02-21T15:31:15.857Z",
-      "type": "admin.reopen",
-      "processSlug": "acme-integracion-2026",
-      "participantId": "p2",
-      "kind": "c1",
-      "peerId": null
-    },
-    {
-      "at": "2026-02-21T15:32:56.844Z",
-      "type": "admin.reopen",
-      "processSlug": "acme-integracion-2026",
-      "participantId": "p2",
-      "kind": "c1",
-      "peerId": null
-    },
-    {
-      "at": "2026-02-21T16:25:11.438Z",
-      "type": "admin.reopen",
-      "processSlug": "acme-integracion-2026",
-      "participantId": "p2",
-      "kind": "c2",
-      "peerId": "p3"
-    },
-    {
-      "at": "2026-02-21T16:47:16.337Z",
-      "type": "admin.reopen",
-      "processSlug": "acme-integracion-2026",
-      "participantId": "p2",
-      "kind": "c1",
-      "peerId": null
-    },
-    {
-      "at": "2026-02-21T16:54:03.547Z",
-      "type": "admin.reopen",
-      "processSlug": "acme-integracion-2026",
-      "participantId": "p2",
-      "kind": "c1",
-      "peerId": null
-    },
-    {
-      "at": "2026-02-21T16:54:29.130Z",
-      "type": "admin.reopen",
-      "processSlug": "acme-integracion-2026",
-      "participantId": "p2",
-      "kind": "c1",
-      "peerId": null
-    },
-    {
-      "id": "evt-1773031800121-9686f60de4ea4",
-      "ts": "2026-03-09T04:50:00.119Z",
-      "type": "ADMIN_ACCESS_RESET",
-      "processSlug": "acme-integracion-2026",
-      "participantId": "p2",
-      "participantEmail": "ana@example.com",
-      "participantName": "Ana López",
-      "adminEmail": "german.retana@gmail.com"
-    },
-    {
-      "id": "evt-1773032197261-25a740c4612008",
-      "ts": "2026-03-09T04:56:37.260Z",
-      "type": "ADMIN_ACCESS_RESET",
-      "processSlug": "acme-integracion-2026",
-      "participantId": "p5",
-      "participantEmail": "diego@example.com",
-      "participantName": "Diego Vargas",
-      "adminEmail": "german.retana@gmail.com"
-    },
-    {
-      "id": "evt-1773065270078-7445ecf3e37818",
-      "ts": "2026-03-09T14:07:50.075Z",
-      "type": "ADMIN_ACCESS_RESET",
-      "processSlug": "acme-integracion-2026",
-      "participantId": "p2",
-      "participantEmail": "ana@example.com",
-      "participantName": "Ana López",
-      "adminEmail": "german.retana@gmail.com"
-    }
-  ]
+  "events": []
 }
