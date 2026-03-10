@@ -43,7 +43,7 @@
           "maxEntries": 2,
           "explanation": null,
           "condition": null,
-          "groupId": null,
+          "groupId": "c1-positivo",
           "dependsOn": null,
           "meta": null
         },
@@ -57,21 +57,21 @@
           "maxEntries": 3,
           "explanation": null,
           "condition": null,
-          "groupId": null,
+          "groupId": "c1-positivo",
           "dependsOn": null,
           "meta": null
         },
         {
           "schemaVersion": 1,
           "id": "c1-4a",
-          "order": 4.1,
+          "order": 4,
           "item": "Un excelente equipo de alta dirección se caracteriza por la calidad de sus discusiones sobre asuntos estratégicos. En nuestro caso la calidad del análisis sobre el desarrollo futuro de la organización es:",
           "type": "rating_fem_5",
           "minEntries": 1,
           "maxEntries": 1,
           "explanation": null,
           "condition": null,
-          "groupId": "c1-4",
+          "groupId": "c1-analisis",
           "dependsOn": null,
           "meta": {
             "labels": [
@@ -87,14 +87,14 @@
         {
           "schemaVersion": 1,
           "id": "c1-4b",
-          "order": 4.2,
+          "order": 5,
           "item": "¿Por qué?",
           "type": "text_area",
           "minEntries": 1,
           "maxEntries": 1,
           "explanation": null,
           "condition": null,
-          "groupId": "c1-4",
+          "groupId": "c1-analisis",
           "dependsOn": null,
           "meta": {
             "report": "list_reasons"
@@ -103,14 +103,14 @@
         {
           "schemaVersion": 1,
           "id": "c1-5a",
-          "order": 5.1,
+          "order": 6,
           "item": "¿Tenemos claros los objetivos de la organización, el plan de desarrollo estratégico y nuestros proyectos para los próximos años?",
           "type": "binary_yes_no",
           "minEntries": 1,
           "maxEntries": 1,
           "explanation": null,
           "condition": null,
-          "groupId": null,
+          "groupId": "c1-objetivos",
           "dependsOn": null,
           "meta": {
             "report": "frequency"
@@ -119,14 +119,14 @@
         {
           "schemaVersion": 1,
           "id": "c1-5b",
-          "order": 5.2,
+          "order": 7,
           "item": "¿Nos sentimos comprometidos con ese plan?",
           "type": "binary_yes_no",
           "minEntries": 1,
           "maxEntries": 1,
           "explanation": null,
           "condition": "Appears only if 5a is \"Sí\"",
-          "groupId": null,
+          "groupId": "c1-objetivos",
           "dependsOn": {
             "id": "c1-5a",
             "equals": "Sí"
@@ -138,14 +138,14 @@
         {
           "schemaVersion": 1,
           "id": "c1-5c",
-          "order": 5.3,
+          "order": 8,
           "item": "El personal de la organización conoce estos objetivos y nosotros los líderes promovemos su alcance y les ofrecemos información sobre los avances.",
           "type": "binary_yes_no",
           "minEntries": 1,
           "maxEntries": 1,
           "explanation": null,
           "condition": "Appears only if 5a is \"Sí\"",
-          "groupId": null,
+          "groupId": "c1-objetivos",
           "dependsOn": {
             "id": "c1-5a",
             "equals": "Sí"
@@ -157,14 +157,14 @@
         {
           "schemaVersion": 1,
           "id": "c1-6a",
-          "order": 6.1,
+          "order": 9,
           "item": "¿Somos un verdadero equipo?",
           "type": "binary_yes_no",
           "minEntries": 1,
           "maxEntries": 1,
           "explanation": null,
           "condition": null,
-          "groupId": "c1-6",
+          "groupId": "c1-verdadero",
           "dependsOn": null,
           "meta": {
             "report": "frequency"
@@ -173,14 +173,14 @@
         {
           "schemaVersion": 1,
           "id": "c1-6b",
-          "order": 6.2,
+          "order": 10,
           "item": "¿Por qué?",
           "type": "text_area",
           "minEntries": 1,
           "maxEntries": 1,
           "explanation": null,
           "condition": null,
-          "groupId": "c1-6",
+          "groupId": "c1-verdadero",
           "dependsOn": null,
           "meta": {
             "report": "reasons_by_binary",
@@ -190,7 +190,7 @@
         {
           "schemaVersion": 1,
           "id": "c1-7",
-          "order": 7,
+          "order": 11,
           "item": "La percepción que, en general, otras personas que laboran en la organización tienen sobre nuestro desempeño como equipo líder es más o menos así:",
           "type": "text_area",
           "minEntries": 0,
@@ -204,7 +204,7 @@
         {
           "schemaVersion": 1,
           "id": "c1.q8",
-          "order": 8,
+          "order": 12,
           "item": "Utilice la siguiente escala para evaluar el desempeño del Equipo Gerencial:<br/>0 Insatisfactorio · 1 Regular · 2 Bueno · 3 Muy Bueno · 4 Excelente",
           "type": "value_0_4_grid",
           "minEntries": null,
@@ -322,7 +322,7 @@
         {
           "schemaVersion": 1,
           "id": "c1-9",
-          "order": 9,
+          "order": 13,
           "item": "En casi todo equipo de trabajo, hay situaciones que impiden lograr un mejor desempeño. Considerando los puntajes asignados en el cuadro anterior y otros factores adicionales: ¿Cuáles son tres situaciones sumamente relevantes que nos están impidiendo ser un mejor equipo y sobre las cuales debemos conversar abiertamente en este proceso pues de lo contrario las mismas continuarán afectando nuestro desempeño e integración?",
           "type": "input_list",
           "minEntries": 3,
@@ -336,7 +336,7 @@
         {
           "schemaVersion": 1,
           "id": "c1-10",
-          "order": 10,
+          "order": 14,
           "item": "Las relaciones interpersonales constituyen un aspecto fundamental para el desarrollo y proyección de un equipo de trabajo. Creo que todo el equipo se fortalecería significativamente si las siguientes personas mejoraran la calidad de su relación personal y laboral. Solamente las personas mencionadas en esta respuesta conocerán el contenido de la misma, por lo tanto, escriba con la mayor apertura y franqueza.",
           "type": "header",
           "minEntries": null,
@@ -350,7 +350,7 @@
         {
           "schemaVersion": 1,
           "id": "c1-10",
-          "order": 10.1,
+          "order": 15,
           "item": "Sugerencias de conversaciones entre colegas (opcional)",
           "type": "pairing_rows",
           "rows": 3,
@@ -393,7 +393,7 @@
           "maxEntries": 3,
           "explanation": null,
           "condition": null,
-          "groupId": null,
+          "groupId": "c2-positivo",
           "dependsOn": null,
           "meta": null
         },
@@ -407,7 +407,7 @@
           "maxEntries": 1,
           "explanation": null,
           "condition": null,
-          "groupId": null,
+          "groupId": "c2-positivo",
           "dependsOn": null,
           "meta": null
         },
@@ -421,7 +421,7 @@
           "maxEntries": 1,
           "explanation": null,
           "condition": null,
-          "groupId": null,
+          "groupId": "c2-positivo",
           "dependsOn": null,
           "meta": null
         },
@@ -463,56 +463,56 @@
           "maxEntries": null,
           "explanation": null,
           "condition": null,
-          "groupId": null,
+          "groupId": "c2-fortalecer",
           "dependsOn": null,
           "meta": null
         },
         {
           "schemaVersion": 1,
           "id": "c2-7a",
-          "order": 7.1,
+          "order": 8,
           "item": "Conocimientos:",
           "type": "input_list",
           "minEntries": 1,
           "maxEntries": 2,
           "explanation": null,
           "condition": null,
-          "groupId": "c2-7",
+          "groupId": "c2-fortalecer",
           "dependsOn": null,
           "meta": null
         },
         {
           "schemaVersion": 1,
           "id": "c2-7b",
-          "order": 7.2,
+          "order": 9,
           "item": "Actitudes:",
           "type": "input_list",
           "minEntries": 1,
           "maxEntries": 2,
           "explanation": null,
           "condition": null,
-          "groupId": "c2-7",
+          "groupId": "c2-fortalecer",
           "dependsOn": null,
           "meta": null
         },
         {
           "schemaVersion": 1,
           "id": "c2-7c",
-          "order": 7.3,
+          "order": 10,
           "item": "Habilidades:",
           "type": "input_list",
           "minEntries": 1,
           "maxEntries": 2,
           "explanation": null,
           "condition": null,
-          "groupId": "c2-7",
+          "groupId": "c2-fortalecer",
           "dependsOn": null,
           "meta": null
         },
         {
           "schemaVersion": 1,
           "id": "c2-8",
-          "order": 8,
+          "order": 11,
           "item": "En síntesis, cuando le comparo con otras personas en posiciones de gerencia y jefatura en la organización considero que su ejecutoria general es:",
           "type": "rating_fem_5",
           "minEntries": 1,
@@ -719,12 +719,14 @@
               "label",
               "value"
             ]
-          }
+          },
+          "item": "Con mi mayor sinceridad, le expreso mi criterio sobre algunos aspectos de su estilo, desempeño y relaciones, utilizando la siguiente escala: </br>\n(4) Excelente, (3) Muy Bueno, (2) Bueno (1) Regular, (0) Malo",
+          "order": 12
         },
         {
           "schemaVersion": 1,
           "id": "c2-10",
-          "order": 10,
+          "order": 13,
           "item": "Interpreto que los tres valores o principios más relevantes que usted ha procurado promover con sus conductas, actitudes y planteamientos son:",
           "type": "input_list",
           "minEntries": 3,
@@ -738,7 +740,7 @@
         {
           "schemaVersion": 1,
           "id": "c2-11",
-          "order": 11,
+          "order": 14,
           "item": "En una escala de 0 a 10, el grado de satisfacción que yo tengo al trabajar con usted es:",
           "type": "evaluation_0_10",
           "minEntries": 1,
@@ -756,7 +758,7 @@
         {
           "schemaVersion": 1,
           "id": "c2-12",
-          "order": 12,
+          "order": 15,
           "item": "Estimado/a <peer>: Desde hace mucho tiempo había deseado tener una oportunidad como esta para expresarle un comentario, inquietud, observación constructiva o simplemente compartir una percepción sobre su desempeño, actitudes y relaciones. Si usted desea mejorar su gestión gerencial y liderazgo, sería muy conveniente que reflexionara sobre aspectos que pueden ayudarle a continuar siendo una persona de valor extraordinario en este equipo y la organización. Por eso, con toda mi sinceridad y buena intención, le exhorto a tomar en consideración lo siguiente:",
           "type": "text_area",
           "minEntries": 1,
@@ -1592,8 +1594,8 @@
         }
       ],
       "createdAt": "2026-02-08T15:23:07.199Z",
-      "launchedAt": "2026-03-09T14:47:46.248Z",
-      "closedAt": "2026-02-10T03:49:49.734Z",
+      "launchedAt": "2026-03-09T18:09:22.909Z",
+      "closedAt": "2026-03-09T15:06:19.001Z",
       "responses": {
         "c1": {
           "p2": {
@@ -1736,7 +1738,7 @@
               },
               "freeText": ""
             },
-            "savedAt": "2026-03-09T14:48:15.623Z",
+            "savedAt": "2026-03-09T22:56:50.610Z",
             "submittedAt": null
           },
           "p3": {
@@ -1896,7 +1898,7 @@
                 },
                 "freeText": ""
               },
-              "savedAt": "2026-02-22T00:07:34.296Z",
+              "savedAt": "2026-03-09T18:09:37.451Z",
               "submittedAt": null
             },
             "p3": {
@@ -2088,7 +2090,7 @@
                 "answers": {},
                 "freeText": ""
               },
-              "savedAt": "2026-02-21T23:47:19.028Z",
+              "savedAt": "2026-03-10T03:29:29.008Z",
               "submittedAt": null
             },
             "p4": {

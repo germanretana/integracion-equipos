@@ -20,6 +20,7 @@ export default function TemplateEditor({
   saveUrl,
   headerRight = null, // e.g. tabs
   note = null, // optional override
+  previewProcess = null,
 }) {
   const [loading, setLoading] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
@@ -288,7 +289,7 @@ export default function TemplateEditor({
 
   const qCount = questions.length;
 
-  const previewProcess = {
+  const previewProcessResolved = previewProcess || {
     companyName: "Empresa cliente",
     processName: "Proceso de integración",
     logoUrl: null,
@@ -888,7 +889,7 @@ export default function TemplateEditor({
                   className="page-inner"
                   style={{ padding: 0, maxWidth: "100%" }}
                 >
-                  <ParticipantBrandBar process={previewProcess} />
+                  <ParticipantBrandBar process={previewProcessResolved} />
 
                   <div className="p-topbar">
                     <div className="p-topbar-left">

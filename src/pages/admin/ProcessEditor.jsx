@@ -29,7 +29,11 @@ function Tab({ active, children, onClick }) {
 }
 
 function participantLabel(p) {
-  return `${p?.firstName || ""} ${p?.lastName || ""}`.trim() || p?.email || "Participante";
+  return (
+    `${p?.firstName || ""} ${p?.lastName || ""}`.trim() ||
+    p?.email ||
+    "Participante"
+  );
 }
 
 export default function ProcessEditor({ mode = "edit" }) {
@@ -211,7 +215,9 @@ export default function ProcessEditor({ mode = "edit" }) {
       );
       setParticipants(Array.isArray(data) ? data : []);
     } catch (e) {
-      setParticipantsError(e?.message || "No se pudieron cargar los participantes.");
+      setParticipantsError(
+        e?.message || "No se pudieron cargar los participantes.",
+      );
     } finally {
       setParticipantsLoading(false);
     }
@@ -321,9 +327,7 @@ export default function ProcessEditor({ mode = "edit" }) {
   async function handleParticipantResetAccess(p) {
     if (!process) return;
 
-    const ok = window.confirm(
-      `¿Resetear acceso de ${participantLabel(p)}?`,
-    );
+    const ok = window.confirm(`¿Resetear acceso de ${participantLabel(p)}?`);
     if (!ok) return;
 
     try {
@@ -681,7 +685,13 @@ export default function ProcessEditor({ mode = "edit" }) {
 
                     <div style={{ minWidth: 260 }}>
                       {mode === "create" ? (
-                        <div style={{ opacity: 0.65, fontSize: 13, lineHeight: 1.5 }}>
+                        <div
+                          style={{
+                            opacity: 0.65,
+                            fontSize: 13,
+                            lineHeight: 1.5,
+                          }}
+                        >
                           Podrá subir el logo una vez creado el proceso.
                         </div>
                       ) : (
@@ -689,14 +699,23 @@ export default function ProcessEditor({ mode = "edit" }) {
                           <input
                             type="file"
                             accept="image/*"
-                            disabled={process.status !== "EN_PREPARACION" || uploadingLogo}
+                            disabled={
+                              process.status !== "EN_PREPARACION" ||
+                              uploadingLogo
+                            }
                             onChange={(e) => {
                               const file = e.target.files?.[0];
                               handleLogoSelected(file);
                               e.target.value = "";
                             }}
                           />
-                          <div style={{ marginTop: 8, opacity: 0.65, fontSize: 12 }}>
+                          <div
+                            style={{
+                              marginTop: 8,
+                              opacity: 0.65,
+                              fontSize: 12,
+                            }}
+                          >
                             {uploadingLogo
                               ? "Subiendo logo…"
                               : "Formatos recomendados: JPG o PNG. El sistema optimiza automáticamente la imagen."}
@@ -766,7 +785,9 @@ export default function ProcessEditor({ mode = "edit" }) {
                   <input
                     className="admin-input"
                     value={participantForm.firstName}
-                    disabled={process.status !== "EN_PREPARACION" || participantSaving}
+                    disabled={
+                      process.status !== "EN_PREPARACION" || participantSaving
+                    }
                     onChange={(e) =>
                       setParticipantForm((prev) => ({
                         ...prev,
@@ -781,7 +802,9 @@ export default function ProcessEditor({ mode = "edit" }) {
                   <input
                     className="admin-input"
                     value={participantForm.lastName}
-                    disabled={process.status !== "EN_PREPARACION" || participantSaving}
+                    disabled={
+                      process.status !== "EN_PREPARACION" || participantSaving
+                    }
                     onChange={(e) =>
                       setParticipantForm((prev) => ({
                         ...prev,
@@ -796,7 +819,9 @@ export default function ProcessEditor({ mode = "edit" }) {
                   <input
                     className="admin-input"
                     value={participantForm.email}
-                    disabled={process.status !== "EN_PREPARACION" || participantSaving}
+                    disabled={
+                      process.status !== "EN_PREPARACION" || participantSaving
+                    }
                     onChange={(e) =>
                       setParticipantForm((prev) => ({
                         ...prev,
@@ -809,7 +834,9 @@ export default function ProcessEditor({ mode = "edit" }) {
                 <button
                   className="btn"
                   type="button"
-                  disabled={process.status !== "EN_PREPARACION" || participantSaving}
+                  disabled={
+                    process.status !== "EN_PREPARACION" || participantSaving
+                  }
                   onClick={handleParticipantSubmit}
                 >
                   {participantSaving
@@ -829,8 +856,12 @@ export default function ProcessEditor({ mode = "edit" }) {
                 </button>
               </div>
 
-              {participantsError && <div className="error">{participantsError}</div>}
-              {participantsLoading && <p className="sub">Cargando participantes…</p>}
+              {participantsError && (
+                <div className="error">{participantsError}</div>
+              )}
+              {participantsLoading && (
+                <p className="sub">Cargando participantes…</p>
+              )}
 
               {!participantsLoading && participants.length === 0 && (
                 <p className="sub">No hay participantes configurados.</p>
@@ -845,7 +876,11 @@ export default function ProcessEditor({ mode = "edit" }) {
                     }}
                   >
                     <thead>
-                      <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.12)" }}>
+                      <tr
+                        style={{
+                          borderBottom: "1px solid rgba(255,255,255,0.12)",
+                        }}
+                      >
                         <th style={{ textAlign: "left", padding: "10px 8px" }}>
                           Nombre
                         </th>
@@ -926,6 +961,15 @@ export default function ProcessEditor({ mode = "edit" }) {
             subtitle="Plantilla específica para este proceso."
             loadUrl={`/api/admin/processes/${processSlug}/templates/c1`}
             saveUrl={`/api/admin/processes/${processSlug}/templates/c1`}
+            previewProcess={
+              process
+                ? {
+                    companyName: process.companyName,
+                    processName: process.processName,
+                    logoUrl: process.logoUrl || null,
+                  }
+                : null
+            }
           />
         )}
 
@@ -935,6 +979,15 @@ export default function ProcessEditor({ mode = "edit" }) {
             subtitle="Plantilla específica para este proceso."
             loadUrl={`/api/admin/processes/${processSlug}/templates/c2`}
             saveUrl={`/api/admin/processes/${processSlug}/templates/c2`}
+            previewProcess={
+              process
+                ? {
+                    companyName: process.companyName,
+                    processName: process.processName,
+                    logoUrl: process.logoUrl || null,
+                  }
+                : null
+            }
           />
         )}
 
@@ -992,7 +1045,8 @@ export default function ProcessEditor({ mode = "edit" }) {
                 <strong>Contraseña temporal:</strong>{" "}
                 <span
                   style={{
-                    fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+                    fontFamily:
+                      "ui-monospace, SFMono-Regular, Menlo, monospace",
                     fontSize: 15,
                   }}
                 >
@@ -1000,7 +1054,9 @@ export default function ProcessEditor({ mode = "edit" }) {
                 </span>
               </p>
 
-              <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              <div
+                style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}
+              >
                 <button
                   className="btn"
                   type="button"

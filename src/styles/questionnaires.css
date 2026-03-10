@@ -674,3 +674,25 @@
   margin-top: 2px;
   opacity: 0.72;
 }
+
+/* =========================
+   Grouped questionnaire sections
+   Consecutive questions with same groupId
+========================= */
+
+.q-section {
+  margin-top: 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+.q-section-inner {
+  padding: 14px 16px 16px;
+}
+
+.q-section .q-grid-wrap:first-child,
+.q-section .q-grid-header:first-child {
+  margin-top: 0;
+}

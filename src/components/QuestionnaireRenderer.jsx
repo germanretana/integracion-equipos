@@ -44,18 +44,10 @@ function normalizeType(typeRaw) {
     .toLowerCase()
     .trim();
 
-  // Canon types expected by this renderer:
-  // header, input_list, text_area, binary_yes_no, rating_masc_5, rating_fem_5,
-  // value_0_4, evaluation_0_10, pairing_rows
-  //
-  // IMPORTANT: select_peer is deprecated and MUST NOT render.
-
-  // Legacy / aliases:
   if (t === "pairing_of_peers") return "pairing_rows";
   if (t === "valor_0_4") return "value_0_4";
   if (t === "eval_0_10") return "evaluation_0_10";
 
-  // Some alternate spellings (defensive)
   if (t === "textarea") return "text_area";
   if (t === "binary") return "binary_yes_no";
   if (t === "input") return "input_list";
@@ -67,10 +59,7 @@ function normalizeType(typeRaw) {
 
 function helpText(minEntries) {
   const min = Number.isFinite(minEntries) ? minEntries : null;
-
-  // Si no hay mínimo requerido, no mostramos hint.
   if (min == null || min <= 0) return "";
-
   if (min === 1) return "Requerida: 1";
   return `Requeridas: ${min}`;
 }
@@ -167,7 +156,6 @@ function MissingWrap({ qid, missing, children }) {
 }
 
 function ratingActiveStyle(value) {
-  // Rojo -> naranja -> ámbar -> verde -> verde fuerte
   const palette = {
     0: { bg: "rgba(255, 80, 80, 0.26)", bd: "rgba(255, 80, 80, 0.55)" },
     1: { bg: "rgba(255, 150, 60, 0.24)", bd: "rgba(255, 150, 60, 0.52)" },
@@ -188,11 +176,7 @@ export default function QuestionnaireRenderer({
   onChange,
   peers = [],
   disabled = false,
-
-  // para excluirme de listas (C1 pairings)
   currentParticipantId = "",
-
-  // ids faltantes (desde submit)
   missingIds = [],
 }) {
   const missingSet = React.useMemo(
@@ -207,7 +191,7 @@ export default function QuestionnaireRenderer({
   function renderHeader(q) {
     const text = qText(q);
     return (
-      <div style={{ marginTop: 20 }}>
+      <div style={{ marginTop: 4 }}>
         {text ? (
           <div
             style={{
@@ -229,7 +213,7 @@ export default function QuestionnaireRenderer({
     return (
       <DefaultFieldWrap
         title={<Html html={qText(q)} />}
-        requiredHint={helpText(q.minEntries, q.maxEntries)}
+        requiredHint={helpText(q.minEntries)}
       >
         <textarea
           value={val}
@@ -254,7 +238,7 @@ export default function QuestionnaireRenderer({
     return (
       <DefaultFieldWrap
         title={<Html html={qText(q)} />}
-        requiredHint={helpText(min, max)}
+        requiredHint={helpText(min)}
       >
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {arr.map((v, idx) => (
@@ -287,7 +271,7 @@ export default function QuestionnaireRenderer({
     return (
       <DefaultFieldWrap
         title={<Html html={qText(q)} />}
-        requiredHint={helpText(q.minEntries, q.maxEntries)}
+        requiredHint={helpText(q.minEntries)}
       >
         <ButtonsRow>
           <BtnChoice
@@ -319,7 +303,7 @@ export default function QuestionnaireRenderer({
     return (
       <DefaultFieldWrap
         title={<Html html={qText(q)} />}
-        requiredHint={helpText(q.minEntries, q.maxEntries)}
+        requiredHint={helpText(q.minEntries)}
       >
         <ButtonsRow>
           {SCALE_5.map((o) => (
@@ -341,7 +325,6 @@ export default function QuestionnaireRenderer({
     );
   }
 
-  // Generic value_0_4 grid (declarative block)
   function renderValue04Grid(q) {
     const items = Array.isArray(q.items) ? q.items : [];
     const meta = q?.meta && typeof q.meta === "object" ? q.meta : {};
@@ -475,7 +458,7 @@ export default function QuestionnaireRenderer({
     return (
       <DefaultFieldWrap
         title={<Html html={qText(q)} />}
-        requiredHint={helpText(q.minEntries, q.maxEntries)}
+        requiredHint={helpText(q.minEntries)}
       >
         <div
           style={{
@@ -537,7 +520,7 @@ export default function QuestionnaireRenderer({
     return (
       <DefaultFieldWrap
         title={<Html html={qText(q)} />}
-        requiredHint={helpText(q.minEntries, q.maxEntries)}
+        requiredHint={helpText(q.minEntries)}
       >
         <div
           style={{
@@ -560,7 +543,6 @@ export default function QuestionnaireRenderer({
               setAnswer(q.id, nextVal);
             }}
           />
-          {/* Ayuda redundante removida (backlog #3). Si luego queremos, la reintroducimos vía meta. */}
         </div>
       </DefaultFieldWrap>
     );
@@ -580,12 +562,10 @@ export default function QuestionnaireRenderer({
       (p) => String(p?.id || "") !== String(currentParticipantId || ""),
     );
 
-    // ===== DUPLICATE + SELF-PAIR DETECTION (order-independent) =====
     function normalizePair(a, b) {
       if (!a || !b) return null;
       const aa = String(a);
       const bb = String(b);
-      // self-pair => invalid (we'll flag separately; don't include in duplicate keys)
       if (aa && bb && aa === bb) return "__SELF__";
       return [aa, bb].sort().join("__");
     }
@@ -597,12 +577,11 @@ export default function QuestionnaireRenderer({
     const duplicates = new Set(
       pairKeys.filter((key, idx) => pairKeys.indexOf(key) !== idx),
     );
-    // =============================================================
 
     return (
       <DefaultFieldWrap
         title={qText(q) ? <Html html={qText(q)} /> : null}
-        requiredHint={helpText(q.minEntries, q.maxEntries)}
+        requiredHint={helpText(q.minEntries)}
       >
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {cur.map((row, idx) => {
@@ -653,7 +632,6 @@ export default function QuestionnaireRenderer({
                     <option
                       key={p.id}
                       value={p.id}
-                      // No permitir A-A desde UI
                       disabled={right && String(p.id) === String(right)}
                     >
                       {p.name}
@@ -682,7 +660,6 @@ export default function QuestionnaireRenderer({
                     <option
                       key={p.id}
                       value={p.id}
-                      // No permitir A-A desde UI
                       disabled={left && String(p.id) === String(left)}
                     >
                       {p.name}
@@ -713,15 +690,14 @@ export default function QuestionnaireRenderer({
     );
   }
 
-  function shouldRenderQuestion(q, answers) {
+  function shouldRenderQuestion(q, answersObj) {
     if (!q?.dependsOn || typeof q.dependsOn !== "object") return true;
 
     const { id, equals } = q.dependsOn;
     if (!id) return true;
 
-    const val = answers?.[id];
+    const val = answersObj?.[id];
 
-    // normalizamos yes/no
     if (val === "yes") {
       return equals === "yes" || equals === "Sí" || equals === true;
     }
@@ -769,20 +745,78 @@ export default function QuestionnaireRenderer({
     );
   }
 
+  const visibleQuestions = React.useMemo(() => {
+    return (questions || [])
+      .filter((q) => shouldRenderQuestion(q, answers))
+      .map((q, idx) => ({
+        ...q,
+        id: String(q?.id || q?.key || `${idx}`),
+        _groupId: String(q?.groupId || "").trim(),
+      }));
+  }, [questions, answers]);
+
+  const renderBlocks = React.useMemo(() => {
+    const blocks = [];
+    let i = 0;
+
+    while (i < visibleQuestions.length) {
+      const q = visibleQuestions[i];
+      const groupId = q._groupId;
+
+      // Sin grupo => igual se renderiza como una sección propia
+      if (!groupId) {
+        blocks.push({
+          type: "group",
+          key: `group:single:${q.id}`,
+          questions: [q],
+        });
+        i += 1;
+        continue;
+      }
+
+      const grouped = [q];
+      let j = i + 1;
+
+      while (j < visibleQuestions.length) {
+        const next = visibleQuestions[j];
+        if (next._groupId !== groupId) break;
+        grouped.push(next);
+        j += 1;
+      }
+
+      blocks.push({
+        type: "group",
+        key: `group:${groupId}:${q.id}`,
+        groupId,
+        questions: grouped,
+      });
+
+      i = j;
+    }
+
+    return blocks;
+  }, [visibleQuestions]);
+
+  function renderQuestionNode(q) {
+    const missing = missingSet.has(String(q.id));
+    const child = renderQuestion(q);
+
+    return (
+      <MissingWrap key={q.id} qid={q.id} missing={missing}>
+        {child}
+      </MissingWrap>
+    );
+  }
+
   return (
     <div>
-      {(questions || [])
-        .filter((q) => shouldRenderQuestion(q, answers))
-        .map((q, idx) => {
-          const id = String(q?.id || q?.key || `${idx}`);
-          const missing = missingSet.has(id);
-          const child = renderQuestion({ ...q, id });
-          return (
-            <MissingWrap key={id} qid={id} missing={missing}>
-              {child}
-            </MissingWrap>
-          );
-        })}
+      {renderBlocks.map((block) => (
+        <div key={block.key} className="q-section">
+          <div className="q-section-inner">
+            {block.questions.map(renderQuestionNode)}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
