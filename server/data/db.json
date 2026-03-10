@@ -720,7 +720,7 @@
               "value"
             ]
           },
-          "item": "Con mi mayor sinceridad, le expreso mi criterio sobre algunos aspectos de su estilo, desempeño y relaciones, utilizando la siguiente escala: </br>\n(4) Excelente, (3) Muy Bueno, (2) Bueno (1) Regular, (0) Malo",
+          "item": "Con mi mayor sinceridad, le expreso mi criterio sobre algunos aspectos de su estilo, desempeño y relaciones, utilizando la siguiente escala:</br>\n<center>4 = Excelente | 3 = Muy Bueno | 2 = Bueno | 1 = Regular | 0 = Malo </center>",
           "order": 12
         },
         {
