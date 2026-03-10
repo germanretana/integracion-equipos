@@ -696,3 +696,14 @@
 .q-section .q-grid-header:first-child {
   margin-top: 0;
 }
+
+.q-field {
+  margin-top: 0;
+}
+
+.q-section-inner > .q-field + .q-field,
+.q-section-inner > .q-missing-wrap + .q-missing-wrap,
+.q-section-inner > .q-field + .q-missing-wrap,
+.q-section-inner > .q-missing-wrap + .q-field {
+  margin-top: 18px;
+}

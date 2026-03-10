@@ -75,7 +75,7 @@ function Html({ html }) {
 
 function DefaultFieldWrap({ title, requiredHint, children }) {
   return (
-    <div style={{ marginTop: 18 }}>
+    <div className="q-field">
       {title ? (
         <div
           style={{
@@ -128,6 +128,7 @@ function MissingWrap({ qid, missing, children }) {
 
   return (
     <div
+      className="q-missing-wrap"
       data-qid={qid}
       style={{
         borderRadius: 14,
@@ -191,7 +192,7 @@ export default function QuestionnaireRenderer({
   function renderHeader(q) {
     const text = qText(q);
     return (
-      <div style={{ marginTop: 4 }}>
+      <div className="q-field">
         {text ? (
           <div
             style={{
