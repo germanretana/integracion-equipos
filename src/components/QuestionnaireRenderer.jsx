@@ -70,7 +70,10 @@ function qText(q) {
 
 function Html({ html }) {
   if (!html) return null;
-  return <span dangerouslySetInnerHTML={{ __html: String(html) }} />;
+
+  const normalized = String(html).replace(/\r\n/g, "\n").replace(/\n/g, "<br>");
+
+  return <span dangerouslySetInnerHTML={{ __html: normalized }} />;
 }
 
 function DefaultFieldWrap({ title, requiredHint, children }) {
