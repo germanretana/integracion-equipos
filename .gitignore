@@ -7,10 +7,21 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Build outputs
 node_modules
 dist
 dist-ssr
+
+# Local env / local-only config
+.env
+.env.local
+.env.production
+.env.development
 *.local
+
+# Temp / scratch
+tmp/
+temp/
 
 # Editor directories and files
 .vscode/*
@@ -22,10 +33,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-.DS_Store
-.env
 
-# Server Files
+# Server local data / uploads
 server/data/db.json
 server/uploads/*
 !server/uploads/.gitkeep
