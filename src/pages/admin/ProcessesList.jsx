@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { auth } from "../../services/auth";
 import "../../styles/admin.css";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3001";
+const API_BASE = import.meta.env.VITE_API_BASE || "";
 
 const STATUS_OPTIONS = [
   { value: "ALL", label: "Todos" },
