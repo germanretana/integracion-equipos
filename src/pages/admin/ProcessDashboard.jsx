@@ -560,7 +560,13 @@ export default function ProcessDashboard() {
                           className="btn"
                           type="button"
                           disabled={!canCloseProcess}
-                          onClick={() => setStatus("CERRADO")}
+                          onClick={() => {
+                            const ok = window.confirm(
+                              "¿Cerrar el proceso?\n\nEsto cambiará el estado a CERRADO.\n\nLos participantes ya no podrán editar ni enviar respuestas.",
+                            );
+                            if (!ok) return;
+                            setStatus("CERRADO");
+                          }}
                           style={{
                             fontWeight: 800,
                           }}
