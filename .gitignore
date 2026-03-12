@@ -24,3 +24,9 @@ dist-ssr
 *.sw?
 .DS_Store
 .env
+
+# Server Files
+server/data/db.json
+server/uploads/*
+!server/uploads/.gitkeep
+!server/uploads/logos/.gitkeep
