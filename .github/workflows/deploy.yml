@@ -1,12 +1,17 @@
-name: Build & Deploy (integracion)
+name: Deploy Integracion Equipos
 
 on:
   push:
     branches: ["main"]
 
+concurrency:
+  group: deploy-integracion-main
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -17,19 +22,52 @@ jobs:
           node-version: "20"
           cache: "npm"
 
-      - name: Install
+      - name: Install frontend dependencies
         run: npm ci
 
-      - name: Build
+      - name: Build frontend
         run: npm run build
 
-      - name: Deploy via rsync over SSH
-        uses: burnett01/rsync-deployments@v8
-        with:
-          switches: -avzr --delete
-          path: dist/
-          remote_path: ${{ secrets.DEPLOY_PATH }}/
-          remote_host: ${{ secrets.SSH_HOST }}
-          remote_user: ${{ secrets.SSH_USER }}
-          remote_key: ${{ secrets.SSH_KEY }}
+      - name: Install backend dependencies for validation
+        run: npm --prefix server ci
 
+      - name: Add SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: Add server to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Deploy frontend files
+        run: |
+          rsync -avz --delete \
+            dist/ \
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/webadmin/integracion.germanretana.com/site/"
+
+      - name: Deploy app source to server
+        run: |
+          rsync -avz --delete \
+            --exclude ".git" \
+            --exclude "node_modules" \
+            --exclude "dist" \
+            --exclude ".env" \
+            --exclude ".env.local" \
+            --exclude ".env.production" \
+            --exclude "server/node_modules" \
+            --exclude "server/data/db.json" \
+            --exclude "server/uploads" \
+            ./ \
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/webadmin/integracion-app/current/"
+
+      - name: Install backend dependencies and restart backend
+        run: |
+          ssh "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" '
+            set -e
+            cd /home/webadmin/integracion-app/current/server
+            npm ci
+            sudo -n systemctl restart integracion-backend
+            sudo -n systemctl is-active integracion-backend
+          '
