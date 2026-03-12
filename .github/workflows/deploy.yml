@@ -68,6 +68,6 @@ jobs:
             set -e
             cd /home/webadmin/integracion-app/current/server
             npm ci
-            sudo -n systemctl restart integracion-backend
-            sudo -n systemctl is-active integracion-backend
+            sudo -n /usr/bin/systemctl restart integracion-backend
+            sudo -n /usr/bin/systemctl is-active integracion-backend
           '
