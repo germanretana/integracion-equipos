@@ -1,6 +1,6 @@
 import Logo from "./Logo";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3001";
+const API_BASE = import.meta.env.VITE_API_BASE || "";
 
 export default function ParticipantBrandBar({ process }) {
   if (!process) return null;

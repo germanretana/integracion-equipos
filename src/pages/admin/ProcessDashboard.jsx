@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { auth } from "../../services/auth";
 import "../../styles/admin.css";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3001";
+const API_BASE = import.meta.env.VITE_API_BASE || "";
 
 function c1Label(status) {
   if (status === "done") return "Completado";
@@ -368,7 +368,7 @@ export default function ProcessDashboard() {
   const expectedC2Total =
     participantsCount > 0 ? Math.max(0, participantsCount - 1) : 0;
 
-    const status = proc?.status || "";
+  const status = proc?.status || "";
   const processClosed = status === "CERRADO";
 
   const canReopenToEditor = status === "EN_CURSO" && !saving;
