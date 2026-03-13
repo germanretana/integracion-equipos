@@ -4,7 +4,7 @@ import { auth } from "../../services/auth";
 import TemplateEditor from "../../components/admin/TemplateEditor";
 import "../../styles/admin.css";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3001";
+const API_BASE = import.meta.env.VITE_API_BASE || "";
 
 function Tab({ active, children, onClick }) {
   return (
