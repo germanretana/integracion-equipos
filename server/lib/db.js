@@ -67,45 +67,49 @@ function defaultDb() {
   };
 }
 
-function migrateDb(db) {
-  let changed = false;
+function normalizeTemplate(tpl, fallback) {
+  const out = tpl && typeof tpl === "object" ? tpl : structuredClone(fallback);
 
-  if (!db || typeof db !== "object") return { db: defaultDb(), changed: true };
+  if (typeof out.instructionsMd !== "string") {
+    if (out.instructions && typeof out.instructions === "object") {
+      out.instructionsMd = instructionsObjToMd(out.instructions);
+      delete out.instructions;
+    } else {
+      out.instructionsMd = fallback.instructionsMd;
+    }
+  }
+
+  if (!Array.isArray(out.questions)) {
+    out.questions = [];
+  }
+
+  return out;
+}
+
+function migrateDb(db) {
+  if (!db || typeof db !== "object") return defaultDb();
+
+  const defs = defaultDb();
 
   if (!Array.isArray(db.admins)) {
     db.admins = [];
-    changed = true;
   }
 
-  if (!db.baseTemplates) {
-    db.baseTemplates = defaultDb().baseTemplates;
-    changed = true;
+  if (!db.baseTemplates || typeof db.baseTemplates !== "object") {
+    db.baseTemplates = structuredClone(defs.baseTemplates);
   }
 
-  for (const kind of ["c1", "c2"]) {
-    const t = db.baseTemplates?.[kind];
-    if (!t) continue;
-
-    if (typeof t.instructionsMd !== "string") {
-      if (t.instructions && typeof t.instructions === "object") {
-        t.instructionsMd = instructionsObjToMd(t.instructions);
-        delete t.instructions;
-        changed = true;
-      } else {
-        t.instructionsMd = defaultDb().baseTemplates[kind].instructionsMd;
-        changed = true;
-      }
-    }
-
-    if (!Array.isArray(t.questions)) {
-      t.questions = [];
-      changed = true;
-    }
-  }
+  db.baseTemplates.c1 = normalizeTemplate(
+    db.baseTemplates.c1,
+    defs.baseTemplates.c1,
+  );
+  db.baseTemplates.c2 = normalizeTemplate(
+    db.baseTemplates.c2,
+    defs.baseTemplates.c2,
+  );
 
   if (!Array.isArray(db.processes)) {
     db.processes = [];
-    changed = true;
   }
 
   for (const p of db.processes) {
@@ -113,35 +117,53 @@ function migrateDb(db) {
 
     if (!p.templates || typeof p.templates !== "object") {
       p.templates = structuredClone(db.baseTemplates);
-      changed = true;
     }
+
+    p.templates.c1 = normalizeTemplate(p.templates.c1, db.baseTemplates.c1);
+    p.templates.c2 = normalizeTemplate(p.templates.c2, db.baseTemplates.c2);
 
     if (!Array.isArray(p.participants)) {
       p.participants = [];
-      changed = true;
     }
 
     if (!p.responses || typeof p.responses !== "object") {
       p.responses = { c1: {}, c2: {} };
-      changed = true;
     } else {
       if (!p.responses.c1 || typeof p.responses.c1 !== "object") {
         p.responses.c1 = {};
-        changed = true;
       }
       if (!p.responses.c2 || typeof p.responses.c2 !== "object") {
         p.responses.c2 = {};
-        changed = true;
       }
     }
+
+    if (!("expectedStartAt" in p)) {
+      p.expectedStartAt = null;
+    }
+    if (!("expectedEndAt" in p)) {
+      p.expectedEndAt = null;
+    }
+    if (!("logoUrl" in p)) {
+      p.logoUrl = null;
+    }
+    if (!("launchedAt" in p)) {
+      p.launchedAt = null;
+    }
+    if (!("closedAt" in p)) {
+      p.closedAt = null;
+    }
+
+    delete p.expectedStartDate;
+    delete p.expectedEndDate;
   }
 
   if (!Array.isArray(db.events)) {
     db.events = [];
-    changed = true;
   }
 
-  return { db, changed };
+  delete db.logs;
+
+  return db;
 }
 
 function ensureDb() {
@@ -154,8 +176,8 @@ function ensureDb() {
   try {
     const raw = fs.readFileSync(DB_PATH, "utf-8");
     const parsed = JSON.parse(raw);
-    const { db, changed } = migrateDb(parsed);
-    if (changed) fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
+    const normalized = migrateDb(parsed);
+    fs.writeFileSync(DB_PATH, JSON.stringify(normalized, null, 2));
   } catch {
     fs.writeFileSync(DB_PATH, JSON.stringify(defaultDb(), null, 2));
   }

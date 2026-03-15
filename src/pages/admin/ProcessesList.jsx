@@ -25,7 +25,7 @@ function formatExpectedStart(value) {
 }
 
 function sortRankForProcess(p) {
-  const raw = p?.expectedStartAt || p?.expectedStartDate || null;
+  const raw = p?.expectedStartAt || null;
 
   // EN_PREPARACION without date counts as future and should appear first.
   if (!raw && p?.status === "EN_PREPARACION") {
@@ -231,8 +231,7 @@ export default function ProcessesList() {
           <div className="section">
             <div className="section-body">
               {filteredItems.map((p) => {
-                const expectedStart =
-                  p.expectedStartAt || p.expectedStartDate || null;
+                const expectedStart = p.expectedStartAt || null;
 
                 return (
                   <Link

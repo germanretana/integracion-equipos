@@ -347,7 +347,7 @@
         },
         {
           "schemaVersion": 1,
-          "id": "new-1773594772732",
+          "id": "c1-10",
           "order": 14,
           "item": "Las relaciones interpersonales constituyen un aspecto fundamental para el desarrollo y proyección de un equipo de trabajo. Creo que todo el equipo se fortalecería significativamente si las siguientes personas mejoraran la calidad de su relación personal y laboral. Solamente las personas mencionadas en esta respuesta conocerán el contenido de la misma, por lo tanto, escriba con la mayor apertura y franqueza.\n\nSugerencias de conversaciones entre colegas (opcional):",
           "type": "pairing_rows",
@@ -773,10 +773,10 @@
   },
   "processes": [
     {
-      "processSlug": "acme-trapos-2026",
+      "processSlug": "para borrar 2026",
       "companyName": "ACME",
-      "processName": "Trapos Sucios",
-      "status": "EN_CURSO",
+      "processName": "Para Borrar",
+      "status": "EN_PREPARACION",
       "templates": {
         "c1": {
           "questions": [
@@ -784,7 +784,7 @@
               "schemaVersion": 1,
               "id": "c1-1",
               "order": 1,
-              "item": "Mi nivel de satisfacción general por pertenecer a este equipo gerencial en ACME es:",
+              "item": "Mi nivel de satisfacción general por pertenecer a este equipo gerencial es:",
               "type": "rating_masc_5",
               "minEntries": 1,
               "maxEntries": 1,
@@ -1107,35 +1107,18 @@
               "schemaVersion": 1,
               "id": "c1-10",
               "order": 14,
-              "item": "Las relaciones interpersonales constituyen un aspecto fundamental para el desarrollo y proyección de un equipo de trabajo. Creo que todo el equipo se fortalecería significativamente si las siguientes personas mejoraran la calidad de su relación personal y laboral. Solamente las personas mencionadas en esta respuesta conocerán el contenido de la misma, por lo tanto, escriba con la mayor apertura y franqueza.",
-              "type": "header",
-              "minEntries": null,
-              "maxEntries": null,
+              "item": "Las relaciones interpersonales constituyen un aspecto fundamental para el desarrollo y proyección de un equipo de trabajo. Creo que todo el equipo se fortalecería significativamente si las siguientes personas mejoraran la calidad de su relación personal y laboral. Solamente las personas mencionadas en esta respuesta conocerán el contenido de la misma, por lo tanto, escriba con la mayor apertura y franqueza.\n\nSugerencias de conversaciones entre colegas (opcional):",
+              "type": "pairing_rows",
+              "minEntries": 1,
+              "maxEntries": 1,
               "explanation": null,
               "condition": null,
               "groupId": null,
               "dependsOn": null,
               "meta": null
-            },
-            {
-              "schemaVersion": 1,
-              "id": "c1-10",
-              "order": 15,
-              "item": "Sugerencias de conversaciones entre colegas (opcional)",
-              "type": "pairing_rows",
-              "rows": 3,
-              "minEntries": 0,
-              "explanation": null,
-              "condition": null,
-              "groupId": null,
-              "dependsOn": null,
-              "meta": {
-                "leftLabel": "Persona",
-                "rightLabel": "Con"
-              }
             }
           ],
-          "instructionsMd": "# Retroalimentación del equipo (C1)\n\nEl propósito de esta encuesta es facilitar la evaluación del desempeño del equipo gerencial de la **ACME Inc.** e identificar áreas de oportunidad para mejorar.\n\n- Conteste con sinceridad, en beneficio propio y de todo el equipo.\n- No remita esta encuesta a sus colegas.\n- Sea tan amplio como lo considere necesario para que el desempeño del equipo pueda mejorarse con base en su contribución.\n\nMuchas gracias por su valiosa cooperación."
+          "instructionsMd": "# Retroalimentación del equipo (C1)\n\nEl propósito de esta encuesta es facilitar la evaluación del desempeño del equipo gerencial de **ACME**  e identificar áreas de oportunidad para mejorar.\n\n- Conteste con sinceridad, en beneficio propio y de todo el equipo.\n- No remita esta encuesta a sus colegas.\n- Sea tan amplio como lo considere necesario para que el desempeño del equipo pueda mejorarse con base en su contribución.\n\nMuchas gracias por su valiosa cooperación."
         },
         "c2": {
           "questions": [
@@ -1543,46 +1526,52 @@
               }
             }
           ],
-          "instructionsMd": "# Retroalimentación a compañeros (C2)\n\nSu opinión sobre el desempeño y relaciones de cada uno de sus colegas es de gran valor para ayudarles a mejorar su papel como líderes en la organización. No todos somos caricaturas marca Acme. \n\n- Emita su criterio con la mayor profundidad y sinceridad.\n- No remita estos documentos a sus compañeros.\n- Completará un cuestionario sobre cada uno de sus colegas.\n- Sus colegas no conocerán la fuente de las evaluaciones o comentarios, pues esta información se procesa en forma anónima."
+          "instructionsMd": "# Retroalimentación a compañeros (C2)\n\nSu opinión sobre el desempeño y relaciones de cada uno de sus colegas es de gran valor para ayudarles a mejorar su papel como líderes en la organización.\n\n- Emita su criterio con la mayor profundidad y sinceridad.\n- No remita estos documentos a sus compañeros.\n- Completará un cuestionario sobre cada uno de sus colegas.\n- Sus colegas no conocerán la fuente de las evaluaciones o comentarios, pues esta información se procesa en forma anónima."
         }
       },
       "participants": [
         {
-          "id": "p-1773118158334",
+          "id": "p-1773616741261",
           "firstName": "Ana",
-          "lastName": "López",
+          "lastName": "Aguilar",
           "email": "ana@acme.com",
-          "passwordHash": "$2a$10$5Up9IVyz/2RqKlLhR3HpwOtWJVEAgFze1tX8UBryUNMIv5vpduZwC"
+          "passwordHash": "$2a$10$boT6MLN5tg7rnnGK.QBtLuL9bPzBAF.lBb.99vNr3E9YRgjod8Hbu"
         },
         {
-          "id": "p-1773118197694",
-          "firstName": "Braulio",
-          "lastName": "Jiménez",
-          "email": "braulio@acme.com",
-          "passwordHash": "$2a$10$QoSqHQBhKEraHlxq.9oqMuHdcsORAi6wQdVFge/NBpF.d1wicwbqy"
+          "id": "p-1773616765777",
+          "firstName": "Bruno",
+          "lastName": "Benitez",
+          "email": "bruno@acme.com",
+          "passwordHash": "$2a$10$Z87KhgM8yPTd1Dxvo08XG.JsPSbwhByRsdSOEEA0KNIrbsmBwLIT2"
         },
         {
-          "id": "p-1773118231323",
-          "firstName": "Cristian",
-          "lastName": "De Tal",
-          "email": "cristian@acme.com",
-          "passwordHash": "$2a$10$SyPKm3YcIPYqwfV6VKdEHeWQcUX/mH5sNUpddaMA75LLuolQ7xvze"
+          "id": "p-1773616814823",
+          "firstName": "ana",
+          "lastName": "",
+          "email": "ana@asdoifj.com",
+          "passwordHash": null
         }
       ],
       "responses": {
-        "c1": {},
+        "c1": {
+          "p-1773616741261": {
+            "draft": {
+              "answers": {},
+              "freeText": ""
+            },
+            "savedAt": "2026-03-15T23:21:09.099Z",
+            "submittedAt": null
+          }
+        },
         "c2": {}
       },
-      "createdAt": "2026-03-10T04:48:42.659Z",
-      "launchedAt": "2026-03-10T04:52:15.222Z",
+      "createdAt": "2026-03-15T23:18:27.573Z",
+      "launchedAt": "2026-03-15T23:19:59.785Z",
       "closedAt": null,
-      "expectedStartDate": null,
-      "expectedEndDate": null,
-      "logoUrl": "/uploads/logos/acme-trapos-2026.jpg",
-      "expectedStartAt": "2026-03-09",
-      "expectedEndAt": "2026-04-20"
+      "expectedStartAt": "2026-03-20",
+      "expectedEndAt": "2026-04-16",
+      "logoUrl": "/uploads/logos/para borrar 2026.jpg"
     }
   ],
-  "logs": [],
   "events": []
 }

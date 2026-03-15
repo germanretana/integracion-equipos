@@ -442,8 +442,8 @@ app.post("/api/admin/processes", requireAdmin, (req, res) => {
     createdAt: now,
     launchedAt: null,
     closedAt: null,
-    expectedStartDate: null,
-    expectedEndDate: null,
+    expectedStartAt: null,
+    expectedEndAt: null,
     logoUrl: null,
   };
 
@@ -470,8 +470,8 @@ app.put("/api/admin/processes/:processSlug", requireAdmin, (req, res) => {
   const {
     companyName,
     processName,
-    expectedStartDate,
-    expectedEndDate,
+    expectedStartAt,
+    expectedEndAt,
     logoUrl,
     newSlug,
   } = req.body || {};
@@ -507,9 +507,8 @@ app.put("/api/admin/processes/:processSlug", requireAdmin, (req, res) => {
 
     proc.companyName = companyName ?? proc.companyName;
     proc.processName = processName ?? proc.processName;
-    proc.expectedStartDate =
-      expectedStartDate ?? proc.expectedStartDate ?? null;
-    proc.expectedEndDate = expectedEndDate ?? proc.expectedEndDate ?? null;
+    proc.expectedStartAt = expectedStartAt ?? proc.expectedStartAt ?? null;
+    proc.expectedEndAt = expectedEndAt ?? proc.expectedEndAt ?? null;
     proc.logoUrl = logoUrl ?? proc.logoUrl ?? null;
 
     if (finalSlug !== processSlug) {
@@ -1300,13 +1299,9 @@ app.get("/api/admin/processes-summary", requireAdmin, (_req, res) => {
       companyName: p.companyName,
       processName: p.processName,
       status: p.status,
+      expectedStartAt: p.expectedStartAt ?? null,
+      expectedEndAt: p.expectedEndAt ?? null,
       logoUrl: p.logoUrl || null,
-
-      // temporary compatibility while date field naming is inconsistent
-      expectedStartAt: p.expectedStartAt ?? p.expectedStartDate ?? null,
-      expectedEndAt: p.expectedEndAt ?? p.expectedEndDate ?? null,
-      expectedStartDate: p.expectedStartDate ?? p.expectedStartAt ?? null,
-      expectedEndDate: p.expectedEndDate ?? p.expectedEndAt ?? null,
 
       progress: { c1Completed, c1Total, c2Completed, c2Total },
     };
