@@ -347,34 +347,17 @@
         },
         {
           "schemaVersion": 1,
-          "id": "c1-10",
+          "id": "new-1773594772732",
           "order": 14,
-          "item": "Las relaciones interpersonales constituyen un aspecto fundamental para el desarrollo y proyección de un equipo de trabajo. Creo que todo el equipo se fortalecería significativamente si las siguientes personas mejoraran la calidad de su relación personal y laboral. Solamente las personas mencionadas en esta respuesta conocerán el contenido de la misma, por lo tanto, escriba con la mayor apertura y franqueza.",
-          "type": "header",
-          "minEntries": null,
-          "maxEntries": null,
+          "item": "Las relaciones interpersonales constituyen un aspecto fundamental para el desarrollo y proyección de un equipo de trabajo. Creo que todo el equipo se fortalecería significativamente si las siguientes personas mejoraran la calidad de su relación personal y laboral. Solamente las personas mencionadas en esta respuesta conocerán el contenido de la misma, por lo tanto, escriba con la mayor apertura y franqueza.\n\nSugerencias de conversaciones entre colegas (opcional):",
+          "type": "pairing_rows",
+          "minEntries": 1,
+          "maxEntries": 1,
           "explanation": null,
           "condition": null,
           "groupId": null,
           "dependsOn": null,
           "meta": null
-        },
-        {
-          "schemaVersion": 1,
-          "id": "c1-10",
-          "order": 15,
-          "item": "Sugerencias de conversaciones entre colegas (opcional)",
-          "type": "pairing_rows",
-          "rows": 3,
-          "minEntries": 0,
-          "explanation": null,
-          "condition": null,
-          "groupId": null,
-          "dependsOn": null,
-          "meta": {
-            "leftLabel": "Persona",
-            "rightLabel": "Con"
-          }
         }
       ],
       "instructionsMd": "# Retroalimentación del equipo (C1)\n\nEl propósito de esta encuesta es facilitar la evaluación del desempeño del equipo gerencial de la organización e identificar áreas de oportunidad para mejorar.\n\n- Conteste con sinceridad, en beneficio propio y de todo el equipo.\n- No remita esta encuesta a sus colegas.\n- Sea tan amplio como lo considere necesario para que el desempeño del equipo pueda mejorarse con base en su contribución.\n\nMuchas gracias por su valiosa cooperación."
