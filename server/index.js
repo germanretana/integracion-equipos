@@ -824,45 +824,10 @@ app.post("/api/app/login", async (req, res) => {
   let participant;
 
   if (matches.length === 0) {
-    proc = db.processes[0];
-    ensureMockParticipantsForProcess(proc);
-
-    participant = proc.participants.find(
-      (p) => String(p.email).toLowerCase() === emailNorm,
-    );
-
-    if (!participant) {
-      const newId = `p-${Date.now()}`;
-      participant = {
-        id: newId,
-        firstName: emailNorm.split("@")[0],
-        lastName: "",
-        email: emailNorm,
-        passwordHash: null,
-      };
-      proc.participants.push(participant);
-    }
-
-    updateDb((db2) => {
-      const p2 = db2.processes.find((x) => x.processSlug === proc.processSlug);
-      if (p2) p2.participants = proc.participants;
-      return db2;
-    });
+    return res.status(401).json({ error: "Credenciales inválidas." });
   } else if (matches.length === 1) {
     proc = matches[0].proc;
     participant = matches[0].participant;
-
-    ensureMockParticipantsForProcess(proc);
-
-    updateDb((db2) => {
-      const p2 = db2.processes.find((x) => x.processSlug === proc.processSlug);
-      if (
-        p2 &&
-        (!Array.isArray(p2.participants) || p2.participants.length === 0)
-      )
-        p2.participants = proc.participants;
-      return db2;
-    });
   } else {
     return res.status(409).json({
       error:
