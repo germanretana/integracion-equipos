@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 import express from "express";
 import cors from "cors";
 import bcrypt from "bcryptjs";
@@ -9,6 +11,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 import { readDb, updateDb } from "./lib/db.js";
+import { testConnection } from "./lib/pg.js";
+
 import {
   requireAdmin,
   signAdminToken,
@@ -1232,6 +1236,18 @@ app.post(
     res.json(entry);
   },
 );
+
+/* =========================
+   ADMIN DB TEST
+========================= */
+app.get("/api/admin/db-test", async (_req, res) => {
+  try {
+    const result = await testConnection();
+    res.json({ ok: true, now: result.now });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
 
 /* =========================
    ADMIN – PROCESSES SUMMARY
