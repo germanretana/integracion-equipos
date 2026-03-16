@@ -36,6 +36,16 @@ function participantLabel(p) {
   );
 }
 
+function slugifyProcessParts(companyName, processName) {
+  return String(`${companyName || ""}-${processName || ""}`)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .replace(/--+/g, "-");
+}
+
 export default function ProcessEditor({ mode = "edit" }) {
   const navigate = useNavigate();
   const { processSlug } = useParams();
@@ -55,6 +65,7 @@ export default function ProcessEditor({ mode = "edit" }) {
       : null,
   );
   const debounceRef = React.useRef(null);
+  const createSlugTouchedRef = React.useRef(false);
   const [loading, setLoading] = React.useState(mode !== "create");
   const [error, setError] = React.useState("");
   const [creating, setCreating] = React.useState(false);
@@ -105,6 +116,7 @@ export default function ProcessEditor({ mode = "edit" }) {
 
     const companyName = String(form.companyName || "").trim();
     const processName = String(form.processName || "").trim();
+    const processSlug = String(form.processSlug || "").trim();
 
     if (!companyName || !processName) {
       window.alert("Debe completar Empresa y Nombre del proceso.");
@@ -118,36 +130,13 @@ export default function ProcessEditor({ mode = "edit" }) {
         body: JSON.stringify({
           companyName,
           processName,
+          processSlug: processSlug || null,
+          expectedStartAt: form.expectedStartAt || null,
+          expectedEndAt: form.expectedEndAt || null,
         }),
       });
 
-      const patchPayload = {
-        expectedStartAt: form.expectedStartAt || null,
-        expectedEndAt: form.expectedEndAt || null,
-      };
-
-      if (String(form.processSlug || "").trim()) {
-        patchPayload.newSlug = String(form.processSlug).trim();
-      }
-
-      const hasOptionalChanges =
-        !!patchPayload.expectedStartAt ||
-        !!patchPayload.expectedEndAt ||
-        !!patchPayload.newSlug;
-
-      let finalProcess = created;
-
-      if (hasOptionalChanges) {
-        finalProcess = await auth.fetch(
-          `/api/admin/processes/${created.processSlug}`,
-          {
-            method: "PATCH",
-            body: JSON.stringify(patchPayload),
-          },
-        );
-      }
-
-      navigate(`/admin/processes/${finalProcess.processSlug}`, {
+      navigate(`/admin/processes/${created.processSlug}`, {
         replace: true,
       });
     } catch (e) {
@@ -417,6 +406,23 @@ export default function ProcessEditor({ mode = "edit" }) {
   }, [mode, process]);
 
   React.useEffect(() => {
+    if (mode !== "create") return;
+    if (!form) return;
+    if (createSlugTouchedRef.current) return;
+
+    const suggested = slugifyProcessParts(form.companyName, form.processName);
+
+    setForm((prev) =>
+      prev
+        ? {
+            ...prev,
+            processSlug: suggested,
+          }
+        : prev,
+    );
+  }, [mode, form?.companyName, form?.processName]);
+
+  React.useEffect(() => {
     if (mode === "create") return;
     if (!processSlug) return;
     loadParticipants(processSlug);
@@ -615,11 +621,20 @@ export default function ProcessEditor({ mode = "edit" }) {
                       mode !== "create" && process.status !== "EN_PREPARACION"
                     }
                     onChange={(e) => {
+                      if (mode === "create") {
+                        createSlugTouchedRef.current = true;
+                      }
                       const next = { ...form, processSlug: e.target.value };
                       setForm(next);
                       scheduleSave(next);
                     }}
                   />
+                  {mode === "create" && (
+                    <div style={{ marginTop: 6, fontSize: 12, opacity: 0.65 }}>
+                      Se sugiere automáticamente a partir de empresa + nombre,
+                      pero puede editarlo.
+                    </div>
+                  )}
                 </div>
 
                 <div>

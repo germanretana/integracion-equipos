@@ -130,3 +130,140 @@ export async function listProcessSummariesFromPg() {
     };
   });
 }
+
+export async function upsertProcessToPg(proc) {
+  const pool = getPool();
+
+  await pool.query(
+    `
+    insert into processes(
+      process_slug,
+      company_name,
+      process_name,
+      status,
+      created_at,
+      launched_at,
+      closed_at,
+      expected_start_at,
+      expected_end_at,
+      logo_url
+    )
+    values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+    on conflict (process_slug)
+    do update set
+      company_name = excluded.company_name,
+      process_name = excluded.process_name,
+      status = excluded.status,
+      created_at = excluded.created_at,
+      launched_at = excluded.launched_at,
+      closed_at = excluded.closed_at,
+      expected_start_at = excluded.expected_start_at,
+      expected_end_at = excluded.expected_end_at,
+      logo_url = excluded.logo_url
+    `,
+    [
+      proc.processSlug,
+      proc.companyName,
+      proc.processName,
+      proc.status,
+      proc.createdAt || new Date().toISOString(),
+      proc.launchedAt || null,
+      proc.closedAt || null,
+      proc.expectedStartAt || null,
+      proc.expectedEndAt || null,
+      proc.logoUrl || null,
+    ],
+  );
+}
+
+export async function replaceProcessQuestionnaireTemplatesInPg(proc) {
+  const pool = getPool();
+  const client = await pool.connect();
+
+  try {
+    await client.query("begin");
+
+    await client.query(
+      `
+      delete from process_templates
+      where process_slug = $1
+        and domain = 'questionnaire'
+      `,
+      [proc.processSlug],
+    );
+
+    if (proc.templates?.c1) {
+      await client.query(
+        `
+        insert into process_templates(process_slug, domain, kind, content)
+        values($1, 'questionnaire', 'c1', $2)
+        `,
+        [proc.processSlug, proc.templates.c1],
+      );
+    }
+
+    if (proc.templates?.c2) {
+      await client.query(
+        `
+        insert into process_templates(process_slug, domain, kind, content)
+        values($1, 'questionnaire', 'c2', $2)
+        `,
+        [proc.processSlug, proc.templates.c2],
+      );
+    }
+
+    await client.query("commit");
+  } catch (err) {
+    await client.query("rollback");
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+export async function deleteProcessFromPg(processSlug) {
+  const pool = getPool();
+  await pool.query(
+    `
+    delete from processes
+    where process_slug = $1
+    `,
+    [processSlug],
+  );
+}
+
+export async function renameProcessSlugInPg(oldSlug, newSlug) {
+  if (!oldSlug || !newSlug || oldSlug === newSlug) return;
+
+  const pool = getPool();
+  const client = await pool.connect();
+
+  try {
+    await client.query("begin");
+
+    await client.query(
+      `
+      update process_templates
+      set process_slug = $2
+      where process_slug = $1
+      `,
+      [oldSlug, newSlug],
+    );
+
+    await client.query(
+      `
+      update processes
+      set process_slug = $2
+      where process_slug = $1
+      `,
+      [oldSlug, newSlug],
+    );
+
+    await client.query("commit");
+  } catch (err) {
+    await client.query("rollback");
+    throw err;
+  } finally {
+    client.release();
+  }
+}
