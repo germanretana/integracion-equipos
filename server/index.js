@@ -871,11 +871,24 @@ app.post(
 
     const logoUrl = `/uploads/logos/${processSlug}.jpg`;
 
-    updateDb((db2) => {
+    const next = updateDb((db2) => {
       const p2 = db2.processes.find((p) => p.processSlug === processSlug);
       if (p2) p2.logoUrl = logoUrl;
       return db2;
     });
+
+    const updatedProc = next.processes.find(
+      (p) => p.processSlug === processSlug,
+    );
+
+    try {
+      await upsertProcessToPg(updatedProc);
+    } catch (err) {
+      return res.status(500).json({
+        error:
+          "El logo se guardó en JSON pero falló la sincronización a PostgreSQL.",
+      });
+    }
 
     res.json({ logoUrl });
   },
