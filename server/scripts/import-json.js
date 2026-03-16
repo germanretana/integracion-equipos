@@ -12,6 +12,7 @@ function getDbPath() {
 }
 
 async function main() {
+
   const dbPath = getDbPath();
   const raw = fs.readFileSync(dbPath, "utf8");
   const db = JSON.parse(raw);
@@ -20,60 +21,67 @@ async function main() {
   const client = await pool.connect();
 
   try {
+
     await client.query("begin");
 
-    /* -------------------------
+    /* =========================
        ADMINS
-    ------------------------- */
+    ========================= */
 
     for (const admin of db.admins || []) {
+
       await client.query(
         `
-        insert into admins (email, name, password_hash, created_at)
-        values ($1,$2,$3,$4)
-        on conflict (email) do update
-        set name = excluded.name
+        insert into admins(email,name,password_hash,created_at)
+        values($1,$2,$3,$4)
+        on conflict (email)
+        do update set name = excluded.name
         `,
         [
           admin.email,
           admin.name || "",
           admin.passwordHash,
-          admin.createdAt || new Date().toISOString(),
+          admin.createdAt || new Date().toISOString()
         ]
       );
+
     }
 
-    /* -------------------------
+    /* =========================
        BASE TEMPLATES
-    ------------------------- */
+    ========================= */
 
     if (db.baseTemplates?.c1) {
+
       await client.query(
         `
         insert into base_templates(domain,kind,content)
         values('questionnaire','c1',$1)
         on conflict (domain,kind)
-        do update set content=excluded.content
+        do update set content = excluded.content
         `,
         [db.baseTemplates.c1]
       );
+
     }
 
     if (db.baseTemplates?.c2) {
+
       await client.query(
         `
         insert into base_templates(domain,kind,content)
         values('questionnaire','c2',$1)
         on conflict (domain,kind)
-        do update set content=excluded.content
+        do update set content = excluded.content
         `,
         [db.baseTemplates.c2]
       );
+
     }
 
-    /* -------------------------
+    /* =========================
        PROCESSES
-    ------------------------- */
+    ========================= */
 
     for (const proc of db.processes || []) {
 
@@ -92,8 +100,8 @@ async function main() {
           logo_url
         )
         values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
-        on conflict (process_slug) do update
-        set status = excluded.status
+        on conflict (process_slug)
+        do update set status = excluded.status
         `,
         [
           proc.processSlug,
@@ -109,37 +117,41 @@ async function main() {
         ]
       );
 
-      /* -------------------------
-         PROCESS QUESTIONNAIRE TEMPLATES
-      ------------------------- */
+      /* =========================
+         PROCESS TEMPLATES
+      ========================= */
 
       if (proc.templates?.c1) {
+
         await client.query(
           `
           insert into process_templates(process_slug,domain,kind,content)
           values($1,'questionnaire','c1',$2)
           on conflict (process_slug,domain,kind)
-          do update set content=excluded.content
+          do update set content = excluded.content
           `,
           [proc.processSlug, proc.templates.c1]
         );
+
       }
 
       if (proc.templates?.c2) {
+
         await client.query(
           `
           insert into process_templates(process_slug,domain,kind,content)
           values($1,'questionnaire','c2',$2)
           on conflict (process_slug,domain,kind)
-          do update set content=excluded.content
+          do update set content = excluded.content
           `,
           [proc.processSlug, proc.templates.c2]
         );
+
       }
 
-      /* -------------------------
+      /* =========================
          PARTICIPANTS
-      ------------------------- */
+      ========================= */
 
       for (const p of proc.participants || []) {
 
@@ -154,8 +166,8 @@ async function main() {
             password_hash
           )
           values($1,$2,$3,$4,$5,$6)
-          on conflict (id) do update
-          set email = excluded.email
+          on conflict (id)
+          do update set email = excluded.email
           `,
           [
             p.id,
@@ -166,13 +178,19 @@ async function main() {
             p.passwordHash || null
           ]
         );
+
       }
 
-      /* -------------------------
+      /* =========================
          C1 RESPONSES
-      ------------------------- */
+      ========================= */
 
-      for (const r of proc.responses?.c1 || []) {
+      const c1Map =
+        proc.responses?.c1 && typeof proc.responses.c1 === "object"
+          ? proc.responses.c1
+          : {};
+
+      for (const [participantId, entry] of Object.entries(c1Map)) {
 
         await client.query(
           `
@@ -185,54 +203,76 @@ async function main() {
           )
           values($1,$2,$3,$4,$5)
           on conflict (process_slug,participant_id)
-          do update set draft=excluded.draft
+          do update
+          set draft = excluded.draft,
+              saved_at = excluded.saved_at,
+              submitted_at = excluded.submitted_at
           `,
           [
             proc.processSlug,
-            r.participantId,
-            r.draft || {},
-            r.savedAt || null,
-            r.submittedAt || null
+            participantId,
+            entry?.draft || {},
+            entry?.savedAt || null,
+            entry?.submittedAt || null
           ]
         );
+
       }
 
-      /* -------------------------
+      /* =========================
          C2 RESPONSES
-      ------------------------- */
+      ========================= */
 
-      for (const r of proc.responses?.c2 || []) {
+      const c2Outer =
+        proc.responses?.c2 && typeof proc.responses.c2 === "object"
+          ? proc.responses.c2
+          : {};
 
-        await client.query(
-          `
-          insert into response_c2(
-            process_slug,
-            participant_id,
-            peer_id,
-            draft,
-            saved_at,
-            submitted_at
-          )
-          values($1,$2,$3,$4,$5,$6)
-          on conflict (process_slug,participant_id,peer_id)
-          do update set draft=excluded.draft
-          `,
-          [
-            proc.processSlug,
-            r.participantId,
-            r.peerId,
-            r.draft || {},
-            r.savedAt || null,
-            r.submittedAt || null
-          ]
-        );
+      for (const [participantId, peerMap] of Object.entries(c2Outer)) {
+
+        const safePeerMap =
+          peerMap && typeof peerMap === "object"
+            ? peerMap
+            : {};
+
+        for (const [peerId, entry] of Object.entries(safePeerMap)) {
+
+          await client.query(
+            `
+            insert into response_c2(
+              process_slug,
+              participant_id,
+              peer_id,
+              draft,
+              saved_at,
+              submitted_at
+            )
+            values($1,$2,$3,$4,$5,$6)
+            on conflict (process_slug,participant_id,peer_id)
+            do update
+            set draft = excluded.draft,
+                saved_at = excluded.saved_at,
+                submitted_at = excluded.submitted_at
+            `,
+            [
+              proc.processSlug,
+              participantId,
+              peerId,
+              entry?.draft || {},
+              entry?.savedAt || null,
+              entry?.submittedAt || null
+            ]
+          );
+
+        }
+
       }
 
     }
 
-    /* -------------------------
+    /* =========================
        EVENTS
-    ------------------------- */
+    ========================= */
 
     for (const ev of db.events || []) {
 
@@ -264,6 +304,7 @@ async function main() {
           ev.payload || {}
         ]
       );
+
     }
 
     await client.query("commit");
