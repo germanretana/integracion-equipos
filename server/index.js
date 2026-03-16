@@ -11,8 +11,11 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 import { readDb, updateDb } from "./lib/db.js";
-import { testConnection } from "./lib/pg.js";
-
+import {
+  testConnection,
+  listProcessesFromPg,
+  listProcessSummariesFromPg,
+} from "./lib/pg.js";
 import {
   requireAdmin,
   signAdminToken,
@@ -419,9 +422,13 @@ app.put("/api/admin/base-templates/:kind", requireAdmin, (req, res) => {
 /* =========================
    PROCESSES (ADMIN)
 ========================= */
-app.get("/api/admin/processes", requireAdmin, (_req, res) => {
-  const db = readDb();
-  res.json(db.processes);
+app.get("/api/admin/processes", requireAdmin, async (_req, res) => {
+  try {
+    const processes = await listProcessesFromPg();
+    res.json(processes);
+  } catch (err) {
+    res.status(500).json({ error: "No se pudieron cargar los procesos." });
+  }
 });
 
 app.post("/api/admin/processes", requireAdmin, (req, res) => {
@@ -1240,7 +1247,7 @@ app.post(
 /* =========================
    ADMIN DB TEST
 ========================= */
-app.get("/api/admin/db-test", async (_req, res) => {
+app.get("/api/admin/db-test", requireAdmin, async (_req, res) => {
   try {
     const result = await testConnection();
     res.json({ ok: true, now: result.now });
@@ -1252,43 +1259,15 @@ app.get("/api/admin/db-test", async (_req, res) => {
 /* =========================
    ADMIN – PROCESSES SUMMARY
 ========================= */
-app.get("/api/admin/processes-summary", requireAdmin, (_req, res) => {
-  const db = readDb();
-
-  const summary = db.processes.map((p) => {
-    const participants = p.participants || [];
-    const responses = p.responses || { c1: {}, c2: {} };
-
-    const c1Total = participants.length;
-    const c1Completed = Object.values(responses.c1 || {}).filter(
-      (r) => r?.submittedAt,
-    ).length;
-
-    let c2Total = 0;
-    let c2Completed = 0;
-
-    for (const me of participants) {
-      const peers = participants.filter((x) => x.id !== me.id);
-      c2Total += peers.length;
-
-      const map = responses.c2?.[me.id] || {};
-      c2Completed += Object.values(map).filter((r) => r?.submittedAt).length;
-    }
-
-    return {
-      processSlug: p.processSlug,
-      companyName: p.companyName,
-      processName: p.processName,
-      status: p.status,
-      expectedStartAt: p.expectedStartAt ?? null,
-      expectedEndAt: p.expectedEndAt ?? null,
-      logoUrl: p.logoUrl || null,
-
-      progress: { c1Completed, c1Total, c2Completed, c2Total },
-    };
-  });
-
-  res.json(summary);
+app.get("/api/admin/processes-summary", requireAdmin, async (_req, res) => {
+  try {
+    const summary = await listProcessSummariesFromPg();
+    res.json(summary);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "No se pudo cargar el resumen de procesos." });
+  }
 });
 
 /* =========================
