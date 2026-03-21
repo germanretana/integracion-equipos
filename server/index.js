@@ -16,6 +16,11 @@ import {
   testConnection,
   listProcessesFromPg,
   listProcessSummariesFromPg,
+  listParticipantsFromPg,
+  insertParticipantToPg,
+  updateParticipantInPg,
+  deleteParticipantFromPg,
+  resetParticipantAccessInPg,
   upsertProcessToPg,
   replaceProcessQuestionnaireTemplatesInPg,
   deleteProcessFromPg,
@@ -1475,9 +1480,18 @@ app.post(
       return db2;
     });
 
+    try {
+      await insertParticipantToPg(processSlug, newParticipant);
+    } catch (err) {
+      return res.status(500).json({
+        error:
+          "El participante se guardó en JSON pero falló la sincronización a PostgreSQL.",
+      });
+    }
+
     res.json({
       ...newParticipant,
-      tempPassword, // only returned once
+      tempPassword,
     });
   },
 );
@@ -1485,7 +1499,7 @@ app.post(
 app.put(
   "/api/admin/processes/:processSlug/participants/:participantId",
   requireAdmin,
-  (req, res) => {
+  async (req, res) => {
     const { processSlug, participantId } = req.params;
     const { firstName, lastName, email } = req.body || {};
 
@@ -1551,6 +1565,15 @@ app.put(
       return res.status(404).json({ error: "Participante no encontrado." });
     }
 
+    try {
+      await updateParticipantInPg(processSlug, updatedParticipant);
+    } catch (err) {
+      return res.status(500).json({
+        error:
+          "El participante se actualizó en JSON pero falló la sincronización a PostgreSQL.",
+      });
+    }
+
     res.json(updatedParticipant);
   },
 );
@@ -1558,7 +1581,7 @@ app.put(
 app.delete(
   "/api/admin/processes/:processSlug/participants/:participantId",
   requireAdmin,
-  (req, res) => {
+  async (req, res) => {
     const { processSlug, participantId } = req.params;
 
     const db = readDb();
@@ -1570,6 +1593,12 @@ app.delete(
         error: "Solo se pueden eliminar participantes en EN_PREPARACION.",
       });
 
+    const participant = (proc.participants || []).find(
+      (p) => p.id === participantId,
+    );
+    if (!participant)
+      return res.status(404).json({ error: "Participante no encontrado." });
+
     updateDb((db2) => {
       const p2 = db2.processes.find((p) => p.processSlug === processSlug);
       if (!p2) return db2;
@@ -1580,6 +1609,15 @@ app.delete(
 
       return db2;
     });
+
+    try {
+      await deleteParticipantFromPg(processSlug, participantId);
+    } catch (err) {
+      return res.status(500).json({
+        error:
+          "El participante se eliminó en JSON pero falló la sincronización a PostgreSQL.",
+      });
+    }
 
     res.json({ ok: true });
   },
@@ -1695,6 +1733,19 @@ app.post(
 
       return db2;
     });
+
+    try {
+      await resetParticipantAccessInPg(
+        processSlug,
+        participantId,
+        passwordHash,
+      );
+    } catch (err) {
+      return res.status(500).json({
+        error:
+          "El acceso se reseteó en JSON pero falló la sincronización a PostgreSQL.",
+      });
+    }
 
     res.json({ ok: true, ts: now, tempPassword });
   },

@@ -131,6 +131,139 @@ export async function listProcessSummariesFromPg() {
   });
 }
 
+export async function listParticipantsFromPg(processSlug) {
+  const pool = getPool();
+
+  const { rows } = await pool.query(
+    `
+    select
+      id,
+      process_slug as "processSlug",
+      first_name as "firstName",
+      last_name as "lastName",
+      email,
+      password_hash as "passwordHash"
+    from participants
+    where process_slug = $1
+    order by lower(last_name), lower(first_name), id
+    `,
+    [processSlug],
+  );
+
+  return rows;
+}
+
+export async function insertParticipantToPg(processSlug, participant) {
+  const pool = getPool();
+
+  const { rows } = await pool.query(
+    `
+    insert into participants(
+      id,
+      process_slug,
+      first_name,
+      last_name,
+      email,
+      password_hash
+    )
+    values($1,$2,$3,$4,$5,$6)
+    returning
+      id,
+      process_slug as "processSlug",
+      first_name as "firstName",
+      last_name as "lastName",
+      email,
+      password_hash as "passwordHash"
+    `,
+    [
+      participant.id,
+      processSlug,
+      participant.firstName || "",
+      participant.lastName || "",
+      participant.email,
+      participant.passwordHash || null,
+    ],
+  );
+
+  return rows[0] || null;
+}
+
+export async function updateParticipantInPg(processSlug, participant) {
+  const pool = getPool();
+
+  const { rows } = await pool.query(
+    `
+    update participants
+    set
+      first_name = $3,
+      last_name = $4,
+      email = $5,
+      password_hash = $6
+    where process_slug = $1
+      and id = $2
+    returning
+      id,
+      process_slug as "processSlug",
+      first_name as "firstName",
+      last_name as "lastName",
+      email,
+      password_hash as "passwordHash"
+    `,
+    [
+      processSlug,
+      participant.id,
+      participant.firstName || "",
+      participant.lastName || "",
+      participant.email,
+      participant.passwordHash || null,
+    ],
+  );
+
+  return rows[0] || null;
+}
+
+export async function deleteParticipantFromPg(processSlug, participantId) {
+  const pool = getPool();
+
+  const { rowCount } = await pool.query(
+    `
+    delete from participants
+    where process_slug = $1
+      and id = $2
+    `,
+    [processSlug, participantId],
+  );
+
+  return rowCount > 0;
+}
+
+export async function resetParticipantAccessInPg(
+  processSlug,
+  participantId,
+  passwordHash,
+) {
+  const pool = getPool();
+
+  const { rows } = await pool.query(
+    `
+    update participants
+    set password_hash = $3
+    where process_slug = $1
+      and id = $2
+    returning
+      id,
+      process_slug as "processSlug",
+      first_name as "firstName",
+      last_name as "lastName",
+      email,
+      password_hash as "passwordHash"
+    `,
+    [processSlug, participantId, passwordHash],
+  );
+
+  return rows[0] || null;
+}
+
 export async function upsertProcessToPg(proc) {
   const pool = getPool();
 
