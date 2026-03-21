@@ -15,6 +15,7 @@ import { readDb, updateDb } from "./lib/db.js";
 import {
   testConnection,
   listProcessesFromPg,
+  getProcessFromPg,
   listProcessSummariesFromPg,
   listParticipantsFromPg,
   insertParticipantToPg,
@@ -597,80 +598,84 @@ app.put("/api/admin/processes/:processSlug", requireAdmin, async (req, res) => {
 app.get(
   "/api/admin/processes/:processSlug/progress",
   requireAdmin,
-  (req, res) => {
+  async (req, res) => {
     const { processSlug } = req.params;
-    const db = readDb();
 
-    const p = (db.processes || []).find(
-      (x) => String(x?.processSlug || x?.slug || "") === String(processSlug),
-    );
-    if (!p)
-      return res
-        .status(404)
-        .json({ error: `Process not found: ${processSlug}` });
+    try {
+      const participants = await listParticipantsFromPg(processSlug);
+      const procPg = await getProcessFromPg(processSlug);
 
-    const participants = Array.isArray(p.participants) ? p.participants : [];
-    const tplC1 = p.templates?.c1 || {};
-    const tplC2 = p.templates?.c2 || {};
+      if (!procPg)
+        return res
+          .status(404)
+          .json({ error: `Process not found: ${processSlug}` });
 
-    function participantNameById(pid) {
-      const found = participants.find(
-        (pp) => String(pp?.id || "") === String(pid),
+      const db = readDb();
+      const p = (db.processes || []).find(
+        (x) => String(x?.processSlug || x?.slug || "") === String(processSlug),
       );
-      return String(
-        found?.name || found?.fullName || found?.displayName || pid,
-      );
-    }
+      if (!p)
+        return res
+          .status(404)
+          .json({ error: `Process not found: ${processSlug}` });
 
-    const outParticipants = participants.map((pp) => {
-      const participantId = String(pp?.id || "");
-      const name = String(
-        pp?.name || pp?.fullName || pp?.displayName || participantId,
-      );
+      const tplC1 = p.templates?.c1 || {};
+      const tplC2 = p.templates?.c2 || {};
 
-      // --- C1
-      const c1Entry = getResponseEntry(p, "c1", participantId, null);
-      const c1 = calcStatusFromEntryAndTemplate(c1Entry, tplC1);
-
-      const questionnaires = [
-        {
-          kind: "c1",
-          title: "C1",
-          status: c1.status,
-          percent: c1.percent,
-          submittedAt: c1Entry?.submittedAt || null,
-          savedAt: c1Entry?.savedAt || null,
-        },
-      ];
-
-      // --- C2: one per peer (all other participants)
-      for (const peer of participants) {
-        const peerId = String(peer?.id || "");
-        if (!peerId || peerId === participantId) continue;
-
-        const entry = getResponseEntry(p, "c2", participantId, peerId);
-
-        const st = calcStatusFromEntryAndTemplate(entry, tplC2);
-
-        questionnaires.push({
-          kind: "c2",
-          peerId,
-          title: `C2 → ${participantNameById(peerId)}`,
-          status: entry?.submittedAt ? "done" : st.status,
-          percent: entry?.submittedAt ? 100 : st.percent,
-          submittedAt: entry?.submittedAt || null,
-          savedAt: entry?.savedAt || null,
-        });
+      function participantNameById(pid) {
+        const found = participants.find(
+          (pp) => String(pp?.id || "") === String(pid),
+        );
+        return found ? participantDisplayName(found) : String(pid);
       }
 
-      return { id: participantId, name, questionnaires };
-    });
+      const outParticipants = participants.map((pp) => {
+        const participantId = String(pp?.id || "");
+        const name = participantDisplayName(pp);
 
-    return res.json({
-      processSlug: String(p.processSlug || p.slug || processSlug),
-      processName: p.processName || p.name || null,
-      participants: outParticipants,
-    });
+        const c1Entry = getResponseEntry(p, "c1", participantId, null);
+        const c1 = calcStatusFromEntryAndTemplate(c1Entry, tplC1);
+
+        const questionnaires = [
+          {
+            kind: "c1",
+            title: "C1",
+            status: c1.status,
+            percent: c1.percent,
+            submittedAt: c1Entry?.submittedAt || null,
+            savedAt: c1Entry?.savedAt || null,
+          },
+        ];
+
+        for (const peer of participants) {
+          const peerId = String(peer?.id || "");
+          if (!peerId || peerId === participantId) continue;
+
+          const entry = getResponseEntry(p, "c2", participantId, peerId);
+          const st = calcStatusFromEntryAndTemplate(entry, tplC2);
+
+          questionnaires.push({
+            kind: "c2",
+            peerId,
+            title: `C2 → ${participantNameById(peerId)}`,
+            status: entry?.submittedAt ? "done" : st.status,
+            percent: entry?.submittedAt ? 100 : st.percent,
+            submittedAt: entry?.submittedAt || null,
+            savedAt: entry?.savedAt || null,
+          });
+        }
+
+        return { id: participantId, name, questionnaires };
+      });
+
+      return res.json({
+        processSlug: String(procPg.processSlug || processSlug),
+        processName: procPg.processName || null,
+        participants: outParticipants,
+      });
+    } catch (err) {
+      return res.status(500).json({ error: "No se pudo cargar el progreso." });
+    }
   },
 );
 
@@ -1367,51 +1372,60 @@ app.get("/api/admin/processes-summary", requireAdmin, async (_req, res) => {
 app.get(
   "/api/admin/processes/:processSlug/dashboard",
   requireAdmin,
-  (req, res) => {
-    const db = readDb();
-    const proc = db.processes.find(
-      (p) => p.processSlug === req.params.processSlug,
-    );
-    if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
+  async (req, res) => {
+    const { processSlug } = req.params;
 
-    const participants = proc.participants || [];
-    const responses = proc.responses || { c1: {}, c2: {} };
-    const c1 = responses.c1 || {};
-    const c2 = responses.c2 || {};
+    try {
+      const procPg = await getProcessFromPg(processSlug);
+      if (!procPg)
+        return res.status(404).json({ error: "Proceso no encontrado." });
 
-    const c1Tpl = proc.templates?.c1 || null;
+      const participants = await listParticipantsFromPg(processSlug);
 
-    const rows = participants.map((p) => {
-      const c1Entry = c1?.[p.id] || null;
-      const c1Status = calcStatusFromEntryAndTemplate(c1Entry, c1Tpl);
+      const db = readDb();
+      const procJson = db.processes.find((p) => p.processSlug === processSlug);
+      if (!procJson)
+        return res.status(404).json({ error: "Proceso no encontrado." });
 
-      const peersCount = participants.filter((x) => x.id !== p.id).length;
-      const myMap = c2?.[p.id] || {};
-      const completed = Object.values(myMap).filter(
-        (r) => r?.submittedAt,
-      ).length;
+      const responses = procJson.responses || { c1: {}, c2: {} };
+      const c1 = responses.c1 || {};
+      const c2 = responses.c2 || {};
+      const c1Tpl = procJson.templates?.c1 || null;
 
-      return {
-        id: p.id,
-        name: participantDisplayName(p),
-        email: p.email || "",
-        c1: c1Status.status,
-        c2: { completed, total: peersCount },
-      };
-    });
+      const rows = participants.map((p) => {
+        const c1Entry = c1?.[p.id] || null;
+        const c1Status = calcStatusFromEntryAndTemplate(c1Entry, c1Tpl);
 
-    res.json({
-      process: {
-        processSlug: proc.processSlug,
-        companyName: proc.companyName,
-        processName: proc.processName,
-        status: proc.status,
-        logoUrl: proc.logoUrl || null,
-        launchedAt: proc.launchedAt || null,
-        closedAt: proc.closedAt || null,
-      },
-      participants: rows,
-    });
+        const peersCount = participants.filter((x) => x.id !== p.id).length;
+        const myMap = c2?.[p.id] || {};
+        const completed = Object.values(myMap).filter(
+          (r) => r?.submittedAt,
+        ).length;
+
+        return {
+          id: p.id,
+          name: participantDisplayName(p),
+          email: p.email || "",
+          c1: c1Status.status,
+          c2: { completed, total: peersCount },
+        };
+      });
+
+      res.json({
+        process: {
+          processSlug: procPg.processSlug,
+          companyName: procPg.companyName,
+          processName: procPg.processName,
+          status: procPg.status,
+          logoUrl: procPg.logoUrl || null,
+          launchedAt: procPg.launchedAt || null,
+          closedAt: procPg.closedAt || null,
+        },
+        participants: rows,
+      });
+    } catch (err) {
+      res.status(500).json({ error: "No se pudo cargar el proceso." });
+    }
   },
 );
 
@@ -1422,14 +1436,21 @@ app.get(
 app.get(
   "/api/admin/processes/:processSlug/participants",
   requireAdmin,
-  (req, res) => {
+  async (req, res) => {
     const { processSlug } = req.params;
-    const db = readDb();
 
-    const proc = db.processes.find((p) => p.processSlug === processSlug);
-    if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
+    try {
+      const proc = await getProcessFromPg(processSlug);
+      if (!proc)
+        return res.status(404).json({ error: "Proceso no encontrado." });
 
-    res.json(proc.participants || []);
+      const participants = await listParticipantsFromPg(processSlug);
+      res.json(participants);
+    } catch (err) {
+      res
+        .status(500)
+        .json({ error: "No se pudieron cargar los participantes." });
+    }
   },
 );
 

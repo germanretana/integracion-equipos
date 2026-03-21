@@ -59,6 +59,31 @@ export async function listProcessesFromPg() {
   return rows;
 }
 
+export async function getProcessFromPg(processSlug) {
+  const pool = getPool();
+
+  const { rows } = await pool.query(
+    `
+    select
+      process_slug as "processSlug",
+      company_name as "companyName",
+      process_name as "processName",
+      status,
+      created_at as "createdAt",
+      launched_at as "launchedAt",
+      closed_at as "closedAt",
+      expected_start_at as "expectedStartAt",
+      expected_end_at as "expectedEndAt",
+      logo_url as "logoUrl"
+    from processes
+    where process_slug = $1
+    `,
+    [processSlug],
+  );
+
+  return rows[0] || null;
+}
+
 export async function listProcessSummariesFromPg() {
   const pool = getPool();
 
