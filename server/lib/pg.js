@@ -178,6 +178,56 @@ export async function listParticipantsFromPg(processSlug) {
   return rows;
 }
 
+export async function findParticipantsByEmailFromPg(email) {
+  const pool = getPool();
+
+  const { rows } = await pool.query(
+    `
+    select
+      p.id,
+      p.process_slug as "processSlug",
+      p.first_name as "firstName",
+      p.last_name as "lastName",
+      p.email,
+      p.password_hash as "passwordHash",
+      pr.company_name as "companyName",
+      pr.process_name as "processName",
+      pr.status as "processStatus",
+      pr.logo_url as "logoUrl"
+    from participants p
+    join processes pr
+      on pr.process_slug = p.process_slug
+    where lower(p.email) = lower($1)
+    order by p.process_slug asc, p.id asc
+    `,
+    [email],
+  );
+
+  return rows;
+}
+
+export async function getParticipantFromPg(processSlug, participantId) {
+  const pool = getPool();
+
+  const { rows } = await pool.query(
+    `
+    select
+      id,
+      process_slug as "processSlug",
+      first_name as "firstName",
+      last_name as "lastName",
+      email,
+      password_hash as "passwordHash"
+    from participants
+    where process_slug = $1
+      and id = $2
+    `,
+    [processSlug, participantId],
+  );
+
+  return rows[0] || null;
+}
+
 export async function insertParticipantToPg(processSlug, participant) {
   const pool = getPool();
 

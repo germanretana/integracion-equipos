@@ -18,6 +18,8 @@ import {
   getProcessFromPg,
   listProcessSummariesFromPg,
   listParticipantsFromPg,
+  findParticipantsByEmailFromPg,
+  getParticipantFromPg,
   insertParticipantToPg,
   updateParticipantInPg,
   deleteParticipantFromPg,
@@ -218,7 +220,7 @@ function normalizeEmail(v) {
     .toLowerCase();
 }
 
-function getProcAndMeScoped(db, req) {
+async function getProcAndMeScoped(db, req) {
   const { processSlug } = req.params;
   if (req.participant.processSlug !== processSlug)
     return { error: "Acceso denegado.", status: 403 };
@@ -226,9 +228,39 @@ function getProcAndMeScoped(db, req) {
   const proc = db.processes.find((p) => p.processSlug === processSlug);
   if (!proc) return { error: "Proceso no encontrado.", status: 404 };
 
-  const me = (proc.participants || []).find(
-    (p) => p.id === req.participant.participantId,
-  );
+  let me = null;
+  try {
+    me = await getParticipantFromPg(processSlug, req.participant.participantId);
+  } catch (err) {
+    return { error: "No se pudo validar el participante.", status: 500 };
+  }
+
+  if (!me) return { error: "Acceso denegado.", status: 403 };
+
+  proc.responses = proc.responses || { c1: {}, c2: {} };
+  proc.responses.c1 = proc.responses.c1 || {};
+  proc.responses.c2 = proc.responses.c2 || {};
+
+  return { proc, me };
+}
+
+async function getProcAndMeScopedWithPg(req) {
+  const db = readDb();
+  const { processSlug } = req.params;
+
+  if (req.participant.processSlug !== processSlug)
+    return { error: "Acceso denegado.", status: 403 };
+
+  const proc = db.processes.find((p) => p.processSlug === processSlug);
+  if (!proc) return { error: "Proceso no encontrado.", status: 404 };
+
+  let me = null;
+  try {
+    me = await getParticipantFromPg(processSlug, req.participant.participantId);
+  } catch (err) {
+    return { error: "No se pudo validar el participante.", status: 500 };
+  }
+
   if (!me) return { error: "Acceso denegado.", status: 403 };
 
   proc.responses = proc.responses || { c1: {}, c2: {} };
@@ -909,67 +941,66 @@ app.post(
 ========================= */
 app.post("/api/app/login", async (req, res) => {
   const { email, password } = req.body || {};
-  const emailNorm = String(email || "").toLowerCase();
+  const emailNorm = String(email || "")
+    .trim()
+    .toLowerCase();
 
   if (!emailNorm || !password)
     return res.status(400).json({ error: "Datos incompletos." });
 
-  const db = readDb();
-  if (!Array.isArray(db.processes) || db.processes.length === 0)
-    return res.status(409).json({ error: "No hay procesos configurados." });
-
-  const matches = [];
-  for (const proc of db.processes) {
-    if (!proc.participants) proc.participants = [];
-    const found = proc.participants.find(
-      (p) => String(p.email || "").toLowerCase() === emailNorm,
-    );
-    if (found) matches.push({ proc, participant: found });
+  let matches;
+  try {
+    matches = await findParticipantsByEmailFromPg(emailNorm);
+  } catch (err) {
+    return res.status(500).json({ error: "No se pudo iniciar sesión." });
   }
 
-  let proc;
-  let participant;
-
-  if (matches.length === 0) {
+  if (!Array.isArray(matches) || matches.length === 0) {
     return res.status(401).json({ error: "Credenciales inválidas." });
-  } else if (matches.length === 1) {
-    proc = matches[0].proc;
-    participant = matches[0].participant;
-  } else {
+  }
+
+  if (matches.length > 1) {
     return res.status(409).json({
       error:
         "Este correo pertenece a más de un proceso. Ingrese utilizando el enlace de invitación.",
     });
   }
 
-  if (!participant.passwordHash)
+  const row = matches[0];
+
+  if (!row.passwordHash)
     return res.status(401).json({ error: "Credenciales inválidas." });
 
-  const ok = await bcrypt.compare(
-    String(password || ""),
-    participant.passwordHash,
-  );
+  const ok = await bcrypt.compare(String(password || ""), row.passwordHash);
 
   if (!ok) return res.status(401).json({ error: "Credenciales inválidas." });
 
+  const participant = {
+    id: row.id,
+    firstName: row.firstName,
+    lastName: row.lastName,
+    email: row.email,
+  };
+
   const token = signParticipantToken({
-    processSlug: proc.processSlug,
-    participantId: participant.id,
-    email: participant.email,
+    processSlug: row.processSlug,
+    participantId: row.id,
+    email: row.email,
     name: participantDisplayName(participant),
   });
 
   res.json({
     token,
     participant: {
-      id: participant.id,
+      id: row.id,
       name: participantDisplayName(participant),
-      email: participant.email,
+      email: row.email,
     },
     process: {
-      processSlug: proc.processSlug,
-      companyName: proc.companyName,
-      processName: proc.processName,
+      processSlug: row.processSlug,
+      companyName: row.companyName,
+      processName: row.processName,
+      logoUrl: row.logoUrl || null,
     },
   });
 });
@@ -980,13 +1011,22 @@ app.post("/api/app/login", async (req, res) => {
 app.get(
   "/api/app/:processSlug/questionnaires",
   requireParticipant,
-  (req, res) => {
+  async (req, res) => {
     const db = readDb();
-    const scoped = getProcAndMeScoped(db, req);
+    const scoped = await getProcAndMeScoped(db, req);
     if (scoped.error)
       return res.status(scoped.status).json({ error: scoped.error });
 
     const { proc, me } = scoped;
+
+    let participants = [];
+    try {
+      participants = await listParticipantsFromPg(proc.processSlug);
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ error: "No se pudieron cargar los participantes." });
+    }
 
     const c1Tpl = proc.templates?.c1 || null;
     const c2Tpl = proc.templates?.c2 || null;
@@ -994,7 +1034,7 @@ app.get(
     const c1Entry = proc.responses?.c1?.[me.id] || null;
     const c1Status = calcStatusFromEntryAndTemplate(c1Entry, c1Tpl);
 
-    const peers = (proc.participants || [])
+    const peers = participants
       .filter(
         (p) =>
           p.id !== me.id &&
@@ -1039,13 +1079,13 @@ app.get(
 app.get(
   "/api/app/:processSlug/templates/:kind",
   requireParticipant,
-  (req, res) => {
+  async (req, res) => {
     const { kind } = req.params;
     if (!["c1", "c2"].includes(kind))
       return res.status(404).json({ error: "No encontrado." });
 
     const db = readDb();
-    const scoped = getProcAndMeScoped(db, req);
+    const scoped = await getProcAndMeScoped(db, req);
     if (scoped.error)
       return res.status(scoped.status).json({ error: scoped.error });
 
@@ -1056,9 +1096,9 @@ app.get(
 /* =========================
    C1 DRAFT + SUBMIT
 ========================= */
-app.get("/api/app/:processSlug/c1", requireParticipant, (req, res) => {
+app.get("/api/app/:processSlug/c1", requireParticipant, async (req, res) => {
   const db = readDb();
-  const scoped = getProcAndMeScoped(db, req);
+  const scoped = await getProcAndMeScoped(db, req);
   if (scoped.error)
     return res.status(scoped.status).json({ error: scoped.error });
 
@@ -1180,35 +1220,46 @@ app.post("/api/app/:processSlug/c1/submit", requireParticipant, (req, res) => {
 /* =========================
    C2 DRAFT + SUBMIT (per peer)
 ========================= */
-app.get("/api/app/:processSlug/c2/:peerId", requireParticipant, (req, res) => {
-  const db = readDb();
-  const scoped = getProcAndMeScoped(db, req);
-  if (scoped.error)
-    return res.status(scoped.status).json({ error: scoped.error });
+app.get(
+  "/api/app/:processSlug/c2/:peerId",
+  requireParticipant,
+  async (req, res) => {
+    const db = readDb();
+    const scoped = await getProcAndMeScoped(db, req);
+    if (scoped.error)
+      return res.status(scoped.status).json({ error: scoped.error });
 
-  const { proc, me } = scoped;
-  const peerId = req.params.peerId;
+    const { proc, me } = scoped;
+    const peerId = req.params.peerId;
 
-  const exists = (proc.participants || []).some(
-    (p) => p.id === peerId && p.id !== me.id,
-  );
-  if (!exists)
-    return res.status(404).json({ error: "Participante no encontrado." });
+    let participants = [];
+    try {
+      participants = await listParticipantsFromPg(proc.processSlug);
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ error: "No se pudieron cargar los participantes." });
+    }
 
-  proc.responses.c2[me.id] = proc.responses.c2[me.id] || {};
-  const entry = proc.responses.c2[me.id][peerId] || {
-    draft: { answers: {}, freeText: "" },
-    savedAt: null,
-    submittedAt: null,
-  };
+    const exists = participants.some((p) => p.id === peerId && p.id !== me.id);
+    if (!exists)
+      return res.status(404).json({ error: "Participante no encontrado." });
 
-  entry.draft = entry.draft || {};
-  if (!entry.draft.answers || typeof entry.draft.answers !== "object")
-    entry.draft.answers = {};
-  if (typeof entry.draft.freeText !== "string") entry.draft.freeText = "";
+    proc.responses.c2[me.id] = proc.responses.c2[me.id] || {};
+    const entry = proc.responses.c2[me.id][peerId] || {
+      draft: { answers: {}, freeText: "" },
+      savedAt: null,
+      submittedAt: null,
+    };
 
-  res.json(entry);
-});
+    entry.draft = entry.draft || {};
+    if (!entry.draft.answers || typeof entry.draft.answers !== "object")
+      entry.draft.answers = {};
+    if (typeof entry.draft.freeText !== "string") entry.draft.freeText = "";
+
+    res.json(entry);
+  },
+);
 
 app.put("/api/app/:processSlug/c2/:peerId", requireParticipant, (req, res) => {
   const peerId = req.params.peerId;
