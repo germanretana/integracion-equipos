@@ -21,9 +21,11 @@ import {
   findParticipantsByEmailFromPg,
   getParticipantFromPg,
   getC1ResponseFromPg,
+  listC1ResponsesByProcessFromPg,
   upsertC1ResponseDraftToPg,
   submitC1ResponseInPg,
   listC2ResponsesByParticipantFromPg,
+  listC2ResponsesByProcessFromPg,
   getC2ResponseFromPg,
   upsertC2ResponseDraftToPg,
   submitC2ResponseInPg,
@@ -649,6 +651,9 @@ app.get(
           .status(404)
           .json({ error: `Process not found: ${processSlug}` });
 
+      const c1Rows = await listC1ResponsesByProcessFromPg(processSlug);
+      const c2Rows = await listC2ResponsesByProcessFromPg(processSlug);
+
       const db = readDb();
       const p = (db.processes || []).find(
         (x) => String(x?.processSlug || x?.slug || "") === String(processSlug),
@@ -661,6 +666,18 @@ app.get(
       const tplC1 = p.templates?.c1 || {};
       const tplC2 = p.templates?.c2 || {};
 
+      const c1ByParticipantId = Object.fromEntries(
+        c1Rows.map((row) => [row.participantId, row]),
+      );
+
+      const c2ByParticipantAndPeer = {};
+      for (const row of c2Rows) {
+        const pid = String(row.participantId || "");
+        const peerId = String(row.peerId || "");
+        if (!c2ByParticipantAndPeer[pid]) c2ByParticipantAndPeer[pid] = {};
+        c2ByParticipantAndPeer[pid][peerId] = row;
+      }
+
       function participantNameById(pid) {
         const found = participants.find(
           (pp) => String(pp?.id || "") === String(pid),
@@ -672,7 +689,7 @@ app.get(
         const participantId = String(pp?.id || "");
         const name = participantDisplayName(pp);
 
-        const c1Entry = getResponseEntry(p, "c1", participantId, null);
+        const c1Entry = c1ByParticipantId[participantId] || null;
         const c1 = calcStatusFromEntryAndTemplate(c1Entry, tplC1);
 
         const questionnaires = [
@@ -690,7 +707,8 @@ app.get(
           const peerId = String(peer?.id || "");
           if (!peerId || peerId === participantId) continue;
 
-          const entry = getResponseEntry(p, "c2", participantId, peerId);
+          const entry =
+            c2ByParticipantAndPeer?.[participantId]?.[peerId] || null;
           const st = calcStatusFromEntryAndTemplate(entry, tplC2);
 
           questionnaires.push({
@@ -1475,26 +1493,34 @@ app.get(
         return res.status(404).json({ error: "Proceso no encontrado." });
 
       const participants = await listParticipantsFromPg(processSlug);
+      const c1Rows = await listC1ResponsesByProcessFromPg(processSlug);
+      const c2Rows = await listC2ResponsesByProcessFromPg(processSlug);
 
       const db = readDb();
       const procJson = db.processes.find((p) => p.processSlug === processSlug);
       if (!procJson)
         return res.status(404).json({ error: "Proceso no encontrado." });
 
-      const responses = procJson.responses || { c1: {}, c2: {} };
-      const c1 = responses.c1 || {};
-      const c2 = responses.c2 || {};
       const c1Tpl = procJson.templates?.c1 || null;
 
+      const c1ByParticipantId = Object.fromEntries(
+        c1Rows.map((row) => [row.participantId, row]),
+      );
+
+      const c2SubmittedCountByParticipantId = {};
+      for (const row of c2Rows) {
+        if (!row?.submittedAt) continue;
+        const pid = String(row.participantId || "");
+        c2SubmittedCountByParticipantId[pid] =
+          (c2SubmittedCountByParticipantId[pid] || 0) + 1;
+      }
+
       const rows = participants.map((p) => {
-        const c1Entry = c1?.[p.id] || null;
+        const c1Entry = c1ByParticipantId[p.id] || null;
         const c1Status = calcStatusFromEntryAndTemplate(c1Entry, c1Tpl);
 
         const peersCount = participants.filter((x) => x.id !== p.id).length;
-        const myMap = c2?.[p.id] || {};
-        const completed = Object.values(myMap).filter(
-          (r) => r?.submittedAt,
-        ).length;
+        const completed = c2SubmittedCountByParticipantId[p.id] || 0;
 
         return {
           id: p.id,

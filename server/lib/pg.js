@@ -338,6 +338,47 @@ export async function listC2ResponsesByParticipantFromPg(
   return rows;
 }
 
+export async function listC1ResponsesByProcessFromPg(processSlug) {
+  const pool = getPool();
+
+  const { rows } = await pool.query(
+    `
+    select
+      process_slug as "processSlug",
+      participant_id as "participantId",
+      draft,
+      saved_at as "savedAt",
+      submitted_at as "submittedAt"
+    from response_c1
+    where process_slug = $1
+    `,
+    [processSlug],
+  );
+
+  return rows;
+}
+
+export async function listC2ResponsesByProcessFromPg(processSlug) {
+  const pool = getPool();
+
+  const { rows } = await pool.query(
+    `
+    select
+      process_slug as "processSlug",
+      participant_id as "participantId",
+      peer_id as "peerId",
+      draft,
+      saved_at as "savedAt",
+      submitted_at as "submittedAt"
+    from response_c2
+    where process_slug = $1
+    `,
+    [processSlug],
+  );
+
+  return rows;
+}
+
 export async function getC2ResponseFromPg(processSlug, participantId, peerId) {
   const pool = getPool();
 
