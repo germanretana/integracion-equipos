@@ -1120,14 +1120,14 @@ app.get("/api/app/:processSlug/c1", requireParticipant, async (req, res) => {
   res.json(entry);
 });
 
-app.put("/api/app/:processSlug/c1", requireParticipant, (req, res) => {
+app.put("/api/app/:processSlug/c1", requireParticipant, async (req, res) => {
   const { draft } = req.body || {};
   const incomingDraft = draft && typeof draft === "object" ? draft : {};
 
   // 1) Gate BEFORE updateDb (no side-effects inside updateDb)
   {
     const db0 = readDb();
-    const scoped0 = getProcAndMeScoped(db0, req);
+    const scoped0 = await getProcAndMeScoped(db0, req);
     if (scoped0.error)
       return res.status(scoped0.status).json({ error: scoped0.error });
 
@@ -1168,54 +1168,58 @@ app.put("/api/app/:processSlug/c1", requireParticipant, (req, res) => {
   );
 });
 
-app.post("/api/app/:processSlug/c1/submit", requireParticipant, (req, res) => {
-  const processSlug = req.params.processSlug;
+app.post(
+  "/api/app/:processSlug/c1/submit",
+  requireParticipant,
+  async (req, res) => {
+    const processSlug = req.params.processSlug;
 
-  // validar primero con template real
-  const db0 = readDb();
-  const scoped0 = getProcAndMeScoped(db0, req);
-  if (scoped0.error)
-    return res.status(scoped0.status).json({ error: scoped0.error });
+    // validar primero con template real
+    const db0 = readDb();
+    const scoped0 = await getProcAndMeScoped(db0, req);
+    if (scoped0.error)
+      return res.status(scoped0.status).json({ error: scoped0.error });
 
-  const { proc: p0, me: me0 } = scoped0;
+    const { proc: p0, me: me0 } = scoped0;
 
-  if (!canParticipantEdit(p0)) {
-    return res.status(403).json({
-      error: "El proceso está cerrado. No se pueden enviar respuestas.",
-    });
-  }
-
-  const validation = validateBeforeSubmit({
-    proc: p0,
-    meId: me0.id,
-    kind: "c1",
-  });
-
-  if (!validation.ok)
-    return res.status(validation.status).json(validation.payload);
-
-  const next = updateDb((db2) => {
-    const scoped2 = getProcAndMeScoped(db2, req);
-    if (scoped2.error) return db2;
-
-    const { proc, me } = scoped2;
-    const entry = ensureC1Entry(proc, me.id);
-
-    if (entry.submittedAt) return db2;
-
-    {
-      const now = new Date().toISOString();
-      entry.submittedAt = now;
-      entry.savedAt = entry.savedAt || now;
+    if (!canParticipantEdit(p0)) {
+      return res.status(403).json({
+        error: "El proceso está cerrado. No se pueden enviar respuestas.",
+      });
     }
-    proc.responses.c1[me.id] = entry;
-    return db2;
-  });
 
-  const proc = next.processes.find((p) => p.processSlug === processSlug);
-  const entry = proc?.responses?.c1?.[req.participant.participantId];
-  res.json(entry);
-});
+    const validation = validateBeforeSubmit({
+      proc: p0,
+      meId: me0.id,
+      kind: "c1",
+    });
+
+    if (!validation.ok)
+      return res.status(validation.status).json(validation.payload);
+
+    const next = updateDb((db2) => {
+      const scoped2 = getProcAndMeScoped(db2, req);
+      if (scoped2.error) return db2;
+
+      const { proc, me } = scoped2;
+      const entry = ensureC1Entry(proc, me.id);
+
+      if (entry.submittedAt) return db2;
+
+      {
+        const now = new Date().toISOString();
+        entry.submittedAt = now;
+        entry.savedAt = entry.savedAt || now;
+      }
+      proc.responses.c1[me.id] = entry;
+      return db2;
+    });
+
+    const proc = next.processes.find((p) => p.processSlug === processSlug);
+    const entry = proc?.responses?.c1?.[req.participant.participantId];
+    res.json(entry);
+  },
+);
 
 /* =========================
    C2 DRAFT + SUBMIT (per peer)
@@ -1261,81 +1265,85 @@ app.get(
   },
 );
 
-app.put("/api/app/:processSlug/c2/:peerId", requireParticipant, (req, res) => {
-  const peerId = req.params.peerId;
-  const { draft } = req.body || {};
-  const incomingDraft = draft && typeof draft === "object" ? draft : {};
+app.put(
+  "/api/app/:processSlug/c2/:peerId",
+  requireParticipant,
+  async (req, res) => {
+    const peerId = req.params.peerId;
+    const { draft } = req.body || {};
+    const incomingDraft = draft && typeof draft === "object" ? draft : {};
 
-  // 1) Gate BEFORE updateDb (no side effects inside updateDb)
-  {
-    const db0 = readDb();
-    const scoped0 = getProcAndMeScoped(db0, req);
-    if (scoped0.error)
-      return res.status(scoped0.status).json({ error: scoped0.error });
+    // 1) Gate BEFORE updateDb (no side effects inside updateDb)
+    {
+      const db0 = readDb();
+      const scoped0 = await getProcAndMeScoped(db0, req);
+      if (scoped0.error)
+        return res.status(scoped0.status).json({ error: scoped0.error });
 
-    const { proc, me } = scoped0;
+      const { proc, me } = scoped0;
 
-    if (!canParticipantEdit(proc)) {
-      return res
-        .status(403)
-        .json({ error: "El proceso no está habilitado para edición." });
+      if (!canParticipantEdit(proc)) {
+        return res
+          .status(403)
+          .json({ error: "El proceso no está habilitado para edición." });
+      }
+
+      const exists0 = (proc.participants || []).some(
+        (p) => p.id === peerId && p.id !== me.id,
+      );
+      if (!exists0)
+        return res.status(404).json({ error: "Participante no encontrado." });
     }
 
-    const exists0 = (proc.participants || []).some(
-      (p) => p.id === peerId && p.id !== me.id,
+    // 2) Persist draft
+    const next = updateDb((db2) => {
+      const scoped2 = getProcAndMeScoped(db2, req);
+      if (scoped2.error) return db2;
+
+      const { proc, me } = scoped2;
+
+      // redundant safety
+      if (!canParticipantEdit(proc)) return db2;
+
+      const exists = (proc.participants || []).some(
+        (p) => p.id === peerId && p.id !== me.id,
+      );
+      if (!exists) return db2;
+
+      const entry = ensureC2Entry(proc, me.id, peerId);
+      if (entry.submittedAt) return db2;
+
+      saveDraftIntoEntry({ entry, incomingDraft, forceLegacyFreeText: true });
+      proc.responses.c2[me.id][peerId] = entry;
+
+      return db2;
+    });
+
+    const proc = next.processes.find(
+      (p) => p.processSlug === req.params.processSlug,
     );
-    if (!exists0)
-      return res.status(404).json({ error: "Participante no encontrado." });
-  }
+    const entry =
+      proc?.responses?.c2?.[req.participant.participantId]?.[peerId] || null;
 
-  // 2) Persist draft
-  const next = updateDb((db2) => {
-    const scoped2 = getProcAndMeScoped(db2, req);
-    if (scoped2.error) return db2;
-
-    const { proc, me } = scoped2;
-
-    // redundant safety
-    if (!canParticipantEdit(proc)) return db2;
-
-    const exists = (proc.participants || []).some(
-      (p) => p.id === peerId && p.id !== me.id,
+    return res.json(
+      entry || {
+        draft: { answers: {}, freeText: "" },
+        savedAt: null,
+        submittedAt: null,
+      },
     );
-    if (!exists) return db2;
-
-    const entry = ensureC2Entry(proc, me.id, peerId);
-    if (entry.submittedAt) return db2;
-
-    saveDraftIntoEntry({ entry, incomingDraft, forceLegacyFreeText: true });
-    proc.responses.c2[me.id][peerId] = entry;
-
-    return db2;
-  });
-
-  const proc = next.processes.find(
-    (p) => p.processSlug === req.params.processSlug,
-  );
-  const entry =
-    proc?.responses?.c2?.[req.participant.participantId]?.[peerId] || null;
-
-  return res.json(
-    entry || {
-      draft: { answers: {}, freeText: "" },
-      savedAt: null,
-      submittedAt: null,
-    },
-  );
-});
+  },
+);
 
 app.post(
   "/api/app/:processSlug/c2/:peerId/submit",
   requireParticipant,
-  (req, res) => {
+  async (req, res) => {
     const processSlug = req.params.processSlug;
     const peerId = req.params.peerId;
 
     const db0 = readDb();
-    const scoped0 = getProcAndMeScoped(db0, req);
+    const scoped0 = await getProcAndMeScoped(db0, req);
     if (scoped0.error)
       return res.status(scoped0.status).json({ error: scoped0.error });
 
