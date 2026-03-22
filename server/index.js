@@ -20,6 +20,13 @@ import {
   listParticipantsFromPg,
   findParticipantsByEmailFromPg,
   getParticipantFromPg,
+  getC1ResponseFromPg,
+  upsertC1ResponseDraftToPg,
+  submitC1ResponseInPg,
+  listC2ResponsesByParticipantFromPg,
+  getC2ResponseFromPg,
+  upsertC2ResponseDraftToPg,
+  submitC2ResponseInPg,
   insertParticipantToPg,
   updateParticipantInPg,
   deleteParticipantFromPg,
@@ -1020,18 +1027,29 @@ app.get(
     const { proc, me } = scoped;
 
     let participants = [];
+    let c2Rows = [];
+    let c1Entry = null;
+
     try {
       participants = await listParticipantsFromPg(proc.processSlug);
+      c1Entry = await getC1ResponseFromPg(proc.processSlug, me.id);
+      c2Rows = await listC2ResponsesByParticipantFromPg(
+        proc.processSlug,
+        me.id,
+      );
     } catch (err) {
       return res
         .status(500)
-        .json({ error: "No se pudieron cargar los participantes." });
+        .json({ error: "No se pudieron cargar las respuestas." });
     }
+
+    const c2ByPeerId = Object.fromEntries(
+      c2Rows.map((row) => [row.peerId, row]),
+    );
 
     const c1Tpl = proc.templates?.c1 || null;
     const c2Tpl = proc.templates?.c2 || null;
 
-    const c1Entry = proc.responses?.c1?.[me.id] || null;
     const c1Status = calcStatusFromEntryAndTemplate(c1Entry, c1Tpl);
 
     const peers = participants
@@ -1041,8 +1059,7 @@ app.get(
           normalizeEmail(p.email) !== normalizeEmail(me.email),
       )
       .map((p) => {
-        const perMap = proc.responses?.c2?.[me.id] || {};
-        const entry = perMap?.[p.id] || null;
+        const entry = c2ByPeerId[p.id] || null;
         const st = calcStatusFromEntryAndTemplate(entry, c2Tpl);
         return {
           peerId: p.id,
@@ -1102,7 +1119,12 @@ app.get("/api/app/:processSlug/c1", requireParticipant, async (req, res) => {
   if (scoped.error)
     return res.status(scoped.status).json({ error: scoped.error });
 
-  const entry = scoped.proc.responses.c1[scoped.me.id] || null;
+  let entry = null;
+  try {
+    entry = await getC1ResponseFromPg(scoped.proc.processSlug, scoped.me.id);
+  } catch (err) {
+    return res.status(500).json({ error: "No se pudo cargar la respuesta." });
+  }
 
   if (!entry) {
     return res.json({
@@ -1124,49 +1146,50 @@ app.put("/api/app/:processSlug/c1", requireParticipant, async (req, res) => {
   const { draft } = req.body || {};
   const incomingDraft = draft && typeof draft === "object" ? draft : {};
 
-  // 1) Gate BEFORE updateDb (no side-effects inside updateDb)
-  {
-    const db0 = readDb();
-    const scoped0 = await getProcAndMeScoped(db0, req);
-    if (scoped0.error)
-      return res.status(scoped0.status).json({ error: scoped0.error });
+  const db0 = readDb();
+  const scoped0 = await getProcAndMeScoped(db0, req);
+  if (scoped0.error)
+    return res.status(scoped0.status).json({ error: scoped0.error });
 
-    const { proc } = scoped0;
-    if (!canParticipantEdit(proc)) {
-      return res
-        .status(403)
-        .json({ error: "El proceso no está habilitado para edición." });
-    }
+  const { proc, me } = scoped0;
+  if (!canParticipantEdit(proc)) {
+    return res
+      .status(403)
+      .json({ error: "El proceso no está habilitado para edición." });
   }
 
-  // 2) Persist draft
-  const next = updateDb((db2) => {
-    const proc = db2.processes.find(
-      (p) => p.processSlug === req.params.processSlug,
+  let currentEntry = null;
+  try {
+    currentEntry = await getC1ResponseFromPg(proc.processSlug, me.id);
+  } catch (err) {
+    return res.status(500).json({ error: "No se pudo cargar la respuesta." });
+  }
+
+  const entry = currentEntry || {
+    draft: { answers: {} },
+    savedAt: null,
+    submittedAt: null,
+  };
+
+  if (entry.submittedAt) {
+    return res.json(entry);
+  }
+
+  saveDraftIntoEntry({ entry, incomingDraft, forceLegacyFreeText: true });
+
+  let saved = null;
+  try {
+    saved = await upsertC1ResponseDraftToPg(
+      proc.processSlug,
+      me.id,
+      entry.draft,
     );
-    if (!proc) return db2;
-
-    const me = (proc.participants || []).find(
-      (p) => p.id === req.participant.participantId,
-    );
-    if (!me) return db2;
-
-    const entry = ensureC1Entry(proc, me.id);
-    if (entry.submittedAt) return db2;
-
-    saveDraftIntoEntry({ entry, incomingDraft, forceLegacyFreeText: true });
-    proc.responses.c1[me.id] = entry;
-
-    return db2;
-  });
-
-  const proc = next.processes.find(
-    (p) => p.processSlug === req.params.processSlug,
-  );
-  const entry = proc?.responses?.c1?.[req.participant.participantId] || null;
+  } catch (err) {
+    return res.status(500).json({ error: "No se pudo guardar." });
+  }
 
   return res.json(
-    entry || { draft: { answers: {} }, savedAt: null, submittedAt: null },
+    saved || { draft: { answers: {} }, savedAt: null, submittedAt: null },
   );
 });
 
@@ -1176,7 +1199,6 @@ app.post(
   async (req, res) => {
     const processSlug = req.params.processSlug;
 
-    // validar primero con template real
     const db0 = readDb();
     const scoped0 = await getProcAndMeScoped(db0, req);
     if (scoped0.error)
@@ -1190,8 +1212,25 @@ app.post(
       });
     }
 
+    let currentEntry = null;
+    try {
+      currentEntry = await getC1ResponseFromPg(processSlug, me0.id);
+    } catch (err) {
+      return res.status(500).json({ error: "No se pudo cargar la respuesta." });
+    }
+
+    const procForValidation = {
+      ...p0,
+      responses: {
+        c1: {
+          [me0.id]: currentEntry || null,
+        },
+        c2: {},
+      },
+    };
+
     const validation = validateBeforeSubmit({
-      proc: p0,
+      proc: procForValidation,
       meId: me0.id,
       kind: "c1",
     });
@@ -1199,32 +1238,13 @@ app.post(
     if (!validation.ok)
       return res.status(validation.status).json(validation.payload);
 
-    const next = updateDb((db2) => {
-      const proc = db2.processes.find(
-        (p) => p.processSlug === req.params.processSlug,
-      );
-      if (!proc) return db2;
+    let entry = null;
+    try {
+      entry = await submitC1ResponseInPg(processSlug, me0.id);
+    } catch (err) {
+      return res.status(500).json({ error: "No se pudo enviar." });
+    }
 
-      const me = (proc.participants || []).find(
-        (p) => p.id === req.participant.participantId,
-      );
-      if (!me) return db2;
-
-      const entry = ensureC1Entry(proc, me.id);
-
-      if (entry.submittedAt) return db2;
-
-      {
-        const now = new Date().toISOString();
-        entry.submittedAt = now;
-        entry.savedAt = entry.savedAt || now;
-      }
-      proc.responses.c1[me.id] = entry;
-      return db2;
-    });
-
-    const proc = next.processes.find((p) => p.processSlug === processSlug);
-    const entry = proc?.responses?.c1?.[req.participant.participantId];
     res.json(entry);
   },
 );
@@ -1245,24 +1265,27 @@ app.get(
     const peerId = req.params.peerId;
 
     let participants = [];
+    let entry = null;
     try {
       participants = await listParticipantsFromPg(proc.processSlug);
+      entry = await getC2ResponseFromPg(proc.processSlug, me.id, peerId);
     } catch (err) {
       return res
         .status(500)
-        .json({ error: "No se pudieron cargar los participantes." });
+        .json({ error: "No se pudieron cargar los datos." });
     }
 
     const exists = participants.some((p) => p.id === peerId && p.id !== me.id);
     if (!exists)
       return res.status(404).json({ error: "Participante no encontrado." });
 
-    proc.responses.c2[me.id] = proc.responses.c2[me.id] || {};
-    const entry = proc.responses.c2[me.id][peerId] || {
-      draft: { answers: {}, freeText: "" },
-      savedAt: null,
-      submittedAt: null,
-    };
+    if (!entry) {
+      entry = {
+        draft: { answers: {}, freeText: "" },
+        savedAt: null,
+        submittedAt: null,
+      };
+    }
 
     entry.draft = entry.draft || {};
     if (!entry.draft.answers || typeof entry.draft.answers !== "object")
@@ -1281,62 +1304,60 @@ app.put(
     const { draft } = req.body || {};
     const incomingDraft = draft && typeof draft === "object" ? draft : {};
 
-    // 1) Gate BEFORE updateDb (no side effects inside updateDb)
-    {
-      const db0 = readDb();
-      const scoped0 = await getProcAndMeScoped(db0, req);
-      if (scoped0.error)
-        return res.status(scoped0.status).json({ error: scoped0.error });
+    const db0 = readDb();
+    const scoped0 = await getProcAndMeScoped(db0, req);
+    if (scoped0.error)
+      return res.status(scoped0.status).json({ error: scoped0.error });
 
-      const { proc, me } = scoped0;
+    const { proc, me } = scoped0;
 
-      if (!canParticipantEdit(proc)) {
-        return res
-          .status(403)
-          .json({ error: "El proceso no está habilitado para edición." });
-      }
-
-      const exists0 = (proc.participants || []).some(
-        (p) => p.id === peerId && p.id !== me.id,
-      );
-      if (!exists0)
-        return res.status(404).json({ error: "Participante no encontrado." });
+    if (!canParticipantEdit(proc)) {
+      return res
+        .status(403)
+        .json({ error: "El proceso no está habilitado para edición." });
     }
 
-    // 2) Persist draft
-    const next = updateDb((db2) => {
-      const proc = db2.processes.find(
-        (p) => p.processSlug === req.params.processSlug,
+    let participants = [];
+    let currentEntry = null;
+    try {
+      participants = await listParticipantsFromPg(proc.processSlug);
+      currentEntry = await getC2ResponseFromPg(proc.processSlug, me.id, peerId);
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ error: "No se pudieron cargar los datos." });
+    }
+
+    const exists0 = participants.some((p) => p.id === peerId && p.id !== me.id);
+    if (!exists0)
+      return res.status(404).json({ error: "Participante no encontrado." });
+
+    const entry = currentEntry || {
+      draft: { answers: {}, freeText: "" },
+      savedAt: null,
+      submittedAt: null,
+    };
+
+    if (entry.submittedAt) {
+      return res.json(entry);
+    }
+
+    saveDraftIntoEntry({ entry, incomingDraft, forceLegacyFreeText: true });
+
+    let saved = null;
+    try {
+      saved = await upsertC2ResponseDraftToPg(
+        proc.processSlug,
+        me.id,
+        peerId,
+        entry.draft,
       );
-      if (!proc) return db2;
-
-      const me = (proc.participants || []).find(
-        (p) => p.id === req.participant.participantId,
-      );
-      if (!me) return db2;
-
-      const exists = (proc.participants || []).some(
-        (p) => p.id === peerId && p.id !== me.id,
-      );
-      if (!exists) return db2;
-
-      const entry = ensureC2Entry(proc, me.id, peerId);
-      if (entry.submittedAt) return db2;
-
-      saveDraftIntoEntry({ entry, incomingDraft, forceLegacyFreeText: true });
-      proc.responses.c2[me.id][peerId] = entry;
-
-      return db2;
-    });
-
-    const proc = next.processes.find(
-      (p) => p.processSlug === req.params.processSlug,
-    );
-    const entry =
-      proc?.responses?.c2?.[req.participant.participantId]?.[peerId] || null;
+    } catch (err) {
+      return res.status(500).json({ error: "No se pudo guardar." });
+    }
 
     return res.json(
-      entry || {
+      saved || {
         draft: { answers: {}, freeText: "" },
         savedAt: null,
         submittedAt: null,
@@ -1364,14 +1385,36 @@ app.post(
         error: "El proceso está cerrado. No se pueden enviar respuestas.",
       });
     }
-    const exists = (p0.participants || []).some(
-      (p) => p.id === peerId && p.id !== me0.id,
-    );
+
+    let participants = [];
+    let currentEntry = null;
+    try {
+      participants = await listParticipantsFromPg(processSlug);
+      currentEntry = await getC2ResponseFromPg(processSlug, me0.id, peerId);
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ error: "No se pudieron cargar los datos." });
+    }
+
+    const exists = participants.some((p) => p.id === peerId && p.id !== me0.id);
     if (!exists)
       return res.status(404).json({ error: "Participante no encontrado." });
 
+    const procForValidation = {
+      ...p0,
+      responses: {
+        c1: {},
+        c2: {
+          [me0.id]: {
+            [peerId]: currentEntry || null,
+          },
+        },
+      },
+    };
+
     const validation = validateBeforeSubmit({
-      proc: p0,
+      proc: procForValidation,
       meId: me0.id,
       kind: "c2",
       peerId,
@@ -1380,37 +1423,13 @@ app.post(
     if (!validation.ok)
       return res.status(validation.status).json(validation.payload);
 
-    const next = updateDb((db2) => {
-      const proc = db2.processes.find(
-        (p) => p.processSlug === req.params.processSlug,
-      );
-      if (!proc) return db2;
+    let entry = null;
+    try {
+      entry = await submitC2ResponseInPg(processSlug, me0.id, peerId);
+    } catch (err) {
+      return res.status(500).json({ error: "No se pudo enviar." });
+    }
 
-      const me = (proc.participants || []).find(
-        (p) => p.id === req.participant.participantId,
-      );
-      if (!me) return db2;
-
-      const exists2 = (proc.participants || []).some(
-        (p) => p.id === peerId && p.id !== me.id,
-      );
-      if (!exists2) return db2;
-
-      const entry = ensureC2Entry(proc, me.id, peerId);
-      if (entry.submittedAt) return db2;
-
-      {
-        const now = new Date().toISOString();
-        entry.submittedAt = now;
-        entry.savedAt = entry.savedAt || now;
-      }
-      proc.responses.c2[me.id][peerId] = entry;
-      return db2;
-    });
-
-    const proc = next.processes.find((p) => p.processSlug === processSlug);
-    const entry =
-      proc?.responses?.c2?.[req.participant.participantId]?.[peerId];
     res.json(entry);
   },
 );

@@ -228,6 +228,208 @@ export async function getParticipantFromPg(processSlug, participantId) {
   return rows[0] || null;
 }
 
+export async function getC1ResponseFromPg(processSlug, participantId) {
+  const pool = getPool();
+
+  const { rows } = await pool.query(
+    `
+    select
+      process_slug as "processSlug",
+      participant_id as "participantId",
+      draft,
+      saved_at as "savedAt",
+      submitted_at as "submittedAt"
+    from response_c1
+    where process_slug = $1
+      and participant_id = $2
+    `,
+    [processSlug, participantId],
+  );
+
+  return rows[0] || null;
+}
+
+export async function upsertC1ResponseDraftToPg(
+  processSlug,
+  participantId,
+  draft,
+) {
+  const pool = getPool();
+
+  const { rows } = await pool.query(
+    `
+    insert into response_c1(
+      process_slug,
+      participant_id,
+      draft,
+      saved_at,
+      submitted_at
+    )
+    values($1, $2, $3, now(), null)
+    on conflict (process_slug, participant_id)
+    do update set
+      draft = excluded.draft,
+      saved_at = excluded.saved_at
+    returning
+      process_slug as "processSlug",
+      participant_id as "participantId",
+      draft,
+      saved_at as "savedAt",
+      submitted_at as "submittedAt"
+    `,
+    [processSlug, participantId, draft || {}],
+  );
+
+  return rows[0] || null;
+}
+
+export async function submitC1ResponseInPg(processSlug, participantId) {
+  const pool = getPool();
+
+  const { rows } = await pool.query(
+    `
+    insert into response_c1(
+      process_slug,
+      participant_id,
+      draft,
+      saved_at,
+      submitted_at
+    )
+    values($1, $2, '{}'::jsonb, now(), now())
+    on conflict (process_slug, participant_id)
+    do update set
+      saved_at = coalesce(response_c1.saved_at, now()),
+      submitted_at = now()
+    returning
+      process_slug as "processSlug",
+      participant_id as "participantId",
+      draft,
+      saved_at as "savedAt",
+      submitted_at as "submittedAt"
+    `,
+    [processSlug, participantId],
+  );
+
+  return rows[0] || null;
+}
+
+export async function listC2ResponsesByParticipantFromPg(
+  processSlug,
+  participantId,
+) {
+  const pool = getPool();
+
+  const { rows } = await pool.query(
+    `
+    select
+      process_slug as "processSlug",
+      participant_id as "participantId",
+      peer_id as "peerId",
+      draft,
+      saved_at as "savedAt",
+      submitted_at as "submittedAt"
+    from response_c2
+    where process_slug = $1
+      and participant_id = $2
+    `,
+    [processSlug, participantId],
+  );
+
+  return rows;
+}
+
+export async function getC2ResponseFromPg(processSlug, participantId, peerId) {
+  const pool = getPool();
+
+  const { rows } = await pool.query(
+    `
+    select
+      process_slug as "processSlug",
+      participant_id as "participantId",
+      peer_id as "peerId",
+      draft,
+      saved_at as "savedAt",
+      submitted_at as "submittedAt"
+    from response_c2
+    where process_slug = $1
+      and participant_id = $2
+      and peer_id = $3
+    `,
+    [processSlug, participantId, peerId],
+  );
+
+  return rows[0] || null;
+}
+
+export async function upsertC2ResponseDraftToPg(
+  processSlug,
+  participantId,
+  peerId,
+  draft,
+) {
+  const pool = getPool();
+
+  const { rows } = await pool.query(
+    `
+    insert into response_c2(
+      process_slug,
+      participant_id,
+      peer_id,
+      draft,
+      saved_at,
+      submitted_at
+    )
+    values($1, $2, $3, $4, now(), null)
+    on conflict (process_slug, participant_id, peer_id)
+    do update set
+      draft = excluded.draft,
+      saved_at = excluded.saved_at
+    returning
+      process_slug as "processSlug",
+      participant_id as "participantId",
+      peer_id as "peerId",
+      draft,
+      saved_at as "savedAt",
+      submitted_at as "submittedAt"
+    `,
+    [processSlug, participantId, peerId, draft || {}],
+  );
+
+  return rows[0] || null;
+}
+
+export async function submitC2ResponseInPg(processSlug, participantId, peerId) {
+  const pool = getPool();
+
+  const { rows } = await pool.query(
+    `
+    insert into response_c2(
+      process_slug,
+      participant_id,
+      peer_id,
+      draft,
+      saved_at,
+      submitted_at
+    )
+    values($1, $2, $3, '{}'::jsonb, now(), now())
+    on conflict (process_slug, participant_id, peer_id)
+    do update set
+      saved_at = coalesce(response_c2.saved_at, now()),
+      submitted_at = now()
+    returning
+      process_slug as "processSlug",
+      participant_id as "participantId",
+      peer_id as "peerId",
+      draft,
+      saved_at as "savedAt",
+      submitted_at as "submittedAt"
+    `,
+    [processSlug, participantId, peerId],
+  );
+
+  return rows[0] || null;
+}
+
 export async function insertParticipantToPg(processSlug, participant) {
   const pool = getPool();
 
