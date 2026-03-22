@@ -1141,13 +1141,15 @@ app.put("/api/app/:processSlug/c1", requireParticipant, async (req, res) => {
 
   // 2) Persist draft
   const next = updateDb((db2) => {
-    const scoped2 = getProcAndMeScoped(db2, req);
-    if (scoped2.error) return db2;
+    const proc = db2.processes.find(
+      (p) => p.processSlug === req.params.processSlug,
+    );
+    if (!proc) return db2;
 
-    const { proc, me } = scoped2;
-
-    // Redundant safety (cheap + keeps invariants)
-    if (!canParticipantEdit(proc)) return db2;
+    const me = (proc.participants || []).find(
+      (p) => p.id === req.participant.participantId,
+    );
+    if (!me) return db2;
 
     const entry = ensureC1Entry(proc, me.id);
     if (entry.submittedAt) return db2;
@@ -1198,10 +1200,16 @@ app.post(
       return res.status(validation.status).json(validation.payload);
 
     const next = updateDb((db2) => {
-      const scoped2 = getProcAndMeScoped(db2, req);
-      if (scoped2.error) return db2;
+      const proc = db2.processes.find(
+        (p) => p.processSlug === req.params.processSlug,
+      );
+      if (!proc) return db2;
 
-      const { proc, me } = scoped2;
+      const me = (proc.participants || []).find(
+        (p) => p.id === req.participant.participantId,
+      );
+      if (!me) return db2;
+
       const entry = ensureC1Entry(proc, me.id);
 
       if (entry.submittedAt) return db2;
@@ -1297,13 +1305,15 @@ app.put(
 
     // 2) Persist draft
     const next = updateDb((db2) => {
-      const scoped2 = getProcAndMeScoped(db2, req);
-      if (scoped2.error) return db2;
+      const proc = db2.processes.find(
+        (p) => p.processSlug === req.params.processSlug,
+      );
+      if (!proc) return db2;
 
-      const { proc, me } = scoped2;
-
-      // redundant safety
-      if (!canParticipantEdit(proc)) return db2;
+      const me = (proc.participants || []).find(
+        (p) => p.id === req.participant.participantId,
+      );
+      if (!me) return db2;
 
       const exists = (proc.participants || []).some(
         (p) => p.id === peerId && p.id !== me.id,
@@ -1371,10 +1381,16 @@ app.post(
       return res.status(validation.status).json(validation.payload);
 
     const next = updateDb((db2) => {
-      const scoped2 = getProcAndMeScoped(db2, req);
-      if (scoped2.error) return db2;
+      const proc = db2.processes.find(
+        (p) => p.processSlug === req.params.processSlug,
+      );
+      if (!proc) return db2;
 
-      const { proc, me } = scoped2;
+      const me = (proc.participants || []).find(
+        (p) => p.id === req.participant.participantId,
+      );
+      if (!me) return db2;
+
       const exists2 = (proc.participants || []).some(
         (p) => p.id === peerId && p.id !== me.id,
       );
