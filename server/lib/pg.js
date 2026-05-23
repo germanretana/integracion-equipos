@@ -718,3 +718,79 @@ export async function renameProcessSlugInPg(oldSlug, newSlug) {
     client.release();
   }
 }
+
+export async function getBaseTemplateFromPg(kind) {
+  const pool = getPool();
+
+  const { rows } = await pool.query(
+    `
+    select content
+    from base_templates
+    where domain = 'questionnaire'
+      and kind = $1
+    `,
+    [kind],
+  );
+
+  return rows[0]?.content || null;
+}
+
+export async function getBaseTemplatesFromPg() {
+  const pool = getPool();
+
+  const { rows } = await pool.query(
+    `
+    select kind, content
+    from base_templates
+    where domain = 'questionnaire'
+    `,
+  );
+
+  const out = { c1: null, c2: null };
+
+  for (const row of rows) {
+    if (row.kind === "c1") out.c1 = row.content;
+    if (row.kind === "c2") out.c2 = row.content;
+  }
+
+  return out;
+}
+
+export async function upsertBaseTemplateToPg(kind, content) {
+  const pool = getPool();
+
+  await pool.query(
+    `
+    insert into base_templates(domain, kind, content, updated_at)
+    values('questionnaire', $1, $2, now())
+    on conflict (domain, kind)
+    do update set
+      content = excluded.content,
+      updated_at = now()
+    `,
+    [kind, content || {}],
+  );
+}
+
+export async function getProcessTemplatesFromPg(processSlug) {
+  const pool = getPool();
+
+  const { rows } = await pool.query(
+    `
+    select kind, content
+    from process_templates
+    where process_slug = $1
+      and domain = 'questionnaire'
+    `,
+    [processSlug],
+  );
+
+  const out = { c1: null, c2: null };
+
+  for (const row of rows) {
+    if (row.kind === "c1") out.c1 = row.content;
+    if (row.kind === "c2") out.c2 = row.content;
+  }
+
+  return out;
+}

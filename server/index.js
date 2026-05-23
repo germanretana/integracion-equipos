@@ -35,6 +35,9 @@ import {
   resetParticipantAccessInPg,
   upsertProcessToPg,
   replaceProcessQuestionnaireTemplatesInPg,
+  getProcessTemplatesFromPg,
+  getBaseTemplateFromPg,
+  upsertBaseTemplateToPg,
   deleteProcessFromPg,
   renameProcessSlugInPg,
 } from "./lib/pg.js";
@@ -450,16 +453,20 @@ app.post("/api/admin/login", async (req, res) => {
 /* =========================
    BASE TEMPLATES (ADMIN)
 ========================= */
-app.get("/api/admin/base-templates/:kind", requireAdmin, (req, res) => {
+app.get("/api/admin/base-templates/:kind", requireAdmin, async (req, res) => {
   const kind = req.params.kind;
   if (!["c1", "c2"].includes(kind))
     return res.status(404).json({ error: "No encontrado." });
 
-  const db = readDb();
-  res.json(db.baseTemplates?.[kind] || null);
+  try {
+    const tpl = await getBaseTemplateFromPg(kind);
+    res.json(tpl);
+  } catch (err) {
+    res.status(500).json({ error: "No se pudo cargar la plantilla base." });
+  }
 });
 
-app.put("/api/admin/base-templates/:kind", requireAdmin, (req, res) => {
+app.put("/api/admin/base-templates/:kind", requireAdmin, async (req, res) => {
   const kind = req.params.kind;
   if (!["c1", "c2"].includes(kind))
     return res.status(404).json({ error: "No encontrado." });
@@ -472,7 +479,18 @@ app.put("/api/admin/base-templates/:kind", requireAdmin, (req, res) => {
     return db;
   });
 
-  res.json(next.baseTemplates[kind]);
+  const merged = next.baseTemplates[kind];
+
+  try {
+    await upsertBaseTemplateToPg(kind, merged);
+  } catch (err) {
+    return res.status(500).json({
+      error:
+        "La plantilla base se guardó en JSON pero falló la sincronización a PostgreSQL.",
+    });
+  }
+
+  res.json(merged);
 });
 
 /* =========================
@@ -663,8 +681,17 @@ app.get(
           .status(404)
           .json({ error: `Process not found: ${processSlug}` });
 
-      const tplC1 = p.templates?.c1 || {};
-      const tplC2 = p.templates?.c2 || {};
+      let templates = null;
+      try {
+        templates = await getProcessTemplatesFromPg(processSlug);
+      } catch (err) {
+        return res
+          .status(500)
+          .json({ error: "No se pudieron cargar las plantillas." });
+      }
+
+      const tplC1 = templates?.c1 || {};
+      const tplC2 = templates?.c2 || {};
 
       const c1ByParticipantId = Object.fromEntries(
         c1Rows.map((row) => [row.participantId, row]),
@@ -1065,8 +1092,17 @@ app.get(
       c2Rows.map((row) => [row.peerId, row]),
     );
 
-    const c1Tpl = proc.templates?.c1 || null;
-    const c2Tpl = proc.templates?.c2 || null;
+    let templates = null;
+    try {
+      templates = await getProcessTemplatesFromPg(proc.processSlug);
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ error: "No se pudieron cargar las plantillas." });
+    }
+
+    const c1Tpl = templates?.c1 || null;
+    const c2Tpl = templates?.c2 || null;
 
     const c1Status = calcStatusFromEntryAndTemplate(c1Entry, c1Tpl);
 
@@ -1124,7 +1160,16 @@ app.get(
     if (scoped.error)
       return res.status(scoped.status).json({ error: scoped.error });
 
-    res.json(scoped.proc.templates?.[kind] || null);
+    let templates = null;
+    try {
+      templates = await getProcessTemplatesFromPg(scoped.proc.processSlug);
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ error: "No se pudieron cargar las plantillas." });
+    }
+
+    res.json(templates?.[kind] || null);
   },
 );
 
@@ -1237,8 +1282,21 @@ app.post(
       return res.status(500).json({ error: "No se pudo cargar la respuesta." });
     }
 
+    let templates = null;
+    try {
+      templates = await getProcessTemplatesFromPg(processSlug);
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ error: "No se pudieron cargar las plantillas." });
+    }
+
     const procForValidation = {
       ...p0,
+      templates: {
+        c1: templates?.c1 || null,
+        c2: templates?.c2 || null,
+      },
       responses: {
         c1: {
           [me0.id]: currentEntry || null,
@@ -1246,7 +1304,6 @@ app.post(
         c2: {},
       },
     };
-
     const validation = validateBeforeSubmit({
       proc: procForValidation,
       meId: me0.id,
@@ -1419,8 +1476,21 @@ app.post(
     if (!exists)
       return res.status(404).json({ error: "Participante no encontrado." });
 
+    let templates = null;
+    try {
+      templates = await getProcessTemplatesFromPg(processSlug);
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ error: "No se pudieron cargar las plantillas." });
+    }
+
     const procForValidation = {
       ...p0,
+      templates: {
+        c1: templates?.c1 || null,
+        c2: templates?.c2 || null,
+      },
       responses: {
         c1: {},
         c2: {
@@ -1501,7 +1571,16 @@ app.get(
       if (!procJson)
         return res.status(404).json({ error: "Proceso no encontrado." });
 
-      const c1Tpl = procJson.templates?.c1 || null;
+      let templates = null;
+      try {
+        templates = await getProcessTemplatesFromPg(processSlug);
+      } catch (err) {
+        return res
+          .status(500)
+          .json({ error: "No se pudieron cargar las plantillas." });
+      }
+
+      const tplC1 = templates?.c1 || {};
 
       const c1ByParticipantId = Object.fromEntries(
         c1Rows.map((row) => [row.participantId, row]),
@@ -1517,7 +1596,7 @@ app.get(
 
       const rows = participants.map((p) => {
         const c1Entry = c1ByParticipantId[p.id] || null;
-        const c1Status = calcStatusFromEntryAndTemplate(c1Entry, c1Tpl);
+        const c1Status = calcStatusFromEntryAndTemplate(c1Entry, tplC1);
 
         const peersCount = participants.filter((x) => x.id !== p.id).length;
         const completed = c2SubmittedCountByParticipantId[p.id] || 0;
