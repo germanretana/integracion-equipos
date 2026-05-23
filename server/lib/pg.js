@@ -772,6 +772,22 @@ export async function upsertBaseTemplateToPg(kind, content) {
   );
 }
 
+export async function upsertProcessTemplateToPg(processSlug, kind, content) {
+  const pool = getPool();
+
+  await pool.query(
+    `
+    insert into process_templates(process_slug, domain, kind, content, updated_at)
+    values($1, 'questionnaire', $2, $3, now())
+    on conflict (process_slug, domain, kind)
+    do update set
+      content = excluded.content,
+      updated_at = now()
+    `,
+    [processSlug, kind, content || {}],
+  );
+}
+
 export async function getProcessTemplatesFromPg(processSlug) {
   const pool = getPool();
 

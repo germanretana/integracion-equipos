@@ -36,7 +36,9 @@ import {
   upsertProcessToPg,
   replaceProcessQuestionnaireTemplatesInPg,
   getProcessTemplatesFromPg,
+  upsertProcessTemplateToPg,
   getBaseTemplateFromPg,
+  getBaseTemplatesFromPg,
   upsertBaseTemplateToPg,
   deleteProcessFromPg,
   renameProcessSlugInPg,
@@ -529,6 +531,21 @@ app.post("/api/admin/processes", requireAdmin, async (req, res) => {
     processNameClean,
   );
 
+  let baseTemplates = null;
+  try {
+    baseTemplates = await getBaseTemplatesFromPg();
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ error: "No se pudieron cargar las plantillas base." });
+  }
+
+  if (!baseTemplates?.c1 || !baseTemplates?.c2) {
+    return res.status(500).json({
+      error: "No se encontraron las plantillas base en PostgreSQL.",
+    });
+  }
+
   const now = new Date().toISOString();
 
   const newProcess = {
@@ -536,7 +553,7 @@ app.post("/api/admin/processes", requireAdmin, async (req, res) => {
     companyName: companyNameClean,
     processName: processNameClean,
     status: "EN_PREPARACION",
-    templates: structuredClone(db.baseTemplates),
+    templates: structuredClone(baseTemplates),
     participants: [],
     responses: { c1: {}, c2: {} },
     createdAt: now,
@@ -905,7 +922,7 @@ app.get(
 app.put(
   "/api/admin/processes/:processSlug/templates/:kind",
   requireAdmin,
-  (req, res) => {
+  async (req, res) => {
     const { processSlug, kind } = req.params;
     if (!["c1", "c2"].includes(kind))
       return res.status(404).json({ error: "No encontrado." });
@@ -924,7 +941,18 @@ app.put(
     const proc = next.processes.find((p) => p.processSlug === processSlug);
     if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
 
-    res.json(proc.templates[kind]);
+    const merged = proc.templates[kind];
+
+    try {
+      await upsertProcessTemplateToPg(processSlug, kind, merged);
+    } catch (err) {
+      return res.status(500).json({
+        error:
+          "La plantilla se guardó en JSON pero falló la sincronización a PostgreSQL.",
+      });
+    }
+
+    res.json(merged);
   },
 );
 
