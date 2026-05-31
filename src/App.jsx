@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "./pages/Login";
-import ForgotPassword from "./pages/ForgotPassword";
 
 import Questionnaires from "./pages/Questionnaires";
 import C1 from "./pages/C1";
@@ -21,7 +20,7 @@ export default function App() {
       <Routes>
         {/* Public */}
         <Route path="/" element={<Login />} />
-        <Route path="/forgot" element={<ForgotPassword />} />
+        <Route path="/forgot" element={<Navigate to="/" replace />} />
 
         {/* Participant */}
         <Route

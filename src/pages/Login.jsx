@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Logo from "../components/Logo";
 import "../styles/auth.css";
 import { auth } from "../services/auth";
@@ -88,12 +88,8 @@ export default function Login() {
 
             {error && <p style={{ margin: "10px 0 0 0", color: "#ff668f" }}>{error}</p>}
 
-            <Link to="/forgot" className="secondary-link">
-              Olvidé mi contraseña / Restablecer
-            </Link>
-
             <p className="auth-help">
-              Si necesita ayuda, escriba a{" "}
+              Si tiene problemas de acceso escriba a{" "}
               <a href="mailto:integracion@germanretana.com">integracion@germanretana.com</a>
             </p>
           </div>
