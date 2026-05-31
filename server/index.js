@@ -808,14 +808,20 @@ app.post("/api/app/login", async (req, res) => {
     return res.status(401).json({ error: "Credenciales inválidas." });
   }
 
-  if (matches.length > 1) {
-    return res.status(409).json({
-      error:
-        "Este correo pertenece a más de un proceso. Ingrese utilizando el enlace de invitación.",
-    });
+  let row;
+  if (matches.length === 1) {
+    row = matches[0];
+  } else {
+    const active = matches.filter((m) => m.processStatus === "EN_CURSO");
+    if (active.length === 1) {
+      row = active[0];
+    } else {
+      return res.status(409).json({
+        error:
+          "Este correo pertenece a más de un proceso. Por favor escriba a integracion@germanretana.com.",
+      });
+    }
   }
-
-  const row = matches[0];
 
   if (!row.passwordHash)
     return res.status(401).json({ error: "Credenciales inválidas." });
