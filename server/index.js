@@ -17,24 +17,27 @@ import {
   listProcessesFromPg,
   getProcessFromPg,
   listProcessSummariesFromPg,
+  listProcessSlugsFromPg,
   listParticipantsFromPg,
   findParticipantsByEmailFromPg,
+  findParticipantByEmailInProcessFromPg,
   getParticipantFromPg,
   getC1ResponseFromPg,
   listC1ResponsesByProcessFromPg,
   upsertC1ResponseDraftToPg,
   submitC1ResponseInPg,
+  reopenC1ResponseInPg,
   listC2ResponsesByParticipantFromPg,
   listC2ResponsesByProcessFromPg,
   getC2ResponseFromPg,
   upsertC2ResponseDraftToPg,
   submitC2ResponseInPg,
+  reopenC2ResponseInPg,
   insertParticipantToPg,
   updateParticipantInPg,
   deleteParticipantFromPg,
   resetParticipantAccessInPg,
   upsertProcessToPg,
-  replaceProcessQuestionnaireTemplatesInPg,
   getProcessTemplatesFromPg,
   upsertProcessTemplateToPg,
   getBaseTemplateFromPg,
@@ -42,6 +45,11 @@ import {
   upsertBaseTemplateToPg,
   deleteProcessFromPg,
   renameProcessSlugInPg,
+  findAdminByEmailFromPg,
+  countAdminsFromPg,
+  insertAdminToPg,
+  insertEventToPg,
+  listEventsFromPg,
 } from "./lib/pg.js";
 
 import {
@@ -93,16 +101,18 @@ function slugify(str) {
     .replace(/--+/g, "-");
 }
 
-function generateUniqueProcessSlug(db, desiredSlug, companyName, processName) {
+async function generateUniqueProcessSlug(desiredSlug, companyName, processName) {
   const base =
     slugify(desiredSlug) ||
     slugify(`${companyName}-${processName}`) ||
     `process-${Date.now()}`;
 
+  const existing = new Set(await listProcessSlugsFromPg());
+
   let slug = base;
   let counter = 2;
 
-  while (db.processes.some((p) => p.processSlug === slug)) {
+  while (existing.has(slug)) {
     slug = `${base}-${counter++}`;
   }
 
@@ -418,31 +428,36 @@ app.post("/api/admin/bootstrap", async (req, res) => {
   if (!email || !password)
     return res.status(400).json({ error: "email y password requeridos." });
 
-  const db = readDb();
-  if (db.admins.length > 0)
-    return res.status(409).json({ error: "Bootstrap ya realizado." });
+  try {
+    const existing = await countAdminsFromPg();
+    if (existing > 0)
+      return res.status(409).json({ error: "Bootstrap ya realizado." });
 
-  const passwordHash = await bcrypt.hash(String(password), 10);
+    const passwordHash = await bcrypt.hash(String(password), 10);
 
-  updateDb((db2) => {
-    db2.admins.push({
+    await insertAdminToPg({
       email: String(email).toLowerCase(),
       name: String(name || ""),
       passwordHash,
       createdAt: new Date().toISOString(),
     });
-    return db2;
-  });
+  } catch (err) {
+    return res.status(500).json({ error: "No se pudo completar el bootstrap." });
+  }
 
   res.json({ ok: true });
 });
 
 app.post("/api/admin/login", async (req, res) => {
   const { email, password } = req.body || {};
-  const db = readDb();
-  const admin = db.admins.find(
-    (a) => a.email === String(email || "").toLowerCase(),
-  );
+
+  let admin = null;
+  try {
+    admin = await findAdminByEmailFromPg(String(email || ""));
+  } catch (err) {
+    return res.status(500).json({ error: "No se pudo iniciar sesión." });
+  }
+
   if (!admin) return res.status(401).json({ error: "Credenciales inválidas." });
 
   const ok = await bcrypt.compare(String(password || ""), admin.passwordHash);
@@ -475,24 +490,14 @@ app.put("/api/admin/base-templates/:kind", requireAdmin, async (req, res) => {
 
   const incoming = req.body || {};
 
-  const next = updateDb((db) => {
-    db.baseTemplates = db.baseTemplates || {};
-    db.baseTemplates[kind] = { ...db.baseTemplates[kind], ...incoming };
-    return db;
-  });
-
-  const merged = next.baseTemplates[kind];
-
   try {
+    const existing = await getBaseTemplateFromPg(kind);
+    const merged = { ...(existing || {}), ...incoming };
     await upsertBaseTemplateToPg(kind, merged);
+    res.json(merged);
   } catch (err) {
-    return res.status(500).json({
-      error:
-        "La plantilla base se guardó en JSON pero falló la sincronización a PostgreSQL.",
-    });
+    res.status(500).json({ error: "No se pudo guardar la plantilla base." });
   }
-
-  res.json(merged);
 });
 
 /* =========================
@@ -523,63 +528,44 @@ app.post("/api/admin/processes", requireAdmin, async (req, res) => {
     return res.status(400).json({ error: "Datos incompletos." });
   }
 
-  const db = readDb();
-  const processSlug = generateUniqueProcessSlug(
-    db,
-    requestedSlug,
-    companyNameClean,
-    processNameClean,
-  );
-
-  let baseTemplates = null;
   try {
-    baseTemplates = await getBaseTemplatesFromPg();
-  } catch (err) {
-    return res
-      .status(500)
-      .json({ error: "No se pudieron cargar las plantillas base." });
-  }
+    const baseTemplates = await getBaseTemplatesFromPg();
 
-  if (!baseTemplates?.c1 || !baseTemplates?.c2) {
-    return res.status(500).json({
-      error: "No se encontraron las plantillas base en PostgreSQL.",
-    });
-  }
+    if (!baseTemplates?.c1 || !baseTemplates?.c2) {
+      return res.status(500).json({
+        error: "No se encontraron las plantillas base en PostgreSQL.",
+      });
+    }
 
-  const now = new Date().toISOString();
+    const processSlug = await generateUniqueProcessSlug(
+      requestedSlug,
+      companyNameClean,
+      processNameClean,
+    );
 
-  const newProcess = {
-    processSlug,
-    companyName: companyNameClean,
-    processName: processNameClean,
-    status: "EN_PREPARACION",
-    templates: structuredClone(baseTemplates),
-    participants: [],
-    responses: { c1: {}, c2: {} },
-    createdAt: now,
-    launchedAt: null,
-    closedAt: null,
-    expectedStartAt: expectedStartAt || null,
-    expectedEndAt: expectedEndAt || null,
-    logoUrl: null,
-  };
+    const now = new Date().toISOString();
 
-  updateDb((db2) => {
-    db2.processes.push(newProcess);
-    return db2;
-  });
+    const newProcess = {
+      processSlug,
+      companyName: companyNameClean,
+      processName: processNameClean,
+      status: "EN_PREPARACION",
+      createdAt: now,
+      launchedAt: null,
+      closedAt: null,
+      expectedStartAt: expectedStartAt || null,
+      expectedEndAt: expectedEndAt || null,
+      logoUrl: null,
+    };
 
-  try {
     await upsertProcessToPg(newProcess);
-    await replaceProcessQuestionnaireTemplatesInPg(newProcess);
-  } catch (err) {
-    return res.status(500).json({
-      error:
-        "El proceso se guardó en JSON pero falló la sincronización a PostgreSQL.",
-    });
-  }
+    await upsertProcessTemplateToPg(processSlug, "c1", baseTemplates.c1);
+    await upsertProcessTemplateToPg(processSlug, "c2", baseTemplates.c2);
 
-  res.json(newProcess);
+    res.json(newProcess);
+  } catch (err) {
+    res.status(500).json({ error: "No se pudo crear el proceso." });
+  }
 });
 
 app.get(
@@ -609,72 +595,60 @@ app.put("/api/admin/processes/:processSlug", requireAdmin, async (req, res) => {
     newSlug,
   } = req.body || {};
 
-  const db = readDb();
-  const existing = db.processes.find((p) => p.processSlug === processSlug);
+  try {
+    const existing = await getProcessFromPg(processSlug);
 
-  if (!existing)
-    return res.status(404).json({ error: "Proceso no encontrado." });
+    if (!existing)
+      return res.status(404).json({ error: "Proceso no encontrado." });
 
-  if (existing.status !== "EN_PREPARACION")
-    return res.status(400).json({
-      error: "Solo se puede editar un proceso en EN_PREPARACION.",
-    });
+    if (existing.status !== "EN_PREPARACION")
+      return res.status(400).json({
+        error: "Solo se puede editar un proceso en EN_PREPARACION.",
+      });
 
-  // Slug change
-  let finalSlug = processSlug;
+    let finalSlug = processSlug;
 
-  if (newSlug && newSlug !== processSlug) {
-    const normalized = slugify(newSlug);
+    if (newSlug && newSlug !== processSlug) {
+      const normalized = slugify(newSlug);
+      if (!normalized) return res.status(400).json({ error: "Slug inválido." });
 
-    if (!normalized) return res.status(400).json({ error: "Slug inválido." });
+      const slugs = await listProcessSlugsFromPg();
+      if (slugs.includes(normalized))
+        return res.status(409).json({ error: "El slug ya existe." });
 
-    if (db.processes.some((p) => p.processSlug === normalized))
-      return res.status(409).json({ error: "El slug ya existe." });
+      finalSlug = normalized;
+    }
 
-    finalSlug = normalized;
-  }
-
-  const next = updateDb((db2) => {
-    const proc = db2.processes.find((p) => p.processSlug === processSlug);
-    if (!proc) return db2;
-
-    proc.companyName = companyName ?? proc.companyName;
-    proc.processName = processName ?? proc.processName;
-    proc.expectedStartAt = expectedStartAt ?? proc.expectedStartAt ?? null;
-    proc.expectedEndAt = expectedEndAt ?? proc.expectedEndAt ?? null;
-    proc.logoUrl = logoUrl ?? proc.logoUrl ?? null;
+    let resolvedLogoUrl =
+      logoUrl !== undefined ? logoUrl || null : existing.logoUrl;
 
     if (finalSlug !== processSlug) {
       const oldLogoPath = path.join(LOGO_DIR, `${processSlug}.jpg`);
       const newLogoPath = path.join(LOGO_DIR, `${finalSlug}.jpg`);
-
       if (fs.existsSync(oldLogoPath)) {
         fs.renameSync(oldLogoPath, newLogoPath);
       }
+      resolvedLogoUrl = `/uploads/logos/${finalSlug}.jpg`;
 
-      proc.processSlug = finalSlug;
-      proc.logoUrl = `/uploads/logos/${finalSlug}.jpg`;
-    }
-
-    return db2;
-  });
-
-  const updated = next.processes.find((p) => p.processSlug === finalSlug);
-
-  try {
-    if (finalSlug !== processSlug) {
       await renameProcessSlugInPg(processSlug, finalSlug);
     }
-    await upsertProcessToPg(updated);
-    await replaceProcessQuestionnaireTemplatesInPg(updated);
-  } catch (err) {
-    return res.status(500).json({
-      error:
-        "El proceso se actualizó en JSON pero falló la sincronización a PostgreSQL.",
-    });
-  }
 
-  res.json(updated);
+    const updated = {
+      ...existing,
+      processSlug: finalSlug,
+      companyName: companyName ?? existing.companyName,
+      processName: processName ?? existing.processName,
+      expectedStartAt: expectedStartAt ?? existing.expectedStartAt ?? null,
+      expectedEndAt: expectedEndAt ?? existing.expectedEndAt ?? null,
+      logoUrl: resolvedLogoUrl,
+    };
+
+    await upsertProcessToPg(updated);
+
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: "No se pudo actualizar el proceso." });
+  }
 });
 
 app.get(
@@ -694,15 +668,6 @@ app.get(
 
       const c1Rows = await listC1ResponsesByProcessFromPg(processSlug);
       const c2Rows = await listC2ResponsesByProcessFromPg(processSlug);
-
-      const db = readDb();
-      const p = (db.processes || []).find(
-        (x) => String(x?.processSlug || x?.slug || "") === String(processSlug),
-      );
-      if (!p)
-        return res
-          .status(404)
-          .json({ error: `Process not found: ${processSlug}` });
 
       let templates = null;
       try {
@@ -796,34 +761,27 @@ app.patch(
 
     const now = new Date().toISOString();
 
-    const next = updateDb((db2) => {
-      const proc2 = db2.processes.find(
-        (p) => p.processSlug === req.params.processSlug,
-      );
-      if (!proc2) return db2;
-
-      proc2.status = status;
-      if (status === "EN_CURSO") proc2.launchedAt = now;
-      if (status === "CERRADO") proc2.closedAt = now;
-
-      return db2;
-    });
-
-    const proc = next.processes.find(
-      (p) => p.processSlug === req.params.processSlug,
-    );
-    if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
-
     try {
-      await upsertProcessToPg(proc);
-    } catch (err) {
-      return res.status(500).json({
-        error:
-          "El estado se actualizó en JSON pero falló la sincronización a PostgreSQL.",
-      });
-    }
+      const existing = await getProcessFromPg(req.params.processSlug);
+      if (!existing)
+        return res.status(404).json({ error: "Proceso no encontrado." });
 
-    res.json(proc);
+      const updated = {
+        ...existing,
+        status,
+        launchedAt:
+          status === "EN_CURSO" ? now : existing.launchedAt || null,
+        closedAt: status === "CERRADO" ? now : existing.closedAt || null,
+      };
+
+      await upsertProcessToPg(updated);
+
+      res.json(updated);
+    } catch (err) {
+      res
+        .status(500)
+        .json({ error: "No se pudo actualizar el estado del proceso." });
+    }
   },
 );
 
@@ -841,68 +799,57 @@ app.patch(
       logoUrl,
     } = req.body || {};
 
-    const next = updateDb((db2) => {
-      const proc = db2.processes.find((p) => p.processSlug === processSlug);
-      if (!proc) return db2;
+    try {
+      const existing = await getProcessFromPg(processSlug);
 
-      // Only editable in EN_PREPARACION
-      if (proc.status !== "EN_PREPARACION") {
-        return db2;
+      if (!existing)
+        return res.status(404).json({ error: "Proceso no encontrado." });
+
+      if (existing.status !== "EN_PREPARACION") {
+        return res.json(existing);
       }
 
-      if (companyName != null) {
-        proc.companyName = String(companyName).trim();
-      }
+      let finalSlug = processSlug;
 
-      if (processName != null) {
-        proc.processName = String(processName).trim();
-      }
-
-      if (expectedStartAt !== undefined) {
-        proc.expectedStartAt = expectedStartAt || null;
-      }
-
-      if (expectedEndAt !== undefined) {
-        proc.expectedEndAt = expectedEndAt || null;
-      }
-
-      if (logoUrl !== undefined) {
-        proc.logoUrl = logoUrl || null;
-      }
-
-      // Slug change
       if (newSlug && newSlug !== processSlug) {
-        const exists = db2.processes.some((p) => p.processSlug === newSlug);
-        if (!exists) {
-          proc.processSlug = newSlug;
+        const slugs = await listProcessSlugsFromPg();
+        if (!slugs.includes(newSlug)) {
+          finalSlug = newSlug;
+          await renameProcessSlugInPg(processSlug, finalSlug);
         }
       }
 
-      return db2;
-    });
+      const updated = {
+        ...existing,
+        processSlug: finalSlug,
+        companyName:
+          companyName != null
+            ? String(companyName).trim()
+            : existing.companyName,
+        processName:
+          processName != null
+            ? String(processName).trim()
+            : existing.processName,
+        expectedStartAt:
+          expectedStartAt !== undefined
+            ? expectedStartAt || null
+            : existing.expectedStartAt,
+        expectedEndAt:
+          expectedEndAt !== undefined
+            ? expectedEndAt || null
+            : existing.expectedEndAt,
+        logoUrl:
+          logoUrl !== undefined ? logoUrl || null : existing.logoUrl,
+      };
 
-    const updated = next.processes.find(
-      (p) => p.processSlug === newSlug || p.processSlug === processSlug,
-    );
-
-    if (!updated) {
-      return res.status(404).json({ error: "Proceso no encontrado." });
-    }
-
-    try {
-      if (updated.processSlug !== processSlug) {
-        await renameProcessSlugInPg(processSlug, updated.processSlug);
-      }
       await upsertProcessToPg(updated);
-      await replaceProcessQuestionnaireTemplatesInPg(updated);
-    } catch (err) {
-      return res.status(500).json({
-        error:
-          "El proceso se actualizó en JSON pero falló la sincronización a PostgreSQL.",
-      });
-    }
 
-    res.json(updated);
+      res.json(updated);
+    } catch (err) {
+      res
+        .status(500)
+        .json({ error: "No se pudo actualizar el proceso." });
+    }
   },
 );
 
@@ -942,30 +889,19 @@ app.put(
 
     const incoming = req.body || {};
 
-    const next = updateDb((db) => {
-      const proc = db.processes.find((p) => p.processSlug === processSlug);
-      if (!proc) return db;
-
-      proc.templates = proc.templates || {};
-      proc.templates[kind] = { ...proc.templates[kind], ...incoming };
-      return db;
-    });
-
-    const proc = next.processes.find((p) => p.processSlug === processSlug);
-    if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
-
-    const merged = proc.templates[kind];
-
     try {
-      await upsertProcessTemplateToPg(processSlug, kind, merged);
-    } catch (err) {
-      return res.status(500).json({
-        error:
-          "La plantilla se guardó en JSON pero falló la sincronización a PostgreSQL.",
-      });
-    }
+      const proc = await getProcessFromPg(processSlug);
+      if (!proc)
+        return res.status(404).json({ error: "Proceso no encontrado." });
 
-    res.json(merged);
+      const templates = await getProcessTemplatesFromPg(processSlug);
+      const merged = { ...(templates?.[kind] || {}), ...incoming };
+
+      await upsertProcessTemplateToPg(processSlug, kind, merged);
+      res.json(merged);
+    } catch (err) {
+      res.status(500).json({ error: "No se pudo guardar la plantilla." });
+    }
   },
 );
 
@@ -980,52 +916,35 @@ app.post(
   async (req, res) => {
     const { processSlug } = req.params;
 
-    const db = readDb();
-    const proc = db.processes.find((p) => p.processSlug === processSlug);
-
-    if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
-
-    if (proc.status !== "EN_PREPARACION")
-      return res.status(400).json({
-        error: "Solo se puede modificar el logo en EN_PREPARACION.",
-      });
-
-    if (!req.file) return res.status(400).json({ error: "No file uploaded." });
-
-    const outputPath = path.join(LOGO_DIR, `${processSlug}.jpg`);
-
     try {
+      const proc = await getProcessFromPg(processSlug);
+      if (!proc)
+        return res.status(404).json({ error: "Proceso no encontrado." });
+
+      if (proc.status !== "EN_PREPARACION")
+        return res.status(400).json({
+          error: "Solo se puede modificar el logo en EN_PREPARACION.",
+        });
+
+      if (!req.file)
+        return res.status(400).json({ error: "No file uploaded." });
+
+      const outputPath = path.join(LOGO_DIR, `${processSlug}.jpg`);
+
       await sharp(req.file.buffer)
         .resize({ width: 1200, withoutEnlargement: true })
-        .flatten({ background: "#ffffff" }) // white background for transparent images
+        .flatten({ background: "#ffffff" })
         .jpeg({ quality: 80 })
         .toFile(outputPath);
+
+      const logoUrl = `/uploads/logos/${processSlug}.jpg`;
+
+      await upsertProcessToPg({ ...proc, logoUrl });
+
+      res.json({ logoUrl });
     } catch (err) {
-      return res.status(500).json({ error: "Image processing failed." });
+      res.status(500).json({ error: "No se pudo guardar el logo." });
     }
-
-    const logoUrl = `/uploads/logos/${processSlug}.jpg`;
-
-    const next = updateDb((db2) => {
-      const p2 = db2.processes.find((p) => p.processSlug === processSlug);
-      if (p2) p2.logoUrl = logoUrl;
-      return db2;
-    });
-
-    const updatedProc = next.processes.find(
-      (p) => p.processSlug === processSlug,
-    );
-
-    try {
-      await upsertProcessToPg(updatedProc);
-    } catch (err) {
-      return res.status(500).json({
-        error:
-          "El logo se guardó en JSON pero falló la sincronización a PostgreSQL.",
-      });
-    }
-
-    res.json({ logoUrl });
   },
 );
 
@@ -1607,11 +1526,6 @@ app.get(
       const c1Rows = await listC1ResponsesByProcessFromPg(processSlug);
       const c2Rows = await listC2ResponsesByProcessFromPg(processSlug);
 
-      const db = readDb();
-      const procJson = db.processes.find((p) => p.processSlug === processSlug);
-      if (!procJson)
-        return res.status(404).json({ error: "Proceso no encontrado." });
-
       let templates = null;
       try {
         templates = await getProcessTemplatesFromPg(processSlug);
@@ -2123,54 +2037,35 @@ app.delete(
   async (req, res) => {
     const { processSlug } = req.params;
 
-    const db = readDb();
-    const proc = db.processes.find((p) => p.processSlug === processSlug);
-
-    if (!proc) {
-      return res.status(404).json({ error: "Proceso no encontrado." });
-    }
-
-    if (proc.status !== "EN_PREPARACION") {
-      return res.status(400).json({
-        error: "Solo se pueden eliminar procesos en EN_PREPARACION.",
-      });
-    }
-
-    const logoPath = path.join(LOGO_DIR, `${processSlug}.jpg`);
-
-    updateDb((db2) => {
-      db2.processes = (db2.processes || []).filter(
-        (p) => p.processSlug !== processSlug,
-      );
-
-      db2.events = (db2.events || []).filter(
-        (evt) => String(evt?.processSlug || "") !== String(processSlug),
-      );
-
-      return db2;
-    });
-
     try {
-      await deleteProcessFromPg(processSlug);
-    } catch (e) {
-      return res.status(500).json({
-        error:
-          "El proceso fue eliminado en JSON pero falló la sincronización a PostgreSQL.",
-      });
-    }
+      const proc = await getProcessFromPg(processSlug);
+      if (!proc)
+        return res.status(404).json({ error: "Proceso no encontrado." });
 
-    try {
-      if (fs.existsSync(logoPath)) {
-        fs.unlinkSync(logoPath);
+      if (proc.status !== "EN_PREPARACION") {
+        return res.status(400).json({
+          error: "Solo se pueden eliminar procesos en EN_PREPARACION.",
+        });
       }
-    } catch (e) {
-      return res.status(500).json({
-        error:
-          "El proceso fue removido de la base de datos, pero no se pudo eliminar el logo del disco.",
-      });
-    }
 
-    return res.json({ ok: true, processSlug });
+      await deleteProcessFromPg(processSlug);
+
+      const logoPath = path.join(LOGO_DIR, `${processSlug}.jpg`);
+      try {
+        if (fs.existsSync(logoPath)) {
+          fs.unlinkSync(logoPath);
+        }
+      } catch (e) {
+        return res.status(500).json({
+          error:
+            "El proceso fue eliminado, pero no se pudo eliminar el logo del disco.",
+        });
+      }
+
+      res.json({ ok: true, processSlug });
+    } catch (err) {
+      res.status(500).json({ error: "No se pudo eliminar el proceso." });
+    }
   },
 );
 
