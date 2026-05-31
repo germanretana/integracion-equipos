@@ -651,8 +651,8 @@
 .q-grid-control .admin-input {
   width: 96px;
   max-width: 96px;
-  min-height: 36px;
-  padding: 7px 10px;
+  min-height: 38px;
+  padding: 8px 10px;
   text-align: center;
 }
 
@@ -666,6 +666,9 @@
 .q-grid-suggestion textarea {
   width: 100%;
   resize: vertical;
+  min-height: 38px;
+  padding: 8px 12px;
+  line-height: 1.2;
 }
 
 .q-grid-help {
