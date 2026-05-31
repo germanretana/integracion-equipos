@@ -321,7 +321,7 @@ export default function ProcessDashboard() {
 
   async function reopenQuestionnaire({ participantId, kind, peerId, label }) {
     const ok = window.confirm(
-      `¿Reabrir (des-enviar) ${label}?\n\nEsto quitará el estado "enviado" y permitirá editar de nuevo.`,
+      `¿Reabrir ${label}?\n\nEl participante podrá volver a editar este cuestionario. Sus respuestas se conservan, pero deberá enviarlas nuevamente.`,
     );
     if (!ok) return;
 
@@ -1307,7 +1307,7 @@ function ProgressPanel({
 
     const label = kind === "c1" ? "C1" : `C2 → ${peerName(peerId)}`;
     const ok = window.confirm(
-      `¿Reabrir ${label} para este participante?\n\nEsto elimina submittedAt y lo deja editable.`,
+      `¿Reabrir ${label} para este participante?\n\nEl participante podrá volver a editar este cuestionario. Sus respuestas se conservan, pero deberá enviarlas nuevamente.`,
     );
     if (!ok) return;
 
