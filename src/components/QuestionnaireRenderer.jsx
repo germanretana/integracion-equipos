@@ -58,8 +58,8 @@ function normalizeType(typeRaw) {
 }
 
 function helpText(minEntries) {
-  const min = Number.isFinite(minEntries) ? minEntries : null;
-  if (min == null || min <= 0) return "";
+  const min = Number(minEntries);
+  if (!Number.isFinite(min) || min <= 0) return "";
   if (min === 1) return "Requerida: 1";
   return `Requeridas: ${min}`;
 }
