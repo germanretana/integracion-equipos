@@ -244,52 +244,23 @@ function normalizeEmail(v) {
     .toLowerCase();
 }
 
-async function getProcAndMeScoped(db, req) {
+async function getProcAndMeScoped(req) {
   const { processSlug } = req.params;
   if (req.participant.processSlug !== processSlug)
     return { error: "Acceso denegado.", status: 403 };
 
-  const proc = db.processes.find((p) => p.processSlug === processSlug);
-  if (!proc) return { error: "Proceso no encontrado.", status: 404 };
-
+  let proc = null;
   let me = null;
   try {
+    proc = await getProcessFromPg(processSlug);
+    if (!proc) return { error: "Proceso no encontrado.", status: 404 };
+
     me = await getParticipantFromPg(processSlug, req.participant.participantId);
   } catch (err) {
     return { error: "No se pudo validar el participante.", status: 500 };
   }
 
   if (!me) return { error: "Acceso denegado.", status: 403 };
-
-  proc.responses = proc.responses || { c1: {}, c2: {} };
-  proc.responses.c1 = proc.responses.c1 || {};
-  proc.responses.c2 = proc.responses.c2 || {};
-
-  return { proc, me };
-}
-
-async function getProcAndMeScopedWithPg(req) {
-  const db = readDb();
-  const { processSlug } = req.params;
-
-  if (req.participant.processSlug !== processSlug)
-    return { error: "Acceso denegado.", status: 403 };
-
-  const proc = db.processes.find((p) => p.processSlug === processSlug);
-  if (!proc) return { error: "Proceso no encontrado.", status: 404 };
-
-  let me = null;
-  try {
-    me = await getParticipantFromPg(processSlug, req.participant.participantId);
-  } catch (err) {
-    return { error: "No se pudo validar el participante.", status: 500 };
-  }
-
-  if (!me) return { error: "Acceso denegado.", status: 403 };
-
-  proc.responses = proc.responses || { c1: {}, c2: {} };
-  proc.responses.c1 = proc.responses.c1 || {};
-  proc.responses.c2 = proc.responses.c2 || {};
 
   return { proc, me };
 }
@@ -1024,8 +995,7 @@ app.get(
   "/api/app/:processSlug/questionnaires",
   requireParticipant,
   async (req, res) => {
-    const db = readDb();
-    const scoped = await getProcAndMeScoped(db, req);
+    const scoped = await getProcAndMeScoped(req);
     if (scoped.error)
       return res.status(scoped.status).json({ error: scoped.error });
 
@@ -1115,8 +1085,7 @@ app.get(
     if (!["c1", "c2"].includes(kind))
       return res.status(404).json({ error: "No encontrado." });
 
-    const db = readDb();
-    const scoped = await getProcAndMeScoped(db, req);
+    const scoped = await getProcAndMeScoped(req);
     if (scoped.error)
       return res.status(scoped.status).json({ error: scoped.error });
 
@@ -1137,8 +1106,7 @@ app.get(
    C1 DRAFT + SUBMIT
 ========================= */
 app.get("/api/app/:processSlug/c1", requireParticipant, async (req, res) => {
-  const db = readDb();
-  const scoped = await getProcAndMeScoped(db, req);
+  const scoped = await getProcAndMeScoped(req);
   if (scoped.error)
     return res.status(scoped.status).json({ error: scoped.error });
 
@@ -1169,8 +1137,7 @@ app.put("/api/app/:processSlug/c1", requireParticipant, async (req, res) => {
   const { draft } = req.body || {};
   const incomingDraft = draft && typeof draft === "object" ? draft : {};
 
-  const db0 = readDb();
-  const scoped0 = await getProcAndMeScoped(db0, req);
+  const scoped0 = await getProcAndMeScoped(req);
   if (scoped0.error)
     return res.status(scoped0.status).json({ error: scoped0.error });
 
@@ -1222,8 +1189,7 @@ app.post(
   async (req, res) => {
     const processSlug = req.params.processSlug;
 
-    const db0 = readDb();
-    const scoped0 = await getProcAndMeScoped(db0, req);
+    const scoped0 = await getProcAndMeScoped(req);
     if (scoped0.error)
       return res.status(scoped0.status).json({ error: scoped0.error });
 
@@ -1291,8 +1257,7 @@ app.get(
   "/api/app/:processSlug/c2/:peerId",
   requireParticipant,
   async (req, res) => {
-    const db = readDb();
-    const scoped = await getProcAndMeScoped(db, req);
+    const scoped = await getProcAndMeScoped(req);
     if (scoped.error)
       return res.status(scoped.status).json({ error: scoped.error });
 
@@ -1339,8 +1304,7 @@ app.put(
     const { draft } = req.body || {};
     const incomingDraft = draft && typeof draft === "object" ? draft : {};
 
-    const db0 = readDb();
-    const scoped0 = await getProcAndMeScoped(db0, req);
+    const scoped0 = await getProcAndMeScoped(req);
     if (scoped0.error)
       return res.status(scoped0.status).json({ error: scoped0.error });
 
@@ -1408,8 +1372,7 @@ app.post(
     const processSlug = req.params.processSlug;
     const peerId = req.params.peerId;
 
-    const db0 = readDb();
-    const scoped0 = await getProcAndMeScoped(db0, req);
+    const scoped0 = await getProcAndMeScoped(req);
     if (scoped0.error)
       return res.status(scoped0.status).json({ error: scoped0.error });
 
