@@ -1017,7 +1017,10 @@ app.put("/api/app/:processSlug/c1", requireParticipant, async (req, res) => {
   if (!canParticipantEdit(proc)) {
     return res
       .status(403)
-      .json({ error: "El proceso no está habilitado para edición." });
+      .json({
+        error:
+          "Este proceso no está abierto y no se pueden ingresar respuestas. Sólo puede visualizar el cuestionario.",
+      });
   }
 
   let currentEntry = null;
@@ -1069,7 +1072,8 @@ app.post(
 
     if (!canParticipantEdit(p0)) {
       return res.status(403).json({
-        error: "El proceso está cerrado. No se pueden enviar respuestas.",
+        error:
+          "Este proceso no está abierto y no se pueden ingresar respuestas. Sólo puede visualizar el cuestionario.",
       });
     }
 
@@ -1185,7 +1189,10 @@ app.put(
     if (!canParticipantEdit(proc)) {
       return res
         .status(403)
-        .json({ error: "El proceso no está habilitado para edición." });
+        .json({
+        error:
+          "Este proceso no está abierto y no se pueden ingresar respuestas. Sólo puede visualizar el cuestionario.",
+      });
     }
 
     let participants = [];
@@ -1252,7 +1259,8 @@ app.post(
 
     if (!canParticipantEdit(p0)) {
       return res.status(403).json({
-        error: "El proceso está cerrado. No se pueden enviar respuestas.",
+        error:
+          "Este proceso no está abierto y no se pueden ingresar respuestas. Sólo puede visualizar el cuestionario.",
       });
     }
 
