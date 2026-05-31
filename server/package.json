@@ -8,8 +8,7 @@
     "dev": "node --watch index.js",
     "start": "node index.js",
     "db:init": "node scripts/init-db.js",
-    "db:import": "node scripts/import-json.js",
-    "db:verify": "node scripts/verify-import.js"
+    "db:migrate-fk-cascade": "node scripts/migrate-fk-cascade.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

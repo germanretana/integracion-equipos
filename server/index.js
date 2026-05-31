@@ -10,8 +10,6 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import { readDb, updateDb } from "./lib/db.js";
-
 import {
   testConnection,
   listProcessesFromPg,
@@ -119,117 +117,8 @@ async function generateUniqueProcessSlug(desiredSlug, companyName, processName) 
   return slug;
 }
 
-function ensureMockParticipantsForProcess(proc) {
-  if (Array.isArray(proc.participants) && proc.participants.length > 0) return;
-
-  proc.participants = [
-    {
-      id: "p1",
-      firstName: "German",
-      lastName: "Retana",
-      email: "german.retana@gmail.com",
-      passwordHash: null,
-    },
-    {
-      id: "p2",
-      firstName: "Ana",
-      lastName: "López",
-      email: "ana@example.com",
-      passwordHash: null,
-    },
-    {
-      id: "p3",
-      firstName: "Carlos",
-      lastName: "Méndez",
-      email: "carlos@example.com",
-      passwordHash: null,
-    },
-    {
-      id: "p4",
-      firstName: "Laura",
-      lastName: "Jiménez",
-      email: "laura@example.com",
-      passwordHash: null,
-    },
-    {
-      id: "p5",
-      firstName: "Diego",
-      lastName: "Vargas",
-      email: "diego@example.com",
-      passwordHash: null,
-    },
-  ];
-}
-
-// ===== Response entry helpers (pure accessors over process.responses) =====
-
 function canParticipantEdit(proc) {
-  // Editar = guardar draft + submit
   return proc?.status === "EN_CURSO";
-}
-
-function canParticipantView(proc) {
-  // Ver = GETs /questionnaires, /templates, /c1, /c2
-  // Permitimos ver incluso cerrado (histórico). Ajustable.
-  return proc?.status === "EN_CURSO" || proc?.status === "CERRADO";
-}
-
-function ensureResponsesShape(p) {
-  if (!p.responses || typeof p.responses !== "object")
-    p.responses = { c1: {}, c2: {} };
-  if (!p.responses.c1 || typeof p.responses.c1 !== "object")
-    p.responses.c1 = {};
-  if (!p.responses.c2 || typeof p.responses.c2 !== "object")
-    p.responses.c2 = {};
-  return p.responses;
-}
-
-// Read a response entry
-// - kind=c1: p.responses.c1[participantId]
-// - kind=c2: p.responses.c2[participantId][peerId]
-function getResponseEntry(p, kind, participantId, peerId) {
-  const k = String(kind || "").toLowerCase();
-  const pid = String(participantId || "");
-  const peer = peerId == null ? null : String(peerId);
-
-  if (!p || typeof p !== "object") return null;
-  const responses = ensureResponsesShape(p);
-
-  if (k === "c1") {
-    const entry = responses.c1?.[pid];
-    return entry && typeof entry === "object" ? entry : null;
-  }
-
-  if (k === "c2") {
-    const byPid = responses.c2?.[pid];
-    if (!byPid || typeof byPid !== "object") return null;
-    const entry = byPid?.[peer || ""];
-    return entry && typeof entry === "object" ? entry : null;
-  }
-
-  return null;
-}
-
-// Write a response entry (creates intermediate objects as needed)
-function setResponseEntry(p, kind, participantId, peerId, entry) {
-  const k = String(kind || "").toLowerCase();
-  const pid = String(participantId || "");
-  const peer = peerId == null ? null : String(peerId);
-
-  if (!p || typeof p !== "object") return;
-  const responses = ensureResponsesShape(p);
-
-  if (k === "c1") {
-    responses.c1[pid] = entry;
-    return;
-  }
-
-  if (k === "c2") {
-    if (!responses.c2[pid] || typeof responses.c2[pid] !== "object")
-      responses.c2[pid] = {};
-    responses.c2[pid][peer || ""] = entry;
-    return;
-  }
 }
 
 function participantDisplayName(p) {
@@ -268,36 +157,6 @@ async function getProcAndMeScoped(req) {
 /* =========================
    DRAFT + SUBMIT HELPERS
 ========================= */
-function ensureC1Entry(proc, meId) {
-  proc.responses.c1[meId] = proc.responses.c1[meId] || {
-    draft: { answers: {} },
-    savedAt: null,
-    submittedAt: null,
-  };
-
-  const entry = proc.responses.c1[meId];
-  entry.draft = entry.draft || {};
-  if (!entry.draft.answers || typeof entry.draft.answers !== "object")
-    entry.draft.answers = {};
-  return entry;
-}
-
-function ensureC2Entry(proc, meId, peerId) {
-  proc.responses.c2[meId] = proc.responses.c2[meId] || {};
-  proc.responses.c2[meId][peerId] = proc.responses.c2[meId][peerId] || {
-    draft: { answers: {}, freeText: "" },
-    savedAt: null,
-    submittedAt: null,
-  };
-
-  const entry = proc.responses.c2[meId][peerId];
-  entry.draft = entry.draft || {};
-  if (!entry.draft.answers || typeof entry.draft.answers !== "object")
-    entry.draft.answers = {};
-  if (typeof entry.draft.freeText !== "string") entry.draft.freeText = "";
-  return entry;
-}
-
 function saveDraftIntoEntry({
   entry,
   incomingDraft,
@@ -1715,16 +1574,6 @@ app.delete(
 /* =========================
    ADMIN – PARTICIPANT ACTIONS
 ========================= */
-function ensureEventsArray(db) {
-  db.events = Array.isArray(db.events) ? db.events : [];
-  return db.events;
-}
-
-function pushEvent(db, evt) {
-  const events = ensureEventsArray(db);
-  events.push(evt);
-}
-
 function genTempPassword() {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
   let out = "";

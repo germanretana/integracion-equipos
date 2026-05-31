@@ -627,51 +627,6 @@ export async function upsertProcessToPg(proc) {
   );
 }
 
-export async function replaceProcessQuestionnaireTemplatesInPg(proc) {
-  const pool = getPool();
-  const client = await pool.connect();
-
-  try {
-    await client.query("begin");
-
-    await client.query(
-      `
-      delete from process_templates
-      where process_slug = $1
-        and domain = 'questionnaire'
-      `,
-      [proc.processSlug],
-    );
-
-    if (proc.templates?.c1) {
-      await client.query(
-        `
-        insert into process_templates(process_slug, domain, kind, content)
-        values($1, 'questionnaire', 'c1', $2)
-        `,
-        [proc.processSlug, proc.templates.c1],
-      );
-    }
-
-    if (proc.templates?.c2) {
-      await client.query(
-        `
-        insert into process_templates(process_slug, domain, kind, content)
-        values($1, 'questionnaire', 'c2', $2)
-        `,
-        [proc.processSlug, proc.templates.c2],
-      );
-    }
-
-    await client.query("commit");
-  } catch (err) {
-    await client.query("rollback");
-    throw err;
-  } finally {
-    client.release();
-  }
-}
-
 export async function deleteProcessFromPg(processSlug) {
   const pool = getPool();
   await pool.query(
