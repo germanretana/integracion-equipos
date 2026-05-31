@@ -582,14 +582,20 @@ app.post("/api/admin/processes", requireAdmin, async (req, res) => {
   res.json(newProcess);
 });
 
-app.get("/api/admin/processes/:processSlug", requireAdmin, (req, res) => {
-  const db = readDb();
-  const proc = db.processes.find(
-    (p) => p.processSlug === req.params.processSlug,
-  );
-  if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
-  res.json(proc);
-});
+app.get(
+  "/api/admin/processes/:processSlug",
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const proc = await getProcessFromPg(req.params.processSlug);
+      if (!proc)
+        return res.status(404).json({ error: "Proceso no encontrado." });
+      res.json(proc);
+    } catch (err) {
+      res.status(500).json({ error: "No se pudo cargar el proceso." });
+    }
+  },
+);
 
 // Update Slug
 app.put("/api/admin/processes/:processSlug", requireAdmin, async (req, res) => {
