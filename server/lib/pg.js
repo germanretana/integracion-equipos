@@ -687,36 +687,238 @@ export async function renameProcessSlugInPg(oldSlug, newSlug) {
   if (!oldSlug || !newSlug || oldSlug === newSlug) return;
 
   const pool = getPool();
-  const client = await pool.connect();
 
-  try {
-    await client.query("begin");
+  await pool.query(
+    `
+    update processes
+    set process_slug = $2
+    where process_slug = $1
+    `,
+    [oldSlug, newSlug],
+  );
+}
 
-    await client.query(
-      `
-      update process_templates
-      set process_slug = $2
-      where process_slug = $1
-      `,
-      [oldSlug, newSlug],
-    );
+export async function findAdminByEmailFromPg(email) {
+  const pool = getPool();
 
-    await client.query(
-      `
-      update processes
-      set process_slug = $2
-      where process_slug = $1
-      `,
-      [oldSlug, newSlug],
-    );
+  const { rows } = await pool.query(
+    `
+    select email, name, password_hash as "passwordHash", created_at as "createdAt"
+    from admins
+    where email = lower($1)
+    `,
+    [email],
+  );
 
-    await client.query("commit");
-  } catch (err) {
-    await client.query("rollback");
-    throw err;
-  } finally {
-    client.release();
+  return rows[0] || null;
+}
+
+export async function countAdminsFromPg() {
+  const pool = getPool();
+
+  const { rows } = await pool.query(
+    `select count(*)::int as count from admins`,
+  );
+
+  return Number(rows[0]?.count || 0);
+}
+
+export async function insertAdminToPg(admin) {
+  const pool = getPool();
+
+  await pool.query(
+    `
+    insert into admins(email, name, password_hash, created_at)
+    values(lower($1), $2, $3, $4)
+    `,
+    [
+      admin.email,
+      admin.name || "",
+      admin.passwordHash,
+      admin.createdAt || new Date().toISOString(),
+    ],
+  );
+}
+
+export async function insertEventToPg(event) {
+  const pool = getPool();
+
+  await pool.query(
+    `
+    insert into events(
+      id,
+      ts,
+      type,
+      process_slug,
+      participant_id,
+      participant_email,
+      participant_name,
+      admin_email,
+      payload
+    )
+    values($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    `,
+    [
+      event.id,
+      event.ts,
+      event.type,
+      event.processSlug || null,
+      event.participantId || null,
+      event.participantEmail || null,
+      event.participantName || null,
+      event.adminEmail || null,
+      event.payload || {},
+    ],
+  );
+}
+
+export async function listEventsFromPg({
+  processSlug,
+  participantId,
+  type,
+  limit,
+} = {}) {
+  const pool = getPool();
+
+  const clauses = [];
+  const params = [];
+
+  if (processSlug) {
+    params.push(processSlug);
+    clauses.push(`process_slug = $${params.length}`);
   }
+  if (participantId) {
+    params.push(participantId);
+    clauses.push(`participant_id = $${params.length}`);
+  }
+  if (type) {
+    params.push(type);
+    clauses.push(`type = $${params.length}`);
+  }
+
+  const where = clauses.length ? `where ${clauses.join(" and ")}` : "";
+
+  const cappedLimit = Number.isFinite(limit)
+    ? Math.min(Math.max(Number(limit), 1), 500)
+    : 200;
+
+  params.push(cappedLimit);
+
+  const { rows } = await pool.query(
+    `
+    select
+      id,
+      ts,
+      type,
+      process_slug as "processSlug",
+      participant_id as "participantId",
+      participant_email as "participantEmail",
+      participant_name as "participantName",
+      admin_email as "adminEmail",
+      payload
+    from events
+    ${where}
+    order by ts desc
+    limit $${params.length}
+    `,
+    params,
+  );
+
+  return rows;
+}
+
+export async function findParticipantByEmailInProcessFromPg(processSlug, email) {
+  const pool = getPool();
+
+  const { rows } = await pool.query(
+    `
+    select
+      id,
+      process_slug as "processSlug",
+      first_name as "firstName",
+      last_name as "lastName",
+      email,
+      password_hash as "passwordHash"
+    from participants
+    where process_slug = $1
+      and lower(email) = lower($2)
+    `,
+    [processSlug, email],
+  );
+
+  return rows[0] || null;
+}
+
+export async function reopenC1ResponseInPg(processSlug, participantId) {
+  const pool = getPool();
+
+  const { rows } = await pool.query(
+    `
+    insert into response_c1(
+      process_slug,
+      participant_id,
+      draft,
+      saved_at,
+      submitted_at
+    )
+    values($1, $2, '{}'::jsonb, now(), null)
+    on conflict (process_slug, participant_id)
+    do update set
+      saved_at = now(),
+      submitted_at = null
+    returning
+      process_slug as "processSlug",
+      participant_id as "participantId",
+      draft,
+      saved_at as "savedAt",
+      submitted_at as "submittedAt"
+    `,
+    [processSlug, participantId],
+  );
+
+  return rows[0] || null;
+}
+
+export async function reopenC2ResponseInPg(processSlug, participantId, peerId) {
+  const pool = getPool();
+
+  const { rows } = await pool.query(
+    `
+    insert into response_c2(
+      process_slug,
+      participant_id,
+      peer_id,
+      draft,
+      saved_at,
+      submitted_at
+    )
+    values($1, $2, $3, '{}'::jsonb, now(), null)
+    on conflict (process_slug, participant_id, peer_id)
+    do update set
+      saved_at = now(),
+      submitted_at = null
+    returning
+      process_slug as "processSlug",
+      participant_id as "participantId",
+      peer_id as "peerId",
+      draft,
+      saved_at as "savedAt",
+      submitted_at as "submittedAt"
+    `,
+    [processSlug, participantId, peerId],
+  );
+
+  return rows[0] || null;
+}
+
+export async function listProcessSlugsFromPg() {
+  const pool = getPool();
+
+  const { rows } = await pool.query(
+    `select process_slug as "processSlug" from processes`,
+  );
+
+  return rows.map((row) => row.processSlug);
 }
 
 export async function getBaseTemplateFromPg(kind) {
