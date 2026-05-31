@@ -77,8 +77,9 @@ function isInteractiveElement(target) {
 
 function eventLabel(evt) {
   const t = String(evt?.type || "");
-  if (t === "ADMIN_REMINDER_REQUESTED") return "Recordatorio (mock)";
-  if (t === "ADMIN_ACCESS_RESET") return "Reset acceso (mock)";
+  if (t === "ADMIN_REMINDER_REQUESTED") return "Recordatorio";
+  if (t === "ADMIN_ACCESS_RESET") return "Reset acceso";
+  if (t === "ADMIN_REOPEN") return "Cuestionario reabierto";
   return t || "Evento";
 }
 
@@ -116,6 +117,16 @@ function eventPillStyle(evt) {
       ...base,
       background: "rgba(255, 152, 0, 0.30)",
       border: "1px solid rgba(255, 152, 0, 0.55)",
+      color: "rgba(255,255,255,0.95)",
+    };
+  }
+
+  // Reapertura: azul
+  if (t === "ADMIN_REOPEN") {
+    return {
+      ...base,
+      background: "rgba(80, 140, 255, 0.30)",
+      border: "1px solid rgba(80, 140, 255, 0.55)",
       color: "rgba(255,255,255,0.95)",
     };
   }
@@ -838,7 +849,7 @@ export default function ProcessDashboard() {
                                       title={
                                         processClosed
                                           ? "Proceso cerrado"
-                                          : "Registrar recordatorio (mock)"
+                                          : "Registrar recordatorio"
                                       }
                                     >
                                       {busy === "remind"
@@ -853,7 +864,7 @@ export default function ProcessDashboard() {
                                       title={
                                         processClosed
                                           ? "Proceso cerrado"
-                                          : "Reset de acceso (mock)"
+                                          : "Reset de acceso"
                                       }
                                     >
                                       {busy === "reset"
@@ -985,7 +996,7 @@ export default function ProcessDashboard() {
                       Logs
                     </h2>
                     <p className="sub" style={{ marginTop: 6 }}>
-                      Eventos de administración (mock).
+                      Eventos de administración.
                     </p>
                   </div>
 
