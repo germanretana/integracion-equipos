@@ -168,9 +168,25 @@ function isQuestionAnswered(q, ans) {
   return false;
 }
 
+function isQuestionVisible(q, answers) {
+  if (!q?.dependsOn || typeof q.dependsOn !== "object") return true;
+  const { id, equals } = q.dependsOn;
+  if (!id) return true;
+  const val = answers?.[id];
+  if (val === "yes") {
+    return equals === "yes" || equals === "Sí" || equals === true;
+  }
+  if (val === "no") {
+    return equals === "no" || equals === "No" || equals === false;
+  }
+  return val === equals;
+}
+
 export function computeCompletionFromTemplate(template, draft) {
-  const questions = getQuestionsFromTemplate(template).filter(isAnswerableQuestion);
   const answers = draft?.answers && typeof draft.answers === "object" ? draft.answers : {};
+  const questions = getQuestionsFromTemplate(template)
+    .filter(isAnswerableQuestion)
+    .filter((q) => isQuestionVisible(q, answers));
 
   // Compute total number of questions
   let total = 0;
