@@ -642,9 +642,16 @@ app.patch(
       let finalSlug = processSlug;
 
       if (newSlug && newSlug !== processSlug) {
-        const slugs = await listProcessSlugsFromPg();
-        if (!slugs.includes(newSlug)) {
-          finalSlug = newSlug;
+        const normalized = slugify(newSlug);
+        if (!normalized)
+          return res.status(400).json({ error: "Slug inválido." });
+
+        if (normalized !== processSlug) {
+          const slugs = await listProcessSlugsFromPg();
+          if (slugs.includes(normalized))
+            return res.status(409).json({ error: "El slug ya existe." });
+
+          finalSlug = normalized;
           await renameProcessSlugInPg(processSlug, finalSlug);
         }
       }
