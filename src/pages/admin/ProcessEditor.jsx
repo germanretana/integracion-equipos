@@ -395,13 +395,16 @@ export default function ProcessEditor({ mode = "edit" }) {
     if (mode === "create") return;
     if (!process) return;
 
-    setForm({
-      companyName: process.companyName || "",
-      processName: process.processName || "",
-      processSlug: process.processSlug || "",
-      expectedStartAt: process.expectedStartAt || "",
-      expectedEndAt: process.expectedEndAt || "",
-      logoUrl: process.logoUrl || "",
+    setForm((prev) => {
+      if (prev && prev.processSlug === process.processSlug) return prev;
+      return {
+        companyName: process.companyName || "",
+        processName: process.processName || "",
+        processSlug: process.processSlug || "",
+        expectedStartAt: process.expectedStartAt || "",
+        expectedEndAt: process.expectedEndAt || "",
+        logoUrl: process.logoUrl || "",
+      };
     });
   }, [mode, process]);
 
