@@ -1620,54 +1620,42 @@ app.post(
 
     const emailNorm = String(email).trim().toLowerCase();
 
-    const db = readDb();
-    const proc = db.processes.find((p) => p.processSlug === processSlug);
-    if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
-
-    if (proc.status !== "EN_PREPARACION")
-      return res.status(400).json({
-        error: "Solo se pueden agregar participantes en EN_PREPARACION.",
-      });
-
-    if (
-      (proc.participants || []).some((p) => p.email.toLowerCase() === emailNorm)
-    )
-      return res
-        .status(409)
-        .json({ error: "El correo ya existe en el proceso." });
-
-    const id = `p-${Date.now()}`;
-    const tempPassword = genTempPassword();
-    const passwordHash = await bcrypt.hash(tempPassword, 10);
-
-    const newParticipant = {
-      id,
-      firstName: String(firstName).trim(),
-      lastName: String(lastName).trim(),
-      email: emailNorm,
-      passwordHash,
-    };
-
-    updateDb((db2) => {
-      const p2 = db2.processes.find((p) => p.processSlug === processSlug);
-      if (!p2) return db2;
-      p2.participants.push(newParticipant);
-      return db2;
-    });
-
     try {
-      await insertParticipantToPg(processSlug, newParticipant);
-    } catch (err) {
-      return res.status(500).json({
-        error:
-          "El participante se guardó en JSON pero falló la sincronización a PostgreSQL.",
-      });
-    }
+      const proc = await getProcessFromPg(processSlug);
+      if (!proc)
+        return res.status(404).json({ error: "Proceso no encontrado." });
 
-    res.json({
-      ...newParticipant,
-      tempPassword,
-    });
+      if (proc.status !== "EN_PREPARACION")
+        return res.status(400).json({
+          error: "Solo se pueden agregar participantes en EN_PREPARACION.",
+        });
+
+      const duplicate = await findParticipantByEmailInProcessFromPg(
+        processSlug,
+        emailNorm,
+      );
+      if (duplicate)
+        return res
+          .status(409)
+          .json({ error: "El correo ya existe en el proceso." });
+
+      const tempPassword = genTempPassword();
+      const passwordHash = await bcrypt.hash(tempPassword, 10);
+
+      const newParticipant = {
+        id: `p-${Date.now()}`,
+        firstName: String(firstName).trim(),
+        lastName: String(lastName).trim(),
+        email: emailNorm,
+        passwordHash,
+      };
+
+      await insertParticipantToPg(processSlug, newParticipant);
+
+      res.json({ ...newParticipant, tempPassword });
+    } catch (err) {
+      res.status(500).json({ error: "No se pudo crear el participante." });
+    }
   },
 );
 
@@ -1678,78 +1666,57 @@ app.put(
     const { processSlug, participantId } = req.params;
     const { firstName, lastName, email } = req.body || {};
 
-    const db = readDb();
-    const proc = db.processes.find((p) => p.processSlug === processSlug);
-    if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
-
-    if (proc.status !== "EN_PREPARACION")
-      return res.status(400).json({
-        error: "Solo se pueden editar participantes en EN_PREPARACION.",
-      });
-
-    const participant = (proc.participants || []).find(
-      (p) => p.id === participantId,
-    );
-    if (!participant)
-      return res.status(404).json({ error: "Participante no encontrado." });
-
-    let emailNorm = null;
-    if (email !== undefined) {
-      emailNorm = String(email).trim().toLowerCase();
-      if (
-        (proc.participants || []).some(
-          (p) => p.email === emailNorm && p.id !== participantId,
-        )
-      ) {
-        return res
-          .status(409)
-          .json({ error: "El correo ya existe en el proceso." });
-      }
-    }
-
-    const next = updateDb((db2) => {
-      const proc2 = db2.processes.find((p) => p.processSlug === processSlug);
-      if (!proc2) return db2;
-
-      const participant2 = (proc2.participants || []).find(
-        (p) => p.id === participantId,
-      );
-      if (!participant2) return db2;
-
-      if (firstName !== undefined) {
-        participant2.firstName = String(firstName).trim();
-      }
-      if (lastName !== undefined) {
-        participant2.lastName = String(lastName).trim();
-      }
-      if (emailNorm !== null) {
-        participant2.email = emailNorm;
-      }
-
-      return db2;
-    });
-
-    const updatedProc = next.processes.find(
-      (p) => p.processSlug === processSlug,
-    );
-    const updatedParticipant = (updatedProc?.participants || []).find(
-      (p) => p.id === participantId,
-    );
-
-    if (!updatedParticipant) {
-      return res.status(404).json({ error: "Participante no encontrado." });
-    }
-
     try {
-      await updateParticipantInPg(processSlug, updatedParticipant);
-    } catch (err) {
-      return res.status(500).json({
-        error:
-          "El participante se actualizó en JSON pero falló la sincronización a PostgreSQL.",
-      });
-    }
+      const proc = await getProcessFromPg(processSlug);
+      if (!proc)
+        return res.status(404).json({ error: "Proceso no encontrado." });
 
-    res.json(updatedParticipant);
+      if (proc.status !== "EN_PREPARACION")
+        return res.status(400).json({
+          error: "Solo se pueden editar participantes en EN_PREPARACION.",
+        });
+
+      const participant = await getParticipantFromPg(processSlug, participantId);
+      if (!participant)
+        return res.status(404).json({ error: "Participante no encontrado." });
+
+      let resolvedEmail = participant.email;
+      if (email !== undefined) {
+        const emailNorm = String(email).trim().toLowerCase();
+        const duplicate = await findParticipantByEmailInProcessFromPg(
+          processSlug,
+          emailNorm,
+        );
+        if (duplicate && duplicate.id !== participantId) {
+          return res
+            .status(409)
+            .json({ error: "El correo ya existe en el proceso." });
+        }
+        resolvedEmail = emailNorm;
+      }
+
+      const updatedParticipant = {
+        id: participant.id,
+        firstName:
+          firstName !== undefined
+            ? String(firstName).trim()
+            : participant.firstName,
+        lastName:
+          lastName !== undefined
+            ? String(lastName).trim()
+            : participant.lastName,
+        email: resolvedEmail,
+        passwordHash: participant.passwordHash,
+      };
+
+      await updateParticipantInPg(processSlug, updatedParticipant);
+
+      res.json(updatedParticipant);
+    } catch (err) {
+      res
+        .status(500)
+        .json({ error: "No se pudo actualizar el participante." });
+    }
   },
 );
 
@@ -1759,42 +1726,26 @@ app.delete(
   async (req, res) => {
     const { processSlug, participantId } = req.params;
 
-    const db = readDb();
-    const proc = db.processes.find((p) => p.processSlug === processSlug);
-    if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
-
-    if (proc.status !== "EN_PREPARACION")
-      return res.status(400).json({
-        error: "Solo se pueden eliminar participantes en EN_PREPARACION.",
-      });
-
-    const participant = (proc.participants || []).find(
-      (p) => p.id === participantId,
-    );
-    if (!participant)
-      return res.status(404).json({ error: "Participante no encontrado." });
-
-    updateDb((db2) => {
-      const p2 = db2.processes.find((p) => p.processSlug === processSlug);
-      if (!p2) return db2;
-
-      p2.participants = (p2.participants || []).filter(
-        (p) => p.id !== participantId,
-      );
-
-      return db2;
-    });
-
     try {
-      await deleteParticipantFromPg(processSlug, participantId);
-    } catch (err) {
-      return res.status(500).json({
-        error:
-          "El participante se eliminó en JSON pero falló la sincronización a PostgreSQL.",
-      });
-    }
+      const proc = await getProcessFromPg(processSlug);
+      if (!proc)
+        return res.status(404).json({ error: "Proceso no encontrado." });
 
-    res.json({ ok: true });
+      if (proc.status !== "EN_PREPARACION")
+        return res.status(400).json({
+          error: "Solo se pueden eliminar participantes en EN_PREPARACION.",
+        });
+
+      const participant = await getParticipantFromPg(processSlug, participantId);
+      if (!participant)
+        return res.status(404).json({ error: "Participante no encontrado." });
+
+      await deleteParticipantFromPg(processSlug, participantId);
+
+      res.json({ ok: true });
+    } catch (err) {
+      res.status(500).json({ error: "No se pudo eliminar el participante." });
+    }
   },
 );
 
@@ -1819,48 +1770,40 @@ function genTempPassword() {
   return out;
 }
 
+function newEventId() {
+  return `evt-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
 app.post(
   "/api/admin/processes/:processSlug/participants/:participantId/remind",
   requireAdmin,
-  (req, res) => {
+  async (req, res) => {
     const { processSlug, participantId } = req.params;
 
-    const db = readDb();
-    const proc = db.processes.find((p) => p.processSlug === processSlug);
-    if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
+    try {
+      const participant = await getParticipantFromPg(processSlug, participantId);
+      if (!participant)
+        return res.status(404).json({ error: "Participante no encontrado." });
 
-    const participant = (proc.participants || []).find(
-      (p) => p.id === participantId,
-    );
-    if (!participant)
-      return res.status(404).json({ error: "Participante no encontrado." });
+      const now = new Date().toISOString();
 
-    const now = new Date().toISOString();
-
-    updateDb((db2) => {
-      const proc2 = db2.processes.find((p) => p.processSlug === processSlug);
-      if (!proc2) return db2;
-
-      const part2 = (proc2.participants || []).find(
-        (p) => p.id === participantId,
-      );
-      if (!part2) return db2;
-
-      pushEvent(db2, {
-        id: `evt-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      await insertEventToPg({
+        id: newEventId(),
         ts: now,
         type: "ADMIN_REMINDER_REQUESTED",
         processSlug,
         participantId,
-        participantEmail: String(part2.email || ""),
-        participantName: participantDisplayName(part2),
+        participantEmail: String(participant.email || ""),
+        participantName: participantDisplayName(participant),
         adminEmail: req.admin?.email || null,
       });
 
-      return db2;
-    });
-
-    res.json({ ok: true, ts: now });
+      res.json({ ok: true, ts: now });
+    } catch (err) {
+      res
+        .status(500)
+        .json({ error: "No se pudo registrar el recordatorio." });
+    }
   },
 );
 
@@ -1870,66 +1813,39 @@ app.post(
   async (req, res) => {
     const { processSlug, participantId } = req.params;
 
-    const db = readDb();
-    const proc = db.processes.find((p) => p.processSlug === processSlug);
-    if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
+    try {
+      const participant = await getParticipantFromPg(processSlug, participantId);
+      if (!participant)
+        return res.status(404).json({ error: "Participante no encontrado." });
 
-    const participant = (proc.participants || []).find(
-      (p) => p.id === participantId,
-    );
-    if (!participant)
-      return res.status(404).json({ error: "Participante no encontrado." });
+      const tempPassword = genTempPassword();
+      const passwordHash = await bcrypt.hash(String(tempPassword), 10);
+      const now = new Date().toISOString();
 
-    const tempPassword = genTempPassword();
-    const passwordHash = await bcrypt.hash(String(tempPassword), 10);
-    const now = new Date().toISOString();
+      await resetParticipantAccessInPg(processSlug, participantId, passwordHash);
 
-    updateDb((db2) => {
-      const proc2 = db2.processes.find((p) => p.processSlug === processSlug);
-      if (!proc2) return db2;
-
-      const part2 = (proc2.participants || []).find(
-        (p) => p.id === participantId,
-      );
-      if (!part2) return db2;
-
-      part2.passwordHash = passwordHash;
-
-      pushEvent(db2, {
-        id: `evt-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      await insertEventToPg({
+        id: newEventId(),
         ts: now,
         type: "ADMIN_ACCESS_RESET",
         processSlug,
         participantId,
-        participantEmail: String(part2.email || ""),
-        participantName: participantDisplayName(part2),
+        participantEmail: String(participant.email || ""),
+        participantName: participantDisplayName(participant),
         adminEmail: req.admin?.email || null,
       });
 
-      return db2;
-    });
-
-    try {
-      await resetParticipantAccessInPg(
-        processSlug,
-        participantId,
-        passwordHash,
-      );
+      res.json({ ok: true, ts: now, tempPassword });
     } catch (err) {
-      return res.status(500).json({
-        error:
-          "El acceso se reseteó en JSON pero falló la sincronización a PostgreSQL.",
-      });
+      res.status(500).json({ error: "No se pudo resetear el acceso." });
     }
-
-    res.json({ ok: true, ts: now, tempPassword });
   },
 );
 
 app.post(
   "/api/admin/processes/:processSlug/participants/:participantId/reopen",
   requireAdmin,
-  (req, res) => {
+  async (req, res) => {
     const { processSlug, participantId } = req.params;
     const { kind, peerId } = req.body || {};
 
@@ -1945,87 +1861,63 @@ app.post(
         .json({ error: "Body.peerId is required for kind=c2." });
     }
 
-    const now = new Date().toISOString();
+    try {
+      const participant = await getParticipantFromPg(processSlug, participantId);
+      if (!participant)
+        return res.status(404).json({ error: "Participante no encontrado." });
 
-    const nextDb = updateDb((db) => {
-      const p = (db.processes || []).find(
-        (x) => String(x?.processSlug || x?.slug || "") === String(processSlug),
-      );
-      if (!p) throw new Error(`Process not found: ${processSlug}`);
+      if (k === "c1") {
+        await reopenC1ResponseInPg(processSlug, participantId);
+      } else {
+        await reopenC2ResponseInPg(processSlug, participantId, String(peerId));
+      }
 
-      const pid = String(participantId);
+      const now = new Date().toISOString();
 
-      const existing = getResponseEntry(
-        p,
-        k,
-        pid,
-        peerId ? String(peerId) : null,
-      );
+      await insertEventToPg({
+        id: newEventId(),
+        ts: now,
+        type: "ADMIN_REOPEN",
+        processSlug,
+        participantId,
+        participantEmail: String(participant.email || ""),
+        participantName: participantDisplayName(participant),
+        adminEmail: req.admin?.email || null,
+        payload: { kind: k, peerId: k === "c2" ? String(peerId) : null },
+      });
 
-      // If no entry exists yet, create a blank one (so admin can "unsubmit" into an editable draft)
-      const entry =
-        existing && typeof existing === "object"
-          ? structuredClone(existing)
-          : { draft: { answers: {} } };
-
-      // Core: re-open / unsubmit
-      entry.submittedAt = null;
-      entry.savedAt = now;
-
-      setResponseEntry(p, k, pid, peerId ? String(peerId) : null, entry);
-
-      // Optional audit trail if you keep db.events
-      if (!Array.isArray(db.events)) db.events = [];
-      db.events.push({
+      res.json({
+        ok: true,
         at: now,
-        type: "admin.reopen",
-        processSlug: String(p.processSlug || p.slug || processSlug),
-        participantId: pid,
+        processSlug,
+        participantId,
         kind: k,
         peerId: k === "c2" ? String(peerId) : null,
       });
-
-      return db;
-    });
-
-    return res.json({
-      ok: true,
-      at: now,
-      processSlug,
-      participantId,
-      kind: k,
-      peerId: k === "c2" ? String(peerId) : null,
-    });
+    } catch (err) {
+      res.status(500).json({ error: "No se pudo reabrir el cuestionario." });
+    }
   },
 );
 
 /* =========================
    ADMIN – EVENTS (LOGS)
 ========================= */
-app.get("/api/admin/events", requireAdmin, (req, res) => {
+app.get("/api/admin/events", requireAdmin, async (req, res) => {
   const { processSlug, participantId, type } = req.query || {};
   const limitRaw = Number(req.query?.limit);
-  const limit = Number.isFinite(limitRaw)
-    ? Math.min(Math.max(limitRaw, 1), 500)
-    : 200;
 
-  const db = readDb();
-  const events = Array.isArray(db.events) ? db.events : [];
-
-  let out = events;
-
-  if (processSlug)
-    out = out.filter((e) => e?.processSlug === String(processSlug));
-  if (participantId)
-    out = out.filter((e) => e?.participantId === String(participantId));
-  if (type) out = out.filter((e) => e?.type === String(type));
-
-  out = out
-    .slice()
-    .sort((a, b) => String(b?.ts || "").localeCompare(String(a?.ts || "")))
-    .slice(0, limit);
-
-  res.json(out);
+  try {
+    const out = await listEventsFromPg({
+      processSlug: processSlug ? String(processSlug) : undefined,
+      participantId: participantId ? String(participantId) : undefined,
+      type: type ? String(type) : undefined,
+      limit: Number.isFinite(limitRaw) ? limitRaw : undefined,
+    });
+    res.json(out);
+  } catch (err) {
+    res.status(500).json({ error: "No se pudieron cargar los eventos." });
+  }
 });
 
 /* =========================
