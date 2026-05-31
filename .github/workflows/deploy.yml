@@ -57,7 +57,6 @@ jobs:
             --exclude ".env.local" \
             --exclude ".env.production" \
             --exclude "server/node_modules" \
-            --exclude "server/data/db.json" \
             --exclude "server/uploads" \
             ./ \
             "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/webadmin/integracion-app/current/"

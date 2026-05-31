@@ -1,11 +1,12 @@
+import "dotenv/config";
 import bcrypt from "bcryptjs";
-import { readDb, writeDb } from "../lib/db.js";
+import { getPool, findAdminByEmailFromPg } from "../lib/pg.js";
 
 /**
  * RESET ADMIN PASSWORD SCRIPT
  *
  * Purpose:
- *   Resets the password of an existing admin user.
+ *   Resets the password of an existing admin user in PostgreSQL.
  *
  * Usage:
  *   node server/scripts/reset-admin-password.js "name@example.com" "newPassword123"
@@ -14,9 +15,9 @@ import { readDb, writeDb } from "../lib/db.js";
  *   node server/scripts/reset-admin-password.js "gretana@pricesmart.com" "NuevaClaveSegura456"
  *
  * What it does:
- *   1. Reads server/data/db.json
+ *   1. Connects to PostgreSQL using DATABASE_URL
  *   2. Finds the admin by email
- *   3. Replaces passwordHash with a new bcrypt hash
+ *   3. Replaces password_hash with a new bcrypt hash
  *
  * Notes:
  *   - Email is normalized to lowercase.
@@ -56,26 +57,32 @@ async function main() {
     process.exit(1);
   }
 
-  const db = readDb();
-  db.admins = Array.isArray(db.admins) ? db.admins : [];
-
-  const admin = db.admins.find((a) => normalizeEmail(a.email) === email);
-  if (!admin) {
+  const existing = await findAdminByEmailFromPg(email);
+  if (!existing) {
     console.error(`No existe un admin con el correo: ${email}`);
+    await getPool().end();
     process.exit(1);
   }
 
-  admin.passwordHash = await bcrypt.hash(password, 10);
+  const passwordHash = await bcrypt.hash(password, 10);
 
-  writeDb(db);
+  await getPool().query(
+    `update admins set password_hash = $2 where email = lower($1)`,
+    [email, passwordHash],
+  );
 
   console.log("");
   console.log("Contraseña actualizada correctamente.");
   console.log(`Email: ${email}`);
   console.log("");
+
+  await getPool().end();
 }
 
-main().catch((err) => {
+main().catch(async (err) => {
   console.error("Error reseteando contraseña:", err);
+  try {
+    await getPool().end();
+  } catch {}
   process.exit(1);
 });

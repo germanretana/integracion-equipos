@@ -1,11 +1,12 @@
+import "dotenv/config";
 import bcrypt from "bcryptjs";
-import { readDb, writeDb } from "../lib/db.js";
+import { getPool, findAdminByEmailFromPg, insertAdminToPg } from "../lib/pg.js";
 
 /**
  * CREATE ADMIN SCRIPT
  *
  * Purpose:
- *   Creates a new admin user directly in the local JSON database.
+ *   Creates a new admin user directly in PostgreSQL.
  *
  * Usage:
  *   node server/scripts/create-admin.js "name@example.com" "Admin Name" "temporaryPassword123"
@@ -14,10 +15,10 @@ import { readDb, writeDb } from "../lib/db.js";
  *   node server/scripts/create-admin.js "gretana@pricesmart.com" "German Retana" "MiClaveSegura123"
  *
  * What it does:
- *   1. Reads server/data/db.json
+ *   1. Connects to PostgreSQL using DATABASE_URL
  *   2. Checks whether the admin email already exists
  *   3. Hashes the password with bcrypt
- *   4. Inserts the admin into db.admins
+ *   4. Inserts the admin into the admins table
  *
  * Notes:
  *   - Email is normalized to lowercase.
@@ -58,25 +59,21 @@ async function main() {
     process.exit(1);
   }
 
-  const db = readDb();
-  db.admins = Array.isArray(db.admins) ? db.admins : [];
-
-  const exists = db.admins.some((a) => normalizeEmail(a.email) === email);
-  if (exists) {
+  const existing = await findAdminByEmailFromPg(email);
+  if (existing) {
     console.error(`Ya existe un admin con el correo: ${email}`);
+    await getPool().end();
     process.exit(1);
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
 
-  db.admins.push({
+  await insertAdminToPg({
     email,
     name,
     passwordHash,
     createdAt: new Date().toISOString(),
   });
-
-  writeDb(db);
 
   console.log("");
   console.log("Admin creado correctamente.");
@@ -85,9 +82,14 @@ async function main() {
   console.log("");
   console.log("Ya puede iniciar sesión en /admin/login");
   console.log("");
+
+  await getPool().end();
 }
 
-main().catch((err) => {
+main().catch(async (err) => {
   console.error("Error creando admin:", err);
+  try {
+    await getPool().end();
+  } catch {}
   process.exit(1);
 });
