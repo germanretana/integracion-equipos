@@ -29,7 +29,7 @@ create table if not exists base_templates (
 );
 
 create table if not exists process_templates (
-  process_slug text not null references processes(process_slug) on delete cascade,
+  process_slug text not null references processes(process_slug) on update cascade on delete cascade,
   domain text not null check (domain in ('questionnaire', 'report')),
   kind text not null check (kind in ('c1', 'c2')),
   content jsonb not null,
@@ -39,7 +39,7 @@ create table if not exists process_templates (
 
 create table if not exists participants (
   id text primary key,
-  process_slug text not null references processes(process_slug) on delete cascade,
+  process_slug text not null references processes(process_slug) on update cascade on delete cascade,
   first_name text not null default '',
   last_name text not null default '',
   email text not null,
@@ -51,8 +51,8 @@ create index if not exists participants_process_slug_idx
   on participants(process_slug);
 
 create table if not exists response_c1 (
-  process_slug text not null references processes(process_slug) on delete cascade,
-  participant_id text not null references participants(id) on delete cascade,
+  process_slug text not null references processes(process_slug) on update cascade on delete cascade,
+  participant_id text not null references participants(id) on update cascade on delete cascade,
   draft jsonb not null default '{}'::jsonb,
   saved_at timestamptz null,
   submitted_at timestamptz null,
@@ -60,9 +60,9 @@ create table if not exists response_c1 (
 );
 
 create table if not exists response_c2 (
-  process_slug text not null references processes(process_slug) on delete cascade,
-  participant_id text not null references participants(id) on delete cascade,
-  peer_id text not null references participants(id) on delete cascade,
+  process_slug text not null references processes(process_slug) on update cascade on delete cascade,
+  participant_id text not null references participants(id) on update cascade on delete cascade,
+  peer_id text not null references participants(id) on update cascade on delete cascade,
   draft jsonb not null default '{}'::jsonb,
   saved_at timestamptz null,
   submitted_at timestamptz null,
@@ -77,7 +77,7 @@ create table if not exists events (
   id text primary key,
   ts timestamptz not null,
   type text not null,
-  process_slug text null references processes(process_slug) on delete cascade,
+  process_slug text null references processes(process_slug) on update cascade on delete cascade,
   participant_id text null references participants(id) on delete set null,
   participant_email text null,
   participant_name text null,
