@@ -906,16 +906,23 @@ app.patch(
 app.get(
   "/api/admin/processes/:processSlug/templates/:kind",
   requireAdmin,
-  (req, res) => {
+  async (req, res) => {
     const { processSlug, kind } = req.params;
     if (!["c1", "c2"].includes(kind))
       return res.status(404).json({ error: "No encontrado." });
 
-    const db = readDb();
-    const proc = db.processes.find((p) => p.processSlug === processSlug);
-    if (!proc) return res.status(404).json({ error: "Proceso no encontrado." });
+    try {
+      const proc = await getProcessFromPg(processSlug);
+      if (!proc)
+        return res.status(404).json({ error: "Proceso no encontrado." });
 
-    res.json(proc.templates?.[kind] || null);
+      const templates = await getProcessTemplatesFromPg(processSlug);
+      res.json(templates?.[kind] || null);
+    } catch (err) {
+      res
+        .status(500)
+        .json({ error: "No se pudieron cargar las plantillas." });
+    }
   },
 );
 
