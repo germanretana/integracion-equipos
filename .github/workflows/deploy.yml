@@ -61,12 +61,14 @@ jobs:
             ./ \
             "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/webadmin/integracion-app/current/"
 
-      - name: Install backend dependencies and restart backend
+      - name: Install backend dependencies, init schema, restart backend
         run: |
           ssh "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" '
             set -e
             cd /home/webadmin/integracion-app/current/server
             npm ci
+            set -a; . /home/webadmin/integracion-app/shared/.env; set +a
+            npm run db:init
             sudo -n /usr/bin/systemctl restart integracion-backend
             sudo -n /usr/bin/systemctl is-active integracion-backend
           '
