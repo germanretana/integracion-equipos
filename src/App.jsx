@@ -12,6 +12,7 @@ import ProcessDashboard from "./pages/admin/ProcessDashboard";
 import ProcessEditor from "./pages/admin/ProcessEditor";
 import ProcessRouter from "./pages/admin/ProcessRouter";
 import MasterTemplates from "./pages/admin/MasterTemplates";
+import ParticipantResponsesView from "./pages/admin/ParticipantResponsesView";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 
 export default function App() {
@@ -43,6 +44,14 @@ export default function App() {
             element={<ProcessEditor mode="create" />}
           />
           <Route path="/admin/master-templates" element={<MasterTemplates />} />
+          <Route
+            path="/admin/processes/:processSlug/participants/:participantId/c1"
+            element={<ParticipantResponsesView kind="c1" />}
+          />
+          <Route
+            path="/admin/processes/:processSlug/participants/:participantId/c2/:peerId"
+            element={<ParticipantResponsesView kind="c2" />}
+          />
         </Route>
 
         {/* Fallback */}

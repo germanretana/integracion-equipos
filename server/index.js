@@ -581,6 +581,92 @@ app.get(
   },
 );
 
+/* =========================
+   ADMIN – VIEW PARTICIPANT RESPONSES (read-only)
+   These mirror the participant GET endpoints, but take the participant id
+   from the URL and are guarded by requireAdmin. The admin role is a
+   separately-authorized caller, so this is not a bypass of participant
+   scoping — it is a parallel, authorized read path.
+========================= */
+
+app.get(
+  "/api/admin/processes/:processSlug/participants/:participantId/c1",
+  requireAdmin,
+  async (req, res) => {
+    const { processSlug, participantId } = req.params;
+
+    try {
+      const proc = await getProcessFromPg(processSlug);
+      if (!proc)
+        return res.status(404).json({ error: "Proceso no encontrado." });
+
+      const participant = await getParticipantFromPg(processSlug, participantId);
+      if (!participant)
+        return res.status(404).json({ error: "Participante no encontrado." });
+
+      const templates = await getProcessTemplatesFromPg(processSlug);
+      const entry = await getC1ResponseFromPg(processSlug, participantId);
+
+      // Peer list is only used to render already-chosen names in pairing-row
+      // questions (the answers store ids, not names). It is not a selector.
+      const allParticipants = await listParticipantsFromPg(processSlug);
+      const peers = allParticipants.map((p) => ({
+        id: p.id,
+        name: participantDisplayName(p),
+      }));
+
+      res.json({
+        participant: {
+          id: participant.id,
+          name: participantDisplayName(participant),
+        },
+        template: templates?.c1 || null,
+        entry: entry || { draft: { answers: {} }, savedAt: null, submittedAt: null },
+        peers,
+      });
+    } catch (err) {
+      res.status(500).json({ error: "No se pudo cargar la respuesta." });
+    }
+  },
+);
+
+app.get(
+  "/api/admin/processes/:processSlug/participants/:participantId/c2/:peerId",
+  requireAdmin,
+  async (req, res) => {
+    const { processSlug, participantId, peerId } = req.params;
+
+    try {
+      const proc = await getProcessFromPg(processSlug);
+      if (!proc)
+        return res.status(404).json({ error: "Proceso no encontrado." });
+
+      const participant = await getParticipantFromPg(processSlug, participantId);
+      if (!participant)
+        return res.status(404).json({ error: "Participante no encontrado." });
+
+      const peer = await getParticipantFromPg(processSlug, peerId);
+      if (!peer)
+        return res.status(404).json({ error: "Compañero no encontrado." });
+
+      const templates = await getProcessTemplatesFromPg(processSlug);
+      const entry = await getC2ResponseFromPg(processSlug, participantId, peerId);
+
+      res.json({
+        participant: {
+          id: participant.id,
+          name: participantDisplayName(participant),
+        },
+        peer: { id: peer.id, name: participantDisplayName(peer) },
+        template: templates?.c2 || null,
+        entry: entry || { draft: { answers: {} }, savedAt: null, submittedAt: null },
+      });
+    } catch (err) {
+      res.status(500).json({ error: "No se pudo cargar la respuesta." });
+    }
+  },
+);
+
 app.patch(
   "/api/admin/processes/:processSlug/status",
   requireAdmin,

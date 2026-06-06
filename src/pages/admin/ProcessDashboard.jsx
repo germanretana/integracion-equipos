@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { auth } from "../../services/auth";
 import "../../styles/admin.css";
 
@@ -137,6 +137,7 @@ function eventPillStyle(evt) {
 export default function ProcessDashboard() {
   const { processSlug } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [loading, setLoading] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
@@ -147,7 +148,9 @@ export default function ProcessDashboard() {
   const [progressLoading, setProgressLoading] = React.useState(false);
   const [progressError, setProgressError] = React.useState("");
   const [progressData, setProgressData] = React.useState(null); // { participants: [...] }
-  const [openParticipantId, setOpenParticipantId] = React.useState(""); // expand/collapse
+  const [openParticipantId, setOpenParticipantId] = React.useState(
+    () => searchParams.get("participant") || "",
+  ); // expand/collapse — initialized from ?participant= when returning from a response view
 
   const [rowBusy, setRowBusy] = React.useState({});
   const [flash, setFlash] = React.useState("");
@@ -1409,6 +1412,18 @@ function ProgressPanel({
     flexWrap: "wrap",
   };
 
+  // Clickable left+mid area of a card: opens the read-only responses view.
+  const cardLinkStyle = {
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    minWidth: 0,
+    flex: 1,
+    textDecoration: "none",
+    color: "inherit",
+    cursor: "pointer",
+  };
+
   const cardTitleStyle = {
     fontWeight: 650,
     whiteSpace: "nowrap",
@@ -1496,15 +1511,11 @@ function ProgressPanel({
         {/* C1 card */}
         {c1 && (
           <div style={cardStyle}>
-            {/* Left + Mid grouped so button stays at far right */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                minWidth: 0,
-                flex: 1,
-              }}
+            {/* Left + Mid grouped, clickable to open the read-only responses */}
+            <Link
+              to={`/admin/processes/${processSlug}/participants/${participantId}/c1`}
+              title="Ver respuestas"
+              style={cardLinkStyle}
             >
               {/* LEFT: title */}
               <div style={cardTitleStyle}>C1</div>
@@ -1523,7 +1534,7 @@ function ProgressPanel({
                   {Number.isFinite(c1.percent) ? `${c1.percent}%` : ""}
                 </div>
               </div>
-            </div>
+            </Link>
 
             {/* RIGHT: button */}
             <button
@@ -1549,14 +1560,10 @@ function ProgressPanel({
 
             return (
               <div key={`${q.kind}:${q.peerId || ""}`} style={cardStyle}>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 12,
-                    minWidth: 0,
-                    flex: 1,
-                  }}
+                <Link
+                  to={`/admin/processes/${processSlug}/participants/${participantId}/c2/${q.peerId}`}
+                  title="Ver respuestas"
+                  style={cardLinkStyle}
                 >
                   {/* LEFT: title */}
                   <div style={cardTitleStyle} title={title}>
@@ -1577,7 +1584,7 @@ function ProgressPanel({
                       {Number.isFinite(q.percent) ? `${q.percent}%` : ""}
                     </div>
                   </div>
-                </div>
+                </Link>
 
                 {/* RIGHT: button */}
                 <button
