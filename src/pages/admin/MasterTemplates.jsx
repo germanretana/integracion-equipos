@@ -8,18 +8,8 @@ function Tab({ active, children, onClick }) {
   return (
     <button
       type="button"
-      className="btn"
+      className={"btn btn-tab" + (active ? " active" : "")}
       onClick={onClick}
-      style={{
-        opacity: active ? 1 : 0.75,
-        borderColor: active
-          ? "rgba(255,255,255,0.22)"
-          : "rgba(255,255,255,0.12)",
-        background: active
-          ? "rgba(255,255,255,0.10)"
-          : "rgba(255,255,255,0.06)",
-        fontWeight: active ? 900 : 800,
-      }}
     >
       {children}
     </button>

@@ -322,16 +322,35 @@ export default function TemplateEditor({
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           {headerRight}
 
+          {/* Divider separating the C1/C2 tabs from the save/reload actions */}
+          {headerRight ? (
+            <div
+              aria-hidden
+              style={{
+                width: 1,
+                alignSelf: "stretch",
+                margin: "2px 4px",
+                background: "rgba(255,255,255,0.18)",
+              }}
+            />
+          ) : null}
+
           <button
-            className="btn"
+            className="btn btn-reload"
             type="button"
             onClick={fetchTemplate}
             disabled={saving || loading}
+            title="Descarta los cambios y recarga desde la base de datos"
           >
-            Recargar
+            <span aria-hidden>↻</span> Recargar
           </button>
-          <button className="btn" onClick={onSave} disabled={saving || loading}>
-            {saving ? "Guardando…" : "Guardar"}
+          <button
+            className="btn btn-save"
+            onClick={onSave}
+            disabled={saving || loading}
+            title="Guarda los cambios en la base de datos"
+          >
+            <span aria-hidden>💾</span> {saving ? "Guardando…" : "Guardar"}
           </button>
         </div>
       </div>

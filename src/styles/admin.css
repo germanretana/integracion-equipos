@@ -185,6 +185,46 @@
   cursor: not-allowed;
 }
 
+/* Hover feedback for .btn (mirrors .admin-btn:hover) */
+.btn:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+/* Tabs (e.g. C1 / C2): tinted active state + hover brighten */
+.btn-tab.active {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.22);
+  font-weight: 900;
+}
+.btn-tab:not(.active) {
+  opacity: 0.78;
+}
+.btn-tab.active:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* Reload action (amber) */
+.btn-reload {
+  border-color: rgba(255, 180, 80, 0.45);
+  background: rgba(255, 180, 80, 0.1);
+}
+.btn-reload:hover:not(:disabled) {
+  background: rgba(255, 180, 80, 0.22);
+  border-color: rgba(255, 180, 80, 0.7);
+}
+
+/* Save action (green) */
+.btn-save {
+  border-color: rgba(34, 197, 94, 0.55);
+  background: rgba(34, 197, 94, 0.18);
+  font-weight: 800;
+}
+.btn-save:hover:not(:disabled) {
+  background: rgba(34, 197, 94, 0.32);
+  border-color: rgba(34, 197, 94, 0.85);
+}
+
 .page select.admin-select,
 select.admin-select {
   padding: 0 10px !important;
