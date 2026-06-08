@@ -13,6 +13,8 @@ import ProcessEditor from "./pages/admin/ProcessEditor";
 import ProcessRouter from "./pages/admin/ProcessRouter";
 import MasterTemplates from "./pages/admin/MasterTemplates";
 import ParticipantResponsesView from "./pages/admin/ParticipantResponsesView";
+import C1ReportPreview from "./pages/admin/C1ReportPreview";
+import C2ReportPreview from "./pages/admin/C2ReportPreview";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 
 export default function App() {
@@ -44,6 +46,14 @@ export default function App() {
             element={<ProcessEditor mode="create" />}
           />
           <Route path="/admin/master-templates" element={<MasterTemplates />} />
+          <Route
+            path="/admin/processes/:processSlug/reports/c1"
+            element={<C1ReportPreview />}
+          />
+          <Route
+            path="/admin/processes/:processSlug/reports/c2/:participantId"
+            element={<C2ReportPreview />}
+          />
           <Route
             path="/admin/processes/:processSlug/participants/:participantId/c1"
             element={<ParticipantResponsesView kind="c1" />}

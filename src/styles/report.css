@@ -1,0 +1,185 @@
+/* Report preview — a white "paper" surface that mirrors the Word export.
+   Dark text on white; charts bring their own white background. */
+
+.report-paper {
+  background: #ffffff;
+  color: #1f2937;
+  border-radius: 14px;
+  padding: 28px 32px;
+  line-height: 1.5;
+}
+
+/* Top-level unit: one group of questions, or a single ungrouped question.
+   Consecutive units are separated by a thick rule. */
+.report-unit:not(:first-child) {
+  border-top: 3px solid #cbd5e1;
+  margin-top: 26px;
+  padding-top: 26px;
+}
+
+/* Each individual question sits in its own light card. */
+.report-card {
+  border: 1px solid #e6e8eb;
+  border-radius: 12px;
+  padding: 16px 18px;
+  background: #ffffff;
+}
+.report-card + .report-card {
+  margin-top: 12px;
+}
+
+.report-h2 {
+  margin: 30px 0 14px;
+  font-size: 20px;
+  font-weight: 900;
+  color: #111827;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 6px;
+}
+.report-h2 .report-q {
+  font-weight: 900;
+  font-size: 20px;
+  margin: 0;
+}
+
+.report-q {
+  font-weight: 800;
+  font-size: 15px;
+  color: #111827;
+  margin: 0 0 10px;
+}
+
+.report-empty {
+  font-size: 13px;
+  color: #6b7280;
+  font-style: italic;
+  margin: 4px 0 0;
+}
+
+/* Bullet lists */
+.report-bullets {
+  margin: 6px 0 0;
+  padding-left: 22px;
+}
+.report-bullets li {
+  margin: 4px 0;
+}
+
+/* Charts — framed and centered so the bars and footer read as one unit. The
+   frame hugs the chart (max-width set per chart) with equal padding all around;
+   max-width is capped inline by each chart component. */
+.report-chart {
+  margin: 8px auto 0;
+  padding: 16px;
+  max-width: 100%;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.report-chart-foot {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 8px;
+  text-align: center;
+}
+
+/* Grouped text (categorical + reasons) */
+.report-grouped {
+  margin-top: 16px;
+}
+.report-group {
+  margin-top: 12px;
+}
+.report-group-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 14px;
+  color: #111827;
+}
+.report-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+/* Grid: 2-column table (no suggestions) */
+.report-grid {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 6px;
+}
+.report-grid th,
+.report-grid td {
+  border: 1px solid #e5e7eb;
+  padding: 7px 10px;
+  text-align: left;
+  font-size: 14px;
+}
+.report-grid th {
+  background: #f9fafb;
+  font-weight: 800;
+}
+.report-grid-avg {
+  text-align: right;
+  white-space: nowrap;
+  width: 110px;
+}
+
+/* Grid: stacked items with suggestion bullets */
+.report-grid-stack {
+  margin-top: 6px;
+}
+.report-grid-item {
+  padding: 10px 0;
+  border-bottom: 1px solid #eef0f2;
+}
+.report-grid-item:last-child {
+  border-bottom: none;
+}
+.report-grid-item-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.report-grid-item-text {
+  font-weight: 600;
+}
+.report-grid-badge {
+  font-weight: 800;
+  color: #111827;
+  background: #f3f4f6;
+  border-radius: 8px;
+  padding: 2px 10px;
+  white-space: nowrap;
+}
+
+/* Big average box */
+.report-bigavg {
+  display: flex;
+  width: fit-content;
+  margin: 6px auto 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 16px 28px;
+  background: #f9fafb;
+}
+.report-bigavg-num {
+  font-size: 44px;
+  font-weight: 900;
+  color: #111827;
+  line-height: 1;
+}
+.report-bigavg-foot {
+  font-size: 12px;
+  color: #6b7280;
+}
