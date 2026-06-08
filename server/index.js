@@ -667,6 +667,79 @@ app.get(
   },
 );
 
+/* =========================
+   ADMIN – REPORT DATA BUNDLE
+   Returns everything needed to render the C1 report (one per process) and the
+   C2 reports (one per participant), plus the data the Word export will reuse.
+   Only SUBMITTED responses are included; aggregation happens on the client
+   (and later, the export) from this single bundle.
+========================= */
+
+app.get(
+  "/api/admin/processes/:processSlug/reports",
+  requireAdmin,
+  async (req, res) => {
+    const { processSlug } = req.params;
+
+    try {
+      const proc = await getProcessFromPg(processSlug);
+      if (!proc)
+        return res.status(404).json({ error: "Proceso no encontrado." });
+
+      const templates = await getProcessTemplatesFromPg(processSlug);
+      const participants = await listParticipantsFromPg(processSlug);
+      const c1Rows = await listC1ResponsesByProcessFromPg(processSlug);
+      const c2Rows = await listC2ResponsesByProcessFromPg(processSlug);
+
+      const answersOf = (row) =>
+        row?.draft?.answers && typeof row.draft.answers === "object"
+          ? row.draft.answers
+          : {};
+
+      const c1Responses = c1Rows
+        .filter((r) => r.submittedAt)
+        .map((r) => ({
+          participantId: String(r.participantId || ""),
+          submittedAt: r.submittedAt,
+          answers: answersOf(r),
+        }));
+
+      const c2Responses = c2Rows
+        .filter((r) => r.submittedAt)
+        .map((r) => ({
+          participantId: String(r.participantId || ""),
+          peerId: String(r.peerId || ""),
+          submittedAt: r.submittedAt,
+          answers: answersOf(r),
+        }));
+
+      res.json({
+        process: {
+          processSlug: String(proc.processSlug || processSlug),
+          companyName: proc.companyName || "",
+          processName: proc.processName || "",
+          status: proc.status || "",
+          logoUrl: proc.logoUrl || null,
+        },
+        templates: {
+          c1: templates?.c1 || null,
+          c2: templates?.c2 || null,
+        },
+        participants: participants.map((p) => ({
+          id: String(p.id),
+          name: participantDisplayName(p),
+        })),
+        c1Responses,
+        c2Responses,
+      });
+    } catch (err) {
+      res
+        .status(500)
+        .json({ error: "No se pudieron cargar los datos del reporte." });
+    }
+  },
+);
+
 app.patch(
   "/api/admin/processes/:processSlug/status",
   requireAdmin,
