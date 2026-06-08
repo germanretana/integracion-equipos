@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node --check server/index.js)",
+      "Bash(node --check server/lib/pg.js)",
+      "Bash(psql -d integracion -c \"select process_slug, company_name, process_name, status, created_at from processes order by created_at;\")",
+      "Bash(psql -d integracion -t -c \"select jsonb_array_length\\(q->'items'\\) as item_count from process_templates, jsonb_array_elements\\(content->'questions'\\) q where process_slug='acme-claude-cutover-claude' and kind='c1' and q->>'id'='c1.q8';\")",
+      "Bash(psql -d integracion -t -c \"select jsonb_array_elements_text\\(jsonb_path_query_array\\(content, '\\\\$.questions[*] ? \\(@.id == \\\\\"c1.q8\\\\\"\\).items[*].id'\\)\\) from process_templates where process_slug='acme-claude-cutover-claude' and kind='c1';\")",
+      "Bash(psql -d integracion -t -c \"select jsonb_object_keys\\(draft->'answers'\\) from response_c1 where process_slug='acme-claude-cutover-claude' and participant_id='p-1780249612402';\")",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(psql -d integracion -t -c \"select jsonb_typeof\\(q->'minEntries'\\) as type, q->'minEntries' as val, q->>'id' as id from process_templates, jsonb_array_elements\\(content->'questions'\\) q where process_slug='acme-claude-cutover-claude' and kind='c1';\")",
+      "Bash(ssh -i \"/Users/gretana/Google Drive - Personal/Personal/WordPress/webadminkey\" webadmin@ssh.germanretana.com 'bash -s')",
+      "Bash(ssh -i \"/Users/gretana/Google Drive - Personal/Personal/WordPress/webadminkey\" webadmin@ssh.germanretana.com 'rm -f /home/webadmin/integracion-app/shared/.env.bak && ls -la /home/webadmin/integracion-app/shared')",
+      "Bash(git -C \"/Users/gretana/Google Drive - Personal/Proyectos/integracion-equipos\" push origin main)"
+    ]
+  }
+}

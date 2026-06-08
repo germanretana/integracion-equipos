@@ -46,7 +46,7 @@ function normalizePairKey(a, b) {
 }
 
 /**
- * Valida pairing_rows/pairing_of_peers.
+ * Valida pairing_rows.
  *
  * Reglas:
  * - Si minEntries <= 0 (default), el bloque es OPCIONAL:
@@ -136,7 +136,7 @@ function isQuestionAnswered(q, ans) {
     return Number.isFinite(ans) && clampInt(ans, 0, 10) !== null;
   }
 
-  if (t === "value_0_4" || t === "valor_0_4") {
+  if (t === "value_0_4") {
     if (!ans || typeof ans !== "object") return false;
     return Number.isFinite(ans.value) && clampInt(ans.value, 0, 4) !== null;
   }
@@ -149,7 +149,7 @@ function isQuestionAnswered(q, ans) {
     return filled >= min;
   }
 
-  if (t === "pairing_rows" || t === "pairing_of_peers") {
+  if (t === "pairing_rows") {
     const v = validatePairingAnswer(q, ans);
     return v.ok;
   }
@@ -227,7 +227,7 @@ export function computeCompletionFromTemplate(template, draft) {
     const a = answers[id];
 
     // pairing_rows: si es opcional y vacío, cuenta como answered
-    if (t === "pairing_rows" || t === "pairing_of_peers") {
+    if (t === "pairing_rows") {
       const v = validatePairingAnswer(q, a);
 
       if (v.ok) {

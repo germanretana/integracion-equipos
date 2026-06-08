@@ -131,7 +131,7 @@ export default function C1() {
       const t = String(q?.type || "")
         .toLowerCase()
         .trim();
-      return t === "pairing_rows" || t === "pairing_of_peers";
+      return t === "pairing_rows";
     });
 
     function normalizePair(a, b) {

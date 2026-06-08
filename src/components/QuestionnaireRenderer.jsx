@@ -1,4 +1,5 @@
 import React from "react";
+import { RATING_LABELS, YES_LABEL, NO_LABEL } from "../lib/scale";
 
 /**
  * Renderer genérico basado en templates.questions.
@@ -7,18 +8,10 @@ import React from "react";
  * - binary_yes_no: "yes" | "no"
  * - text_area: string
  * - input_list: string[] (largo = maxEntries)
- * - value_0_4 / valor_0_4: { value: number|null, suggestion: string }
+ * - value_0_4: { value: number|null, suggestion: string }
  * - evaluation_0_10: number (0..10)
  * - pairing_rows: Array<{ leftId: string, rightId: string }>
  */
-
-const SCALE_5 = [
-  { value: 0, labelM: "Insatisfactorio", labelF: "Insatisfactoria" },
-  { value: 1, labelM: "Regular", labelF: "Regular" },
-  { value: 2, labelM: "Bueno", labelF: "Buena" },
-  { value: 3, labelM: "Muy Bueno", labelF: "Muy Buena" },
-  { value: 4, labelM: "Excelente", labelF: "Excelente" },
-];
 
 function clampInt(n, min, max) {
   const x = Number(n);
@@ -37,24 +30,6 @@ function ensureArrayLen(arr, len) {
 
 function isFilledString(s) {
   return String(s || "").trim().length > 0;
-}
-
-function normalizeType(typeRaw) {
-  const t = String(typeRaw || "")
-    .toLowerCase()
-    .trim();
-
-  if (t === "pairing_of_peers") return "pairing_rows";
-  if (t === "valor_0_4") return "value_0_4";
-  if (t === "eval_0_10") return "evaluation_0_10";
-
-  if (t === "textarea") return "text_area";
-  if (t === "binary") return "binary_yes_no";
-  if (t === "input") return "input_list";
-
-  if (t === "value_0_4_grid") return "value_0_4_grid";
-
-  return t;
 }
 
 function helpText(minEntries) {
@@ -284,7 +259,7 @@ export default function QuestionnaireRenderer({
             onClick={() => setAnswer(q.id, "yes")}
             style={val === "yes" ? ratingActiveStyle(4) : undefined}
           >
-            Sí
+            {YES_LABEL}
           </BtnChoice>
 
           <BtnChoice
@@ -293,7 +268,7 @@ export default function QuestionnaireRenderer({
             onClick={() => setAnswer(q.id, "no")}
             style={val === "no" ? ratingActiveStyle(0) : undefined}
           >
-            No
+            {NO_LABEL}
           </BtnChoice>
         </ButtonsRow>
       </DefaultFieldWrap>
@@ -310,7 +285,7 @@ export default function QuestionnaireRenderer({
         requiredHint={helpText(q.minEntries)}
       >
         <ButtonsRow>
-          {SCALE_5.map((o) => (
+          {RATING_LABELS.map((o) => (
             <BtnChoice
               key={o.value}
               disabled={disabled}
@@ -714,7 +689,7 @@ export default function QuestionnaireRenderer({
   }
 
   function renderQuestion(q) {
-    const type = normalizeType(q?.type);
+    const type = String(q?.type || "").trim();
 
     if (type === "__skip__") return null;
 
@@ -725,10 +700,9 @@ export default function QuestionnaireRenderer({
     if (type === "rating_masc_5") return renderRating5(q, false);
     if (type === "rating_fem_5") return renderRating5(q, true);
     if (type === "value_0_4_grid") return renderValue04Grid(q);
-    if (type === "value_0_4" || type === "valor_0_4") return renderValue04(q);
+    if (type === "value_0_4") return renderValue04(q);
     if (type === "evaluation_0_10") return renderEvaluation010(q);
-    if (type === "pairing_rows" || type === "pairing_of_peers")
-      return renderPairingRows(q);
+    if (type === "pairing_rows") return renderPairingRows(q);
 
     return (
       <div
