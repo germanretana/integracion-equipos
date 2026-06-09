@@ -12,6 +12,8 @@
     "dev:full": "concurrently -k -n web,api -c auto \"npm run dev\" \"npm run api\""
   },
   "dependencies": {
+    "docx": "^9.7.1",
+    "jszip": "^3.10.1",
     "multer": "^2.0.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

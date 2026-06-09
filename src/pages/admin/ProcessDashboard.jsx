@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { auth } from "../../services/auth";
+import { downloadC1Report, downloadC2Reports } from "../../lib/reportDocx";
 import "../../styles/admin.css";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "";
@@ -210,6 +211,7 @@ export default function ProcessDashboard() {
   const [rowBusy, setRowBusy] = React.useState({});
   const [flash, setFlash] = React.useState("");
   const [resetModal, setResetModal] = React.useState(null); // { name, email, tempPassword, ts }
+  const [exporting, setExporting] = React.useState(""); // "" | "c1" | "c2"
 
   // Logs
   const [logsLoading, setLogsLoading] = React.useState(false);
@@ -341,6 +343,33 @@ export default function ProcessDashboard() {
   function handleLogout() {
     auth.clearAdminSession();
     navigate("/admin/login", { replace: true });
+  }
+
+  // Fetch the shared report bundle and build the Word export(s) in the browser.
+  async function exportReport(kind) {
+    setError("");
+    setExporting(kind);
+    try {
+      const bundle = await auth.fetch(
+        `/api/admin/processes/${processSlug}/reports`,
+      );
+      if (kind === "c1") {
+        await downloadC1Report(bundle);
+        setFlash("Reporte C1 exportado.");
+      } else {
+        await downloadC2Reports(bundle);
+        setFlash("Reportes C2 exportados.");
+      }
+    } catch (e) {
+      setError(
+        e?.message ||
+          (kind === "c1"
+            ? "No se pudo exportar el reporte C1."
+            : "No se pudieron exportar los reportes C2."),
+      );
+    } finally {
+      setExporting("");
+    }
   }
 
   async function remindParticipant(p) {
@@ -755,12 +784,17 @@ export default function ProcessDashboard() {
                           <button
                             className="btn"
                             type="button"
-                            disabled
-                            title="Disponible próximamente"
+                            disabled={exporting === "c1"}
+                            onClick={() => exportReport("c1")}
+                            title="Exportar el reporte C1 a Word"
                             style={{ fontWeight: 800 }}
                           >
                             <WordIcon />
-                            <span>Exportar C1</span>
+                            <span>
+                              {exporting === "c1"
+                                ? "Exportando…"
+                                : "Exportar C1"}
+                            </span>
                           </button>
                         </div>
                       </div>
@@ -775,12 +809,17 @@ export default function ProcessDashboard() {
                             <button
                               className="btn"
                               type="button"
-                              disabled
-                              title="Disponible próximamente"
+                              disabled={exporting === "c2"}
+                              onClick={() => exportReport("c2")}
+                              title="Exportar los reportes C2 (zip) a Word"
                               style={{ fontWeight: 800 }}
                             >
                               <WordIcon />
-                              <span>Exportar C2</span>
+                              <span>
+                                {exporting === "c2"
+                                  ? "Exportando…"
+                                  : "Exportar C2"}
+                              </span>
                             </button>
                           </div>
                         </div>

@@ -77,11 +77,14 @@ if (!fs.existsSync(LOGO_DIR)) {
   fs.mkdirSync(LOGO_DIR, { recursive: true });
 }
 
+// CORS must come before the static /uploads handler so cross-origin fetch()
+// of logos (e.g. the Word export) receives the Access-Control-Allow-Origin
+// header. <img src> works without it, but canvas/fetch reads do not.
+app.use(cors({ origin: true }));
 app.use("/uploads", express.static(UPLOAD_DIR));
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3001;
 
 app.use(express.json({ limit: "1mb" }));
-app.use(cors({ origin: true }));
 
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
 

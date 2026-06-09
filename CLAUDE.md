@@ -143,13 +143,27 @@ run `db:init` (idempotent) → restart backend service.
 
 GitHub Actions does **not** provision PostgreSQL; DB management is manual.
 
-## Reporting system (planned — priority #1)
+## Reporting system
 
 Reports are generated from questionnaire responses and exported as **editable Microsoft
 Word documents**, with company branding, logos, charts, and aggregated text sections.
 
 - **C1 reports:** one per process.
 - **C2 reports:** one per participant.
+
+**Status:** online previews and Word export are implemented.
+- Online previews: [C1ReportPreview.jsx](src/pages/admin/C1ReportPreview.jsx) /
+  [C2ReportPreview.jsx](src/pages/admin/C2ReportPreview.jsx), rendered by
+  [ReportView.jsx](src/components/report/ReportView.jsx).
+- Word export (client-side) lives in [src/lib/reportDocx.js](src/lib/reportDocx.js) (uses
+  `docx` + `jszip`): **Exportar C1** → one `Company-C1.docx`; **Exportar C2** → a zip of
+  per-participant `Company-C2-Participant.docx`. Both reuse the bundle endpoint
+  `GET /api/admin/processes/:slug/reports` and the aggregation in
+  [reportAggregation.js](src/lib/reportAggregation.js).
+- Charts are a single source of truth in [src/lib/chartSvg.js](src/lib/chartSvg.js): the
+  preview injects the SVG; the export rasterizes the same SVG to a white-background PNG.
+- `docx` and `jszip` are frontend (root) deps bundled by Vite — they ship automatically on
+  the next deploy via CI's `npm ci` + `npm run build`.
 
 Aggregation rules:
 - Numeric values → averaged, shown with 1 decimal.
