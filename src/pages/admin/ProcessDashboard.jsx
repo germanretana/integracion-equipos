@@ -5,6 +5,61 @@ import "../../styles/admin.css";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "";
 
+// Small Word-document glyph for the export buttons.
+function WordIcon() {
+  return (
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 16 16"
+      aria-hidden="true"
+      focusable="false"
+      style={{ display: "block" }}
+    >
+      <rect x="0.5" y="0.5" width="15" height="15" rx="3" fill="#2b579a" />
+      <text
+        x="8"
+        y="12"
+        textAnchor="middle"
+        fontSize="11"
+        fontWeight="700"
+        fill="#ffffff"
+        fontFamily="Arial, Helvetica, sans-serif"
+      >
+        W
+      </text>
+    </svg>
+  );
+}
+
+// Shared styling for the report boxes/buttons on the (dark) dashboard.
+const reportBoxStyle = {
+  flex: "1 1 280px",
+  border: "1px solid rgba(255,255,255,0.12)",
+  background: "rgba(255,255,255,0.04)",
+  borderRadius: 14,
+  padding: "14px 18px",
+};
+// Title on the left, buttons on the right, full width.
+const reportBoxRowStyle = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 16,
+  flexWrap: "wrap",
+};
+const reportBoxTitleStyle = { fontWeight: 900, fontSize: 17 };
+const reportBoxBtnsStyle = {
+  display: "flex",
+  gap: 8,
+  flexWrap: "wrap",
+};
+const viewBtnStyle = {
+  fontWeight: 800,
+  borderColor: "rgba(80,140,255,0.45)",
+  background: "rgba(80,140,255,0.14)",
+};
+
 function c1Label(status) {
   if (status === "done") return "Completado";
   if (status === "progress") return "En progreso";
@@ -670,6 +725,72 @@ export default function ProcessDashboard() {
               </div>
             </div>
 
+            {/* Reports. The C1 report is available as soon as the process is in
+                progress (the admin processes it ahead of closing); the C2
+                package export is offered once the process is closed. */}
+            {status === "EN_CURSO" || processClosed ? (
+              <div className="section">
+                <div className="section-body">
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 16,
+                      flexWrap: "wrap",
+                      alignItems: "stretch",
+                    }}
+                  >
+                    {/* C1 report */}
+                    <div style={reportBoxStyle}>
+                      <div style={reportBoxRowStyle}>
+                        <div style={reportBoxTitleStyle}>Reporte C1</div>
+                        <div style={reportBoxBtnsStyle}>
+                          <Link
+                            className="btn"
+                            to={`/admin/processes/${processSlug}/reports/c1`}
+                            style={viewBtnStyle}
+                          >
+                            <span aria-hidden>👁</span>
+                            <span>Ver C1</span>
+                          </Link>
+                          <button
+                            className="btn"
+                            type="button"
+                            disabled
+                            title="Disponible próximamente"
+                            style={{ fontWeight: 800 }}
+                          >
+                            <WordIcon />
+                            <span>Exportar C1</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* C2 package export — only once the process is closed */}
+                    {processClosed ? (
+                      <div style={reportBoxStyle}>
+                        <div style={reportBoxRowStyle}>
+                          <div style={reportBoxTitleStyle}>Reportes C2</div>
+                          <div style={reportBoxBtnsStyle}>
+                            <button
+                              className="btn"
+                              type="button"
+                              disabled
+                              title="Disponible próximamente"
+                              style={{ fontWeight: 800 }}
+                            >
+                              <WordIcon />
+                              <span>Exportar C2</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
             {/* Participants table */}
             <div className="section">
               <div className="section-body">
@@ -735,15 +856,27 @@ export default function ProcessDashboard() {
                           >
                             C2 (de {expectedC2Total})
                           </th>
+                          {!processClosed ? (
+                            <th
+                              style={{
+                                textAlign: "left",
+                                padding: "10px 8px",
+                                borderBottom: "1px solid rgba(0,0,0,0.08)",
+                                width: 300,
+                              }}
+                            >
+                              Acciones
+                            </th>
+                          ) : null}
                           <th
                             style={{
                               textAlign: "left",
                               padding: "10px 8px",
                               borderBottom: "1px solid rgba(0,0,0,0.08)",
-                              width: 300,
+                              width: 130,
                             }}
                           >
-                            Acciones
+                            Reporte
                           </th>
                         </tr>
                       </thead>
@@ -831,57 +964,70 @@ export default function ProcessDashboard() {
                                   </div>
                                 </td>
 
+                                {/* Acciones — hidden once the process is closed */}
+                                {!processClosed ? (
+                                  <td
+                                    style={{
+                                      padding: "10px 8px",
+                                      borderBottom: "1px solid rgba(0,0,0,0.06)",
+                                    }}
+                                  >
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        gap: 8,
+                                        flexWrap: "nowrap",
+                                      }}
+                                    >
+                                      {/* Send reminder button */}
+                                      <button
+                                        className="btn"
+                                        disabled={disableActions}
+                                        onClick={() => remindParticipant(p)}
+                                        title="Registrar recordatorio"
+                                      >
+                                        {busy === "remind"
+                                          ? "Enviando…"
+                                          : "Recordatorio"}
+                                      </button>
+                                      {/* Reset Password button */}
+                                      <button
+                                        className="btn"
+                                        disabled={disableActions}
+                                        onClick={() => resetAccess(p)}
+                                        title="Reset de acceso"
+                                      >
+                                        {busy === "reset"
+                                          ? "Reseteando…"
+                                          : "Reset acceso"}
+                                      </button>
+                                    </div>
+                                  </td>
+                                ) : null}
+
+                                {/* Reporte — preview this participant's C2 */}
                                 <td
                                   style={{
                                     padding: "10px 8px",
                                     borderBottom: "1px solid rgba(0,0,0,0.06)",
                                   }}
                                 >
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      gap: 8,
-                                      flexWrap: "nowrap",
-                                    }}
+                                  <Link
+                                    className="btn"
+                                    to={`/admin/processes/${processSlug}/reports/c2/${p.id}`}
+                                    title="Ver reporte C2 de este participante"
+                                    style={viewBtnStyle}
                                   >
-                                    {/* Send reminder button */}
-                                    <button
-                                      className="btn"
-                                      disabled={disableActions}
-                                      onClick={() => remindParticipant(p)}
-                                      title={
-                                        processClosed
-                                          ? "Proceso cerrado"
-                                          : "Registrar recordatorio"
-                                      }
-                                    >
-                                      {busy === "remind"
-                                        ? "Enviando…"
-                                        : "Recordatorio"}
-                                    </button>
-                                    {/* Reset Password button */}
-                                    <button
-                                      className="btn"
-                                      disabled={disableActions}
-                                      onClick={() => resetAccess(p)}
-                                      title={
-                                        processClosed
-                                          ? "Proceso cerrado"
-                                          : "Reset de acceso"
-                                      }
-                                    >
-                                      {busy === "reset"
-                                        ? "Reseteando…"
-                                        : "Reset acceso"}
-                                    </button>
-                                  </div>
+                                    <span aria-hidden>👁</span>
+                                    <span>Ver C2</span>
+                                  </Link>
                                 </td>
                               </tr>
                               {/* Expanded progress view */}
                               {openParticipantId === p.id && (
                                 <tr>
                                   <td
-                                    colSpan={4}
+                                    colSpan={processClosed ? 4 : 5}
                                     style={{
                                       padding: "12px 8px",
                                       borderBottom:
