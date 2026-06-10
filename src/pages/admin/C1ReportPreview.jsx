@@ -6,6 +6,7 @@ import ParticipantBrandBar from "../../components/ParticipantBrandBar";
 import ReportView from "../../components/report/ReportView";
 import { auth } from "../../services/auth";
 import { buildReportBlocks } from "../../lib/reportAggregation";
+import { sortGridItemsByAvg } from "../../lib/reportRender";
 
 /**
  * Online preview of the C1 report (one per process). Aggregates every
@@ -45,7 +46,7 @@ export default function C1ReportPreview() {
     [bundle],
   );
   const blocks = React.useMemo(
-    () => buildReportBlocks(questions, responses),
+    () => sortGridItemsByAvg(buildReportBlocks(questions, responses)),
     [questions, responses],
   );
 

@@ -15,8 +15,8 @@
  *     the left and our own logo on the right, above the report title.
  *   - A thick horizontal rule precedes each question/group, standing in for the
  *     boxes that separate question groups in the online preview.
- *   - The value-grid block renders as a table (averages in a right-most column),
- *     leaving room for future heatmap shading.
+ *   - The value-grid block renders as a table whose right-most "Promedio" cell
+ *     is heatmap-shaded (red->green over 0–4); C1 sorts those rows best-first.
  *
  * Two entry points, called from the dashboard with a pre-fetched report bundle
  * (GET /api/admin/processes/:slug/reports):
@@ -41,6 +41,7 @@ import {
 import JSZip from "jszip";
 import { buildReportBlocks, aggregatePairingForFocal } from "./reportAggregation";
 import { verticalBarSvg, horizontalBarSvg } from "./chartSvg";
+import { gridHeatHex, evalHeatHex, sortGridItemsByAvg } from "./reportRender";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "";
 
@@ -353,7 +354,7 @@ function suggestionsCell(suggestions, { widthPct } = {}) {
 }
 
 // Averages live in the right-most column so they line up at the page edge; the
-// "Promedio" cell is the future home of heatmap shading.
+// "Promedio" cell is heatmap-shaded by the score (gridHeatHex).
 function gridChildren(block) {
   const hasSug = block.hasSuggestion;
   const w = hasSug
@@ -382,7 +383,11 @@ function gridChildren(block) {
         children: [
           textCell(it.text, { widthPct: w.aspecto }),
           ...(hasSug ? [suggestionsCell(it.suggestions, { widthPct: w.sugerencias })] : []),
-          textCell(fmtAvg(it.avg), { align: AlignmentType.RIGHT, widthPct: w.promedio }),
+          textCell(fmtAvg(it.avg), {
+            align: AlignmentType.RIGHT,
+            widthPct: w.promedio,
+            fill: gridHeatHex(it.avg),
+          }),
         ],
       }),
   );
@@ -396,23 +401,38 @@ function gridChildren(block) {
   ];
 }
 
+// The evaluation average sits in a centered box whose background is shaded by
+// the heat color (mirrors the online .report-bigavg box).
 function bigAverageChildren(block) {
+  const fill = evalHeatHex(block.avg);
+  const cell = new TableCell({
+    shading: fill ? { fill } : undefined,
+    verticalAlign: VerticalAlign.CENTER,
+    margins: { top: 120, bottom: 120, left: 240, right: 240 },
+    children: [
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 40 },
+        children: [new TextRun({ text: fmtAvg(block.avg), bold: true, size: 72, color: INK })],
+      }),
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        children: [
+          new TextRun({
+            text: `Promedio de ${block.count} respuesta(s)`,
+            size: 18,
+            color: MUTED,
+          }),
+        ],
+      }),
+    ],
+  });
   return [
-    new Paragraph({
+    new Table({
       alignment: AlignmentType.CENTER,
-      spacing: { before: 80, after: 0 },
-      children: [new TextRun({ text: fmtAvg(block.avg), bold: true, size: 72, color: INK })],
-    }),
-    new Paragraph({
-      alignment: AlignmentType.CENTER,
-      spacing: { after: 120 },
-      children: [
-        new TextRun({
-          text: `Promedio de ${block.count} respuesta(s)`,
-          size: 18,
-          color: MUTED,
-        }),
-      ],
+      width: { size: 40, type: WidthType.PERCENTAGE },
+      borders: GRID_BORDERS,
+      rows: [new TableRow({ children: [cell] })],
     }),
   ];
 }
@@ -609,7 +629,7 @@ async function buildC1Blob(bundle, logos) {
   const body =
     questions.length === 0
       ? [emptyParagraph("No hay preguntas configuradas en la plantilla C1.")]
-      : await blocksToChildren(buildReportBlocks(questions, responses));
+      : await blocksToChildren(sortGridItemsByAvg(buildReportBlocks(questions, responses)));
 
   const children = [
     ...brandHeaderChildren({

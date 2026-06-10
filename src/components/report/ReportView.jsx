@@ -1,5 +1,11 @@
 import React from "react";
 import { VerticalBarChart, HorizontalBarChart } from "./ReportCharts";
+import { gridHeatHex, evalHeatHex } from "../../lib/reportRender";
+
+// Inline background shading from a bare heat hex (null => no shading).
+function heatBg(hex) {
+  return hex ? { background: `#${hex}` } : undefined;
+}
 
 /**
  * Renders the ordered report blocks produced by buildReportBlocks() onto a
@@ -83,7 +89,9 @@ function Grid({ block }) {
           {block.items.map((it, i) => (
             <tr key={i}>
               <td>{it.text}</td>
-              <td className="report-grid-avg">{fmtAvg(it.avg)}</td>
+              <td className="report-grid-avg" style={heatBg(gridHeatHex(it.avg))}>
+                {fmtAvg(it.avg)}
+              </td>
             </tr>
           ))}
         </tbody>
@@ -96,7 +104,9 @@ function Grid({ block }) {
         <div key={i} className="report-grid-item">
           <div className="report-grid-item-head">
             <span className="report-grid-item-text">{it.text}</span>
-            <span className="report-grid-badge">{fmtAvg(it.avg)}</span>
+            <span className="report-grid-badge" style={heatBg(gridHeatHex(it.avg))}>
+              {fmtAvg(it.avg)}
+            </span>
           </div>
           {it.suggestions.length > 0 ? (
             <ul className="report-bullets">
@@ -113,7 +123,7 @@ function Grid({ block }) {
 
 function BigAverage({ block }) {
   return (
-    <div className="report-bigavg">
+    <div className="report-bigavg" style={heatBg(evalHeatHex(block.avg))}>
       <div className="report-bigavg-num">{fmtAvg(block.avg)}</div>
       <div className="report-bigavg-foot">Promedio de {block.count} respuesta(s)</div>
     </div>
