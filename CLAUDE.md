@@ -183,10 +183,11 @@ resets are admin-only (no secure reset links yet); `/forgot` stays hidden until 
 
 ## Technical debt
 
-1. Validate emails when an admin enters participants' emails (mirror the login screen's
-   email validation).
-2. The last C2 question has a `<peer>` placeholder meant to be filled with the target
+1. The last C2 question has a `<peer>` placeholder meant to be filled with the target
    participant's name — it is currently not rendering.
+
+Email-format validation is shared via [src/lib/email.js](src/lib/email.js) (`isValidEmail`),
+used by both the login screen and the admin participant form.
 
 ## How we work together
 

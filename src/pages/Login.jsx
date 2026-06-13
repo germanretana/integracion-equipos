@@ -3,13 +3,10 @@ import { useNavigate } from "react-router-dom";
 import Logo from "../components/Logo";
 import "../styles/auth.css";
 import { auth } from "../services/auth";
+import { isValidEmail } from "../lib/email";
 
 const backgrounds = ["A","B","C","D","E","F","G","H","I","J","K","L"];
 const bg = backgrounds[Math.floor(Math.random() * backgrounds.length)];
-
-function isValidEmail(value) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-}
 
 export default function Login() {
   const navigate = useNavigate();

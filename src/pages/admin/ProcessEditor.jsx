@@ -2,6 +2,7 @@ import React from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { auth } from "../../services/auth";
 import TemplateEditor from "../../components/admin/TemplateEditor";
+import { isValidEmail } from "../../lib/email";
 import "../../styles/admin.css";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "";
@@ -228,6 +229,11 @@ export default function ProcessEditor({ mode = "edit" }) {
 
     if (!firstName || !lastName || !email) {
       window.alert("Debe completar nombre, apellido y correo.");
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      window.alert("Por favor ingrese un correo electrónico válido.");
       return;
     }
 

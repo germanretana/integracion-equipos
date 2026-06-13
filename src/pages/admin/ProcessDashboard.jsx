@@ -55,12 +55,6 @@ const reportBoxBtnsStyle = {
   gap: 8,
   flexWrap: "wrap",
 };
-const viewBtnStyle = {
-  fontWeight: 800,
-  borderColor: "rgba(80,140,255,0.45)",
-  background: "rgba(80,140,255,0.14)",
-};
-
 function c1Label(status) {
   if (status === "done") return "Completado";
   if (status === "progress") return "En progreso";
@@ -776,7 +770,6 @@ export default function ProcessDashboard() {
                           <Link
                             className="btn"
                             to={`/admin/processes/${processSlug}/reports/c1`}
-                            style={viewBtnStyle}
                           >
                             <span aria-hidden>👁</span>
                             <span>Ver C1</span>
@@ -1055,7 +1048,6 @@ export default function ProcessDashboard() {
                                     className="btn"
                                     to={`/admin/processes/${processSlug}/reports/c2/${p.id}`}
                                     title="Ver reporte C2 de este participante"
-                                    style={viewBtnStyle}
                                   >
                                     <span aria-hidden>👁</span>
                                     <span>Ver C2</span>
@@ -1724,9 +1716,19 @@ function ProgressPanel({
             {/* RIGHT: button */}
             <button
               className="btn"
-              disabled={processClosed || rowBusy[`reopen:${participantId}:c1:`]}
+              disabled={
+                processClosed ||
+                c1.status !== "done" ||
+                rowBusy[`reopen:${participantId}:c1:`]
+              }
               onClick={() => reopen("c1")}
-              title={processClosed ? "Proceso cerrado" : "Reabrir (unsubmit)"}
+              title={
+                processClosed
+                  ? "Proceso cerrado"
+                  : c1.status !== "done"
+                    ? "Solo se puede reabrir un cuestionario completado"
+                    : "Reabrir (unsubmit)"
+              }
             >
               Reabrir
             </button>
@@ -1776,11 +1778,16 @@ function ProgressPanel({
                   className="btn"
                   disabled={
                     processClosed ||
+                    q.status !== "done" ||
                     rowBusy[`reopen:${participantId}:c2:${q.peerId || ""}`]
                   }
                   onClick={() => reopen("c2", q.peerId)}
                   title={
-                    processClosed ? "Proceso cerrado" : "Reabrir (unsubmit)"
+                    processClosed
+                      ? "Proceso cerrado"
+                      : q.status !== "done"
+                        ? "Solo se puede reabrir un cuestionario completado"
+                        : "Reabrir (unsubmit)"
                   }
                 >
                   Reabrir
