@@ -411,39 +411,6 @@ export default function ProcessDashboard() {
     }
   }
 
-  async function reopenQuestionnaire({ participantId, kind, peerId, label }) {
-    const ok = window.confirm(
-      `¿Reabrir ${label}?\n\nEl participante podrá volver a editar este cuestionario. Sus respuestas se conservan, pero deberá enviarlas nuevamente.`,
-    );
-    if (!ok) return;
-
-    setError("");
-    const key = `${participantId}__reopen__${kind}__${peerId || ""}`;
-    setRowBusy((x) => ({ ...x, [key]: "reopen" }));
-
-    try {
-      await auth.fetch(
-        `/api/admin/processes/${processSlug}/participants/${participantId}/reopen`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            kind,
-            peerId: kind === "c2" ? peerId : undefined,
-          }),
-        },
-      );
-
-      setFlash(`Reabierto: ${label}.`);
-      await load(); // refresh main dashboard
-      await loadProgress(); // refresh deep progress
-      loadLogs(); // audit trail
-    } catch (e) {
-      setError(e?.message || "No se pudo reabrir el cuestionario.");
-    } finally {
-      setRowBusy((x) => ({ ...x, [key]: "" }));
-    }
-  }
-
   async function copyToClipboard(text) {
     try {
       await navigator.clipboard.writeText(String(text || ""));
@@ -1486,6 +1453,25 @@ function ProgressPanel({
     (x) => String(x?.id) === String(participantId),
   );
 
+  // Built before any early return so the Hook runs unconditionally on every
+  // render (React rules-of-hooks). It only depends on the participant lists.
+  const participantsIndex = React.useMemo(() => {
+    const m = new Map();
+
+    // Prefer: dashboard (tiene nombres reales)
+    for (const pp of dashboardParticipants || []) {
+      m.set(String(pp?.id || ""), String(pp?.name || pp?.id || ""));
+    }
+
+    // Fallback: progress payload (por si falta dashboardParticipants)
+    for (const pp of progressData?.participants || []) {
+      const id = String(pp?.id || "");
+      if (!m.has(id)) m.set(id, String(pp?.name || pp?.id || ""));
+    }
+
+    return m;
+  }, [dashboardParticipants, progressData]);
+
   if (!p)
     return (
       <div className="sub">
@@ -1548,23 +1534,6 @@ function ProgressPanel({
   const c1 = qs.find((q) => q.kind === "c1") || null;
   const c2s = qs.filter((q) => q.kind === "c2");
 
-  const participantsIndex = React.useMemo(() => {
-    const m = new Map();
-
-    // Prefer: dashboard (tiene nombres reales)
-    for (const pp of dashboardParticipants || []) {
-      m.set(String(pp?.id || ""), String(pp?.name || pp?.id || ""));
-    }
-
-    // Fallback: progress payload (por si falta dashboardParticipants)
-    for (const pp of progressData?.participants || []) {
-      const id = String(pp?.id || "");
-      if (!m.has(id)) m.set(id, String(pp?.name || pp?.id || ""));
-    }
-
-    return m;
-  }, [dashboardParticipants, progressData]);
-
   function peerName(peerId) {
     return participantsIndex.get(String(peerId || "")) || String(peerId || "");
   }
@@ -1579,14 +1548,6 @@ function ProgressPanel({
     border: "1px solid rgba(255,255,255,0.14)",
     background: "rgba(0,0,0,0.14)",
     color: "rgba(255,255,255,0.92)",
-  };
-
-  const cardLeftStyle = {
-    minWidth: 0,
-    display: "flex",
-    alignItems: "center",
-    gap: 12,
-    flexWrap: "wrap",
   };
 
   // Clickable left+mid area of a card: opens the read-only responses view.
@@ -1607,12 +1568,6 @@ function ProgressPanel({
     overflow: "hidden",
     textOverflow: "ellipsis",
     maxWidth: 260,
-  };
-
-  const pillRowStyle = {
-    display: "flex",
-    alignItems: "center",
-    gap: 10,
   };
 
   const percentStyle = {

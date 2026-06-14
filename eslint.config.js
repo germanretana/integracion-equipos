@@ -23,7 +23,18 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      'no-unused-vars': [
+        'error',
+        { varsIgnorePattern: '^[A-Z_]', caughtErrors: 'none' },
+      ],
+    },
+  },
+  // Backend is Node, not browser: give it Node globals so `process`, etc. are
+  // recognized (the shared block above only declares browser globals).
+  {
+    files: ['server/**/*.js'],
+    languageOptions: {
+      globals: globals.node,
     },
   },
 ])
