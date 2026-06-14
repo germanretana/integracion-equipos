@@ -43,6 +43,33 @@ function qText(q) {
   return q?.item ?? q?.text ?? q?.Item ?? q?.title ?? q?.label ?? "";
 }
 
+// Question text flows through <Html> (dangerouslySetInnerHTML), so escape the
+// substituted value to avoid injecting markup via a participant's name.
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+// The C2 template uses a literal "<peer>" token (e.g. "Estimado/a <peer>") that
+// must resolve to the focal participant's name at render time. Kept as a token
+// in the JSON so the question shape needs no extra attribute.
+const PEER_TEXT_FIELDS = ["item", "text", "Item", "title", "label"];
+function substitutePeer(q, peerName) {
+  if (!peerName) return q;
+  const name = escapeHtml(peerName);
+  let changed = false;
+  const next = { ...q };
+  for (const f of PEER_TEXT_FIELDS) {
+    if (typeof next[f] === "string" && next[f].includes("<peer>")) {
+      next[f] = next[f].replaceAll("<peer>", name);
+      changed = true;
+    }
+  }
+  return changed ? next : q;
+}
+
 function Html({ html }) {
   if (!html) return null;
 
@@ -156,6 +183,7 @@ export default function QuestionnaireRenderer({
   peers = [],
   disabled = false,
   currentParticipantId = "",
+  currentPeerName = "",
   missingIds = [],
 }) {
   const missingSet = React.useMemo(
@@ -727,11 +755,11 @@ export default function QuestionnaireRenderer({
     return (questions || [])
       .filter((q) => shouldRenderQuestion(q, answers))
       .map((q, idx) => ({
-        ...q,
+        ...substitutePeer(q, currentPeerName),
         id: String(q?.id || q?.key || `${idx}`),
         _groupId: String(q?.groupId || "").trim(),
       }));
-  }, [questions, answers]);
+  }, [questions, answers, currentPeerName]);
 
   const renderBlocks = React.useMemo(() => {
     const blocks = [];

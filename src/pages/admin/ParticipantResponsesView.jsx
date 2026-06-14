@@ -136,6 +136,7 @@ export default function ParticipantResponsesView({ kind }) {
                     disabled={true}
                     peers={peers}
                     currentParticipantId={participantId}
+                    currentPeerName={peerName}
                   />
                 </div>
               </div>
