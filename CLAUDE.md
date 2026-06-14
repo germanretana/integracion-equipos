@@ -183,8 +183,10 @@ resets are admin-only (no secure reset links yet); `/forgot` stays hidden until 
 
 ## Technical debt
 
-1. The last C2 question has a `<peer>` placeholder meant to be filled with the target
-   participant's name — it is currently not rendering.
+The C2 `<peer>` token (e.g. "Estimado/a <peer>") resolves to the focal participant's
+name at render time in [QuestionnaireRenderer.jsx](src/components/QuestionnaireRenderer.jsx)
+(`substitutePeer`); callers pass `currentPeerName`. Kept as a plain token in the JSON, so
+the question shape needs no extra attribute.
 
 Email-format validation is shared via [src/lib/email.js](src/lib/email.js) (`isValidEmail`),
 used by both the login screen and the admin participant form.
